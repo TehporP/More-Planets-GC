@@ -1,2 +1,2 @@
 # More-Planets-GC
-This github used for bug tracker and create new language only!
+A custom planets exploration adventure in Minecraft!
