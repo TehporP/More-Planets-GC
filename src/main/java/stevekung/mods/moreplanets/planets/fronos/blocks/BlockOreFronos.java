@@ -8,59 +8,44 @@
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.List;
-import java.util.Random;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 
 public class BlockOreFronos extends BlockBaseMP
 {
-	private IIcon[] fronosOreIcon;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockOreFronos(String name)
 	{
 		super(Material.rock);
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 		this.setHardness(3.0F);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.iridium_block));
 		this.setStepSound(soundTypeMetal);
 	}
 
 	@Override
-	public boolean isBeaconBase(IBlockAccess world, int x, int y, int z, int beaconX, int beaconY, int beaconZ)
+	public boolean isBeaconBase(IBlockAccess world, BlockPos pos, BlockPos beacon)
 	{
 		return true;
 	}
 
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
-	{
-		return new ItemStack(this, 1, world.getBlockMetadata(x, y, z));
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.fronosOreIcon = new IIcon[2];
-		this.fronosOreIcon[0] = par1IconRegister.registerIcon("fronos:iridium_block");
-		this.fronosOreIcon[1] = par1IconRegister.registerIcon("fronos:black_diamond_block");
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		return this.fronosOreIcon[meta];
-	}
-
-	@Override
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	@SideOnly(Side.CLIENT)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < 2; ++i)
 		{
@@ -69,14 +54,44 @@ public class BlockOreFronos extends BlockBaseMP
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random par2Random, int par3)
+	public int damageDropped(IBlockState state)
 	{
-		return Item.getItemFromBlock(this);
+		return this.getMetaFromState(state);
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	protected BlockState createBlockState()
 	{
-		return meta;
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		iridium_block,
+		black_diamond_block;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

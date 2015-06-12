@@ -7,44 +7,28 @@
 
 package stevekung.mods.moreplanets.planets.siriusb.entities;
 
-import micdoodle8.mods.galacticraft.api.entity.IEntityBreathable;
-import net.minecraft.entity.ai.EntityAIAttackOnCollide;
-import net.minecraft.entity.ai.EntityAIAvoidEntity;
-import net.minecraft.entity.ai.EntityAIHurtByTarget;
-import net.minecraft.entity.ai.EntityAILookIdle;
-import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
-import net.minecraft.entity.ai.EntityAISwimming;
-import net.minecraft.entity.ai.EntityAIWander;
-import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.passive.EntityOcelot;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.config.ConfigManagerMP;
-import stevekung.mods.moreplanets.core.entities.IEntityLivingPlanet;
+import stevekung.mods.moreplanets.common.entities.ISiriusMob;
 import stevekung.mods.moreplanets.core.init.MPItems;
-import stevekung.mods.moreplanets.planets.siriusb.entities.ai.EntityAISiriusCreeperSwell;
 
-public class EntitySiriusCreeper extends EntityCreeper implements IEntityBreathable, IEntityLivingPlanet
+public class EntitySiriusCreeper extends EntityCreeper implements /*IEntityBreathable,*/ ISiriusMob
 {
-	public EntitySiriusCreeper(World par1World)
+	public EntitySiriusCreeper(World world)
 	{
-		super(par1World);
-		this.tasks.addTask(1, new EntityAISwimming(this));
-		this.tasks.addTask(2, new EntityAISiriusCreeperSwell(this));
-		this.tasks.addTask(3, new EntityAIAvoidEntity(this, EntityOcelot.class, 6.0F, 1.0D, 1.2D));
-		this.tasks.addTask(4, new EntityAIAttackOnCollide(this, 1.0D, false));
-		this.tasks.addTask(5, new EntityAIWander(this, 0.8D));
-		this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
-		this.tasks.addTask(6, new EntityAILookIdle(this));
-		this.targetTasks.addTask(1, new EntityAINearestAttackableTarget(this, EntityPlayer.class, 0, true));
-		this.targetTasks.addTask(2, new EntityAIHurtByTarget(this, false));
+		super(world);
 		this.isImmuneToFire = true;
 	}
+
+	//	@Override
+	//	public boolean canBreath()
+	//	{
+	//		return true;
+	//	}
 
 	@Override
 	public ItemStack getPickedResult(MovingObjectPosition target)
@@ -53,7 +37,7 @@ public class EntitySiriusCreeper extends EntityCreeper implements IEntityBreatha
 	}
 
 	@Override
-	public boolean canBreath()
+	public boolean canLivingInSirius()
 	{
 		return true;
 	}
@@ -61,20 +45,12 @@ public class EntitySiriusCreeper extends EntityCreeper implements IEntityBreatha
 	@Override
 	public boolean getCanSpawnHere()
 	{
-		int x = MathHelper.floor_double(this.posX);
-		int y = MathHelper.floor_double(this.boundingBox.minY);
-		int z = MathHelper.floor_double(this.posZ);
+		BlockPos pos = this.getPosition();
 
-		if (this.worldObj.difficultySetting != EnumDifficulty.PEACEFUL && this.worldObj.checkNoEntityCollision(this.boundingBox) && this.worldObj.getCollidingBoundingBoxes(this, this.boundingBox).isEmpty() && !this.worldObj.isAnyLiquid(this.boundingBox) && this.worldObj.getLightBrightness(x, y, z) >= 0.0F)
+		if (this.worldObj.getDifficulty() != EnumDifficulty.PEACEFUL && this.worldObj.checkNoEntityCollision(this.getBoundingBox()) && this.worldObj.getCollidingBoundingBoxes(this, this.getBoundingBox()).isEmpty() && !this.worldObj.isAnyLiquid(this.getBoundingBox()) && this.worldObj.getLightBrightness(pos) >= 0.0F)
 		{
 			return true;
 		}
 		return false;
-	}
-
-	@Override
-	public int canLivingInDimension()
-	{
-		return ConfigManagerMP.idDimensionSiriusB;
 	}
 }

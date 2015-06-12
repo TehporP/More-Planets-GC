@@ -15,9 +15,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
-import stevekung.mods.moreplanets.core.items.ItemBaseMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.ItemBaseMP;
 
 public class ItemTier7RocketModule extends ItemBaseMP
 {
@@ -33,7 +33,7 @@ public class ItemTier7RocketModule extends ItemBaseMP
 	{
 		for (int i = 0; i < this.getItemVariantsName().length; i++)
 		{
-			list.add(new ItemStack(item, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
@@ -53,12 +53,6 @@ public class ItemTier7RocketModule extends ItemBaseMP
 	@Override
 	public String[] getItemVariantsName()
 	{
-		return new String[] { "tier7_rocket_engine", "tier7_booster", "tier7_heavy_duty_plate", "tier7_rocket_fin", "tier7_nose_cone" };
-	}
-
-	@Override
-	public String getTexturesFolder()
-	{
-		return "nibiru";
+		return new String[] { "tier_7_rocket_engine", "tier_7_booster", "tier_7_heavy_duty_plate", "tier_7_rocket_fin", "tier_7_nose_cone" };
 	}
 }

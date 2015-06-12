@@ -11,4 +11,9 @@ import net.minecraft.tileentity.TileEntity;
 
 public class TileEntitySpaceOysterClose extends TileEntity
 {
+	@Override
+	public boolean canRenderBreaking()
+	{
+		return true;
+	}
 }

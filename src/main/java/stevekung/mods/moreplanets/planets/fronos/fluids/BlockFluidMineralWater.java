@@ -9,79 +9,72 @@ package stevekung.mods.moreplanets.planets.fronos.fluids;
 
 import java.util.Random;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockFluidBaseMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.BlockFluidBaseMP;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockFluidMineralWater extends BlockFluidBaseMP
 {
 	public BlockFluidMineralWater(String name)
 	{
 		super(FronosBlocks.mineral_water_fluid);
-		this.setRenderPass(1);
-		this.setBlockName(name);
+		this.setRenderLayer(EnumWorldBlockLayer.TRANSLUCENT);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void randomDisplayTick(World par1World, int par2, int par3, int par4, Random par5Random)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		super.randomDisplayTick(par1World, par2, par3, par4, par5Random);
-		int meta = par1World.getBlockMetadata(par2, par3, par4);
+		super.randomDisplayTick(world, pos, state, rand);
+		int meta = (Integer) state.getValue(LEVEL);
 
-		if (par5Random.nextInt(1) == 0)
+		if (rand.nextInt(1) == 0)
 		{
-			MorePlanetsCore.proxy.spawnParticle("mineralWater", par2 + par5Random.nextFloat(), par3 + 1, par4 + par5Random.nextFloat());
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.MINERAL_WATER, pos.getX() + rand.nextFloat(), pos.getY() + 1, pos.getZ() + rand.nextFloat());
 		}
-		if (par5Random.nextInt(64) == 0)
+		if (rand.nextInt(64) == 0)
 		{
 			if (meta > 0 && meta < 8)
 			{
-				par1World.playSound(par2 + 0.5F, par3 + 0.5F, par4 + 0.5F, "liquid.water", par5Random.nextFloat() * 0.25F + 0.75F, par5Random.nextFloat() * 1.0F + 0.5F, false);
+				world.playSound(pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, "liquid.water", rand.nextFloat() * 0.25F + 0.75F, rand.nextFloat() * 1.0F + 0.5F, false);
 			}
 		}
-		if (par5Random.nextInt(10) == 0)
+		if (rand.nextInt(10) == 0)
 		{
 			if (meta <= 0 || meta >= 8)
 			{
-				par1World.spawnParticle("suspended", par2 + par5Random.nextFloat(), par3 + par5Random.nextFloat(), par4 + par5Random.nextFloat(), 0.0D, 0.0D, 0.0D);
+				world.spawnParticle(EnumParticleTypes.SUSPENDED, pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat(), 0.0D, 0.0D, 0.0D);
 			}
 		}
-		if (par5Random.nextInt(10) == 0 && World.doesBlockHaveSolidTopSurface(par1World, par2, par3 - 1, par4) && !par1World.getBlock(par2, par3 - 2, par4).getMaterial().blocksMovement())
+		if (rand.nextInt(10) == 0 && World.doesBlockHaveSolidTopSurface(world, pos.down()) && !world.getBlockState(pos.down(2)).getBlock().getMaterial().blocksMovement())
 		{
-			double d5 = par2 + par5Random.nextFloat();
-			double d6 = par3 - 1.05D;
-			double d7 = par4 + par5Random.nextFloat();
-			MorePlanetsCore.proxy.spawnParticle("mineralWaterDrip", d5, d6, d7);
+			double d5 = pos.getX() + rand.nextFloat();
+			double d6 = pos.getY() - 1.05D;
+			double d7 = pos.getZ() + rand.nextFloat();
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.MINERAL_WATER_DRIP, d5, d6, d7);
 		}
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
 		if (entity instanceof EntityLivingBase)
 		{
 			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(Potion.regeneration.id, 50, 1));
 			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(Potion.moveSpeed.id, 100, 1));
 		}
-	}
-
-	@Override
-	public String getStillTextures()
-	{
-		return "fronos:mineral_water_still";
-	}
-
-	@Override
-	public String getFlowingTextures()
-	{
-		return "fronos:mineral_water_flowing";
 	}
 }

@@ -7,11 +7,8 @@
 
 package stevekung.mods.moreplanets.planets.kapteynb.items.tools;
 
-import micdoodle8.mods.galacticraft.core.proxy.ClientProxyCore;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemSpade;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -21,9 +18,9 @@ import stevekung.mods.moreplanets.planets.kapteynb.items.KapteynBItems;
 
 public class ItemFrozenIronShovel extends ItemSpade
 {
-	public ItemFrozenIronShovel(String name, ToolMaterial par2EnumToolMaterial)
+	public ItemFrozenIronShovel(String name, ToolMaterial material)
 	{
-		super(par2EnumToolMaterial);
+		super(material);
 		this.setUnlocalizedName(name);
 	}
 
@@ -41,17 +38,11 @@ public class ItemFrozenIronShovel extends ItemSpade
 		return true;
 	}
 
-	@Override
-	public EnumRarity getRarity(ItemStack par1ItemStack)
-	{
-		return ClientProxyCore.galacticraftItem;
-	}
-
-	@Override
-	public void registerIcons(IIconRegister par1IconRegister)
-	{
-		this.itemIcon = par1IconRegister.registerIcon("kapteynb:frozen_iron_shovel");
-	}
+	//	@Override
+	//	public EnumRarity getRarity(ItemStack par1ItemStack)
+	//	{
+	//		return ClientProxyCore.galacticraftItem;
+	//	}
 
 	@Override
 	public boolean getIsRepairable(ItemStack par1ItemStack, ItemStack par2ItemStack)

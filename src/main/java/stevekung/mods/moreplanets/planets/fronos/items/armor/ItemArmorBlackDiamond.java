@@ -10,14 +10,14 @@ package stevekung.mods.moreplanets.planets.fronos.items.armor;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 
 public class ItemArmorBlackDiamond extends ItemArmorMP
 {
-	public ItemArmorBlackDiamond(String name, ArmorMaterial par2EnumArmorMaterial, int par3, int par4)
+	public ItemArmorBlackDiamond(String name, ArmorMaterial material, int render, int type)
 	{
-		super(par2EnumArmorMaterial, par3, par4);
+		super(material, render, type);
 		this.setUnlocalizedName(name);
 	}
 
@@ -26,19 +26,13 @@ public class ItemArmorBlackDiamond extends ItemArmorMP
 	{
 		if (stack.getItem() == FronosArmorItems.black_diamond_helmet || stack.getItem() == FronosArmorItems.black_diamond_chestplate || stack.getItem() == FronosArmorItems.black_diamond_boots)
 		{
-			return "fronos:textures/model/armor/black_diamond_1.png";
+			return "moreplanets:textures/model/armor/black_diamond_1.png";
 		}
 		if (stack.getItem() == FronosArmorItems.black_diamond_leggings)
 		{
-			return "fronos:textures/model/armor/black_diamond_2.png";
+			return "moreplanets:textures/model/armor/black_diamond_2.png";
 		}
 		return null;
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "fronos";
 	}
 
 	@Override

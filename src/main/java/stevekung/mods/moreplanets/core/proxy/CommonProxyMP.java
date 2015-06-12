@@ -7,25 +7,13 @@
 
 package stevekung.mods.moreplanets.core.proxy;
 
-import net.minecraft.block.Block;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 
 public class CommonProxyMP
 {
-	public void postInit(FMLPostInitializationEvent event)
-	{
-	}
+	public void registerRenderer() {}
 
-	public void spawnParticle(String string, double x, double y, double z)
-	{
-	}
+	public void spawnParticle(ParticleTypesMP type, double x, double y, double z) {}
 
-	public void spawnMotionParticle(String string, double x, double y, double z, double motionX, double motionY, double motionZ)
-	{
-	}
-
-	public int getBlockRender(Block block)
-	{
-		return -1;
-	}
+	public void spawnMotionParticle(ParticleTypesMP type, double x, double y, double z, double motionX, double motionY, double motionZ) {}
 }

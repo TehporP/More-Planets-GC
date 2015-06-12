@@ -7,64 +7,57 @@
 
 package stevekung.mods.moreplanets.planets.nibiru.blocks;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBreakableMP;
 
-public class BlockHelium extends BlockBreakable
+public class BlockHelium extends BlockBreakableMP
 {
 	public BlockHelium(String name)
 	{
-		super("nibiru:helium_block", Material.cloth, false);
-		this.setStepSound(Block.soundTypeCloth);
-		this.blockHardness = 0.25F;
+		super(Material.cloth);
+		this.setStepSound(soundTypeCloth);
+		this.setHardness(0.25F);
 		this.setResistance(0.5F);
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
 		if (entity instanceof EntityPlayer)
 		{
-			entity.motionY = 0.16F;
-			entity.fallDistance = 0.0F;
-
 			if (((EntityPlayer)entity).capabilities.isFlying)
 			{
 				return;
 			}
+			entity.motionY = 0.14F;
+			entity.fallDistance = 0.0F;
+			return;
 		}
-		if (entity instanceof EntityItem)
+		else if (entity instanceof EntityItem)
 		{
 			entity.motionY = 0.32F;
 			entity.fallDistance = 0.0F;
+			return;
 		}
 		else
 		{
 			entity.motionY = 0.12F;
 			entity.fallDistance = 0.0F;
+			return;
 		}
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int var2, int var3, int var4)
+	public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state)
 	{
 		return null;
 	}
@@ -76,21 +69,14 @@ public class BlockHelium extends BlockBreakable
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
 
 	@Override
-	public int getRenderBlockPass()
+	public EnumWorldBlockLayer getBlockLayer()
 	{
-		return 1;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int side)
-	{
-		return super.shouldSideBeRendered(world, x, y, z, 1 - side);
+		return EnumWorldBlockLayer.TRANSLUCENT;
 	}
 }

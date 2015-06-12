@@ -11,37 +11,53 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyInteger;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 
 public abstract class BlockCreamLayer extends BlockBaseMP
 {
-	public BlockCreamLayer()
+	public static PropertyInteger LAYERS = PropertyInteger.create("layers", 1, 8);
+
+	protected BlockCreamLayer()
 	{
 		super(Material.snow);
+		this.setDefaultState(this.getDefaultState().withProperty(LAYERS, Integer.valueOf(1)));
 		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);
 		this.setTickRandomly(true);
-		this.setStepSound(Block.soundTypeSnow);
-		this.setBlockBoundsForSnowDepth(0);
+		this.setStepSound(soundTypeSnow);
 		this.setHardness(0.1F);
-		this.setBlockTextureName(this.getCreamTexture());
+		this.setBlockBoundsForItemRender();
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
+	public boolean isPassable(IBlockAccess world, BlockPos pos)
 	{
-		int l = par1World.getBlockMetadata(par2, par3, par4) & 7;
+		return ((Integer)world.getBlockState(pos).getValue(LAYERS)).intValue() < 5;
+	}
+
+	@Override
+	public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state)
+	{
+		int i = ((Integer)state.getValue(LAYERS)).intValue() - 1;
 		float f = 0.125F;
-		return AxisAlignedBB.getBoundingBox(par2 + this.minX, par3 + this.minY, par4 + this.minZ, par2 + this.maxX, par3 + l * f, par4 + this.maxZ);
+		return new AxisAlignedBB(pos.getX() + this.minX, pos.getY() + this.minY, pos.getZ() + this.minZ, pos.getX() + this.maxX, pos.getY() + i * f, pos.getZ() + this.maxZ);
 	}
 
 	@Override
@@ -51,7 +67,7 @@ public abstract class BlockCreamLayer extends BlockBaseMP
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
@@ -59,53 +75,40 @@ public abstract class BlockCreamLayer extends BlockBaseMP
 	@Override
 	public void setBlockBoundsForItemRender()
 	{
-		this.setBlockBoundsForSnowDepth(0);
+		this.getBoundsForLayers(0);
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
+	public void setBlockBoundsBasedOnState(IBlockAccess world, BlockPos pos)
 	{
-		this.setBlockBoundsForSnowDepth(par1IBlockAccess.getBlockMetadata(par2, par3, par4));
+		IBlockState iblockstate = world.getBlockState(pos);
+		this.getBoundsForLayers(((Integer)iblockstate.getValue(LAYERS)).intValue());
 	}
 
-	protected void setBlockBoundsForSnowDepth(int par1)
+	protected void getBoundsForLayers(int meta)
 	{
-		int j = par1 & 7;
-		float f = 2 * (1 + j) / 16.0F;
-		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, f, 1.0F);
-	}
-
-	@Override
-	public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
-	{
-		Block block = par1World.getBlock(par2, par3 - 1, par4);
-
-		if (block == null)
-		{
-			return false;
-		}
-		if (block == this && (par1World.getBlockMetadata(par2, par3 - 1, par4) & 7) == 7)
-		{
-			return true;
-		}
-		if (!block.isLeaves(par1World, par2, par3 - 1, par4) && !block.isOpaqueCube())
-		{
-			return false;
-		}
-		return par1World.getBlock(par2, par3 - 1, par4).getMaterial().blocksMovement();
+		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, meta / 8.0F, 1.0F);
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
+	public boolean canPlaceBlockAt(World world, BlockPos pos)
 	{
-		this.canSnowStay(par1World, par2, par3, par4);
+		IBlockState state = world.getBlockState(pos.down());
+		Block block = state.getBlock();
+		return block != Blocks.ice && block != Blocks.packed_ice ? block.isLeaves(world, pos.down()) ? true : block == this && ((Integer)state.getValue(LAYERS)).intValue() == 7 ? true : block.isOpaqueCube() && block.getMaterial().blocksMovement() : false;
 	}
 
-	private boolean canSnowStay(World par1World, int par2, int par3, int par4)
+	@Override
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock)
 	{
-		if (!this.canPlaceBlockAt(par1World, par2, par3, par4))
+		this.checkAndDropBlock(world, pos);
+	}
+
+	private boolean checkAndDropBlock(World world, BlockPos pos)
+	{
+		if (!this.canPlaceBlockAt(world, pos))
 		{
-			par1World.setBlockToAir(par2, par3, par4);
+			world.setBlockToAir(pos);
 			return false;
 		}
 		else
@@ -115,66 +118,82 @@ public abstract class BlockCreamLayer extends BlockBaseMP
 	}
 
 	@Override
-	public void harvestBlock(World par1World, EntityPlayer par2EntityPlayer, int par3, int par4, int par5, int par6)
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te)
 	{
-		super.harvestBlock(par1World, par2EntityPlayer, par3, par4, par5, par6);
-		par1World.setBlockToAir(par3, par4, par5);
+		super.harvestBlock(world, player, pos, state, te);
+		world.setBlockToAir(pos);
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return this.getCreamBallDropped();
 	}
 
 	@Override
-	public int quantityDropped(Random par1Random)
-	{
-		return 1;
-	}
-
-	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
 		return this.getCreamBallMetaDropped();
 	}
 
 	@Override
-	public void updateTick(World par1World, int par2, int par3, int par4, Random par5Random)
+	public int quantityDropped(Random random)
 	{
-		if (par1World.getSavedLightValue(EnumSkyBlock.Block, par2, par3, par4) > 11)
+		return 1;
+	}
+
+	@Override
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
+	{
+		if (world.getLightFor(EnumSkyBlock.BLOCK, pos) > 11)
 		{
-			par1World.setBlockToAir(par2, par3, par4);
+			world.setBlockToAir(pos);
 		}
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
+	public boolean shouldSideBeRendered(IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
-		return par5 == 1 ? true : super.shouldSideBeRendered(par1IBlockAccess, par2, par3, par4, par5);
+		return side == EnumFacing.UP ? true : super.shouldSideBeRendered(world, pos, side);
 	}
 
 	@Override
-	public int quantityDropped(int meta, int fortune, Random random)
+	public IBlockState getStateFromMeta(int meta)
 	{
-		return (meta & 7) + 1;
+		return this.getDefaultState().withProperty(LAYERS, Integer.valueOf((meta & 7) + 1));
 	}
 
 	@Override
-	public boolean isReplaceable(IBlockAccess world, int x, int y, int z)
+	public boolean isReplaceable(World world, BlockPos pos)
 	{
-		int meta = world.getBlockMetadata(x, y, z);
-		return meta >= 7 ? false : this.blockMaterial.isReplaceable();
+		return ((Integer)world.getBlockState(pos).getValue(LAYERS)).intValue() == 1;
 	}
 
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition pos, World world, int x, int y, int z)
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((Integer)state.getValue(LAYERS)).intValue() - 1;
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] {LAYERS});
+	}
+
+	@Override
+	public ItemStack getPickBlock(MovingObjectPosition moving, World world, BlockPos pos)
 	{
 		return new ItemStack(this, 1, 0);
 	}
 
-	public abstract String getCreamTexture();
+	@Override
+	public int quantityDropped(IBlockState state, int fortune, Random random)
+	{
+		return (Integer)state.getValue(LAYERS) + 1;
+	}
+
 	public abstract Item getCreamBallDropped();
 	public abstract int getCreamBallMetaDropped();
 }

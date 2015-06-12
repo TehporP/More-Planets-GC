@@ -11,6 +11,7 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,11 +20,11 @@ import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.base.BlockContainerMP;
+import stevekung.mods.moreplanets.common.blocks.BlockContainerMP;
 import stevekung.mods.moreplanets.core.init.MPPotions;
 import stevekung.mods.moreplanets.planets.kapteynb.items.KapteynBItems;
 import stevekung.mods.moreplanets.planets.kapteynb.tileentities.TileEntityIcyPoisonCrystal;
@@ -39,34 +40,33 @@ public class BlockIcyPoisonCrystal extends BlockContainerMP
 		this.setResistance(1.5F);
 		this.setHardness(0.5F);
 		this.setStepSound(soundTypeGlass);
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 		this.setLightOpacity(255);
-		this.setBlockTextureName("kapteynb:fallen_ice_crystal_meteor");
 		float f = 0.0625F;
 		this.setBlockBounds(0.0F + f, 0.0F, 0.0F + f, 1.0F - f, 1.0F - f, 1.0F - f);
 	}
 
 	@Override
-	public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta)
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity tile)
 	{
 		ItemStack itemStack = player.getCurrentEquippedItem();
 
 		if (itemStack == null || !(player.getCurrentEquippedItem().getItem() instanceof ItemPickaxe))
 		{
-			player.addPotionEffect(new PotionEffect(MPPotions.icy_poison.id, 60, 0, false));
+			player.addPotionEffect(new PotionEffect(MPPotions.icy_poison.id, 60, 0, false, true));
 		}
 		if (itemStack != null && player.getCurrentEquippedItem().getItem() instanceof ItemPickaxe)
 		{
-			super.harvestBlock(world, player, x, y, z, meta);
+			super.harvestBlock(world, player, pos, state, tile);
 		}
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World p_149670_1_, int p_149670_2_, int p_149670_3_, int p_149670_4_, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity)
 	{
 		if (entity instanceof EntityLivingBase)
 		{
-			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MPPotions.icy_poison.id, 60, 0, false));
+			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MPPotions.icy_poison.id, 60, 0, false, true));
 		}
 	}
 
@@ -77,15 +77,9 @@ public class BlockIcyPoisonCrystal extends BlockContainerMP
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
-	}
-
-	@Override
-	public int getRenderType()
-	{
-		return MorePlanetsCore.proxy.getBlockRender(this);
 	}
 
 	@Override
@@ -95,148 +89,147 @@ public class BlockIcyPoisonCrystal extends BlockContainerMP
 	}
 
 	@Override
-	public void dropBlockAsItemWithChance(World world, int par2, int par3, int par4, int par5, float par6, int fortune)
+	public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float chance, int fortune)
 	{
-		super.dropBlockAsItemWithChance(world, par2, par3, par4, par5, par6, fortune);
+		super.dropBlockAsItemWithChance(world, pos, state, chance, fortune);
 
-		if (this.getItemDropped(par5, world.rand, fortune) != Item.getItemFromBlock(this))
+		if (this.getItemDropped(state, world.rand, fortune) != Item.getItemFromBlock(this))
 		{
-			int var8 = MathHelper.getRandomIntegerInRange(world.rand, 3, 5);
-			this.dropXpOnBlockBreak(world, par2, par3, par4, var8);
+			int xp = MathHelper.getRandomIntegerInRange(world.rand, 3, 5);
+			this.dropXpOnBlockBreak(world, pos, xp);
 		}
 	}
 
 	@Override
-	public int quantityDropped(int meta, int fortune, Random random)
+	public int quantityDropped(IBlockState state, int fortune, Random rand)
 	{
-		if (fortune > 0 && Item.getItemFromBlock(this) != this.getItemDropped(meta, random, fortune))
+		if (fortune > 0 && Item.getItemFromBlock(this) != this.getItemDropped(state, rand, fortune))
 		{
-			int i = random.nextInt(fortune + 1) - 1;
+			int i = rand.nextInt(fortune + 1) - 1;
 
 			if (i < 0)
 			{
 				i = 0;
 			}
-			return this.quantityDropped(random) * (i + 1);
+			return this.quantityDropped(rand) * (i + 1);
 		}
-		return this.quantityDropped(random);
+		return this.quantityDropped(rand);
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random random, int par3)
+	public Item getItemDropped(IBlockState state, Random random, int fortune)
 	{
 		return KapteynBItems.kapteyn_b_item;
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
 		return 5;
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, int i, int j, int k, Block block)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block block)
 	{
-		super.onNeighborBlockChange(world, i, j, k, block);
-		int meta = world.getBlockMetadata(i, j, k);
+		super.onNeighborBlockChange(world, pos, state, block);
 
-		if (meta <= 6 && this.checkIfAttachedToBlock(world, i, j, k))
+		if (this.checkIfAttachedToBlock(world, pos, state))
 		{
-			TileEntityIcyPoisonCrystal crystal = (TileEntityIcyPoisonCrystal)world.getTileEntity(i, j, k);
-			int orientation = crystal.orientation;
+			TileEntityIcyPoisonCrystal crystal = (TileEntityIcyPoisonCrystal)world.getTileEntity(pos);
+			int facing = crystal.facing;
 			boolean flag = false;
 
-			if (!world.isSideSolid(i - 1, j, k, ForgeDirection.getOrientation(5)) && orientation == 5)
+			if (!world.isSideSolid(pos.west(), EnumFacing.EAST) && facing == 5)
 			{
 				flag = true;
 			}
-			if (!world.isSideSolid(i + 1, j, k, ForgeDirection.getOrientation(4)) && orientation == 4)
+			if (!world.isSideSolid(pos.east(), EnumFacing.WEST) && facing == 4)
 			{
 				flag = true;
 			}
-			if (!world.isSideSolid(i, j, k - 1, ForgeDirection.getOrientation(3)) && orientation == 3)
+			if (!world.isSideSolid(pos.north(), EnumFacing.SOUTH) && facing == 3)
 			{
 				flag = true;
 			}
-			if (!world.isSideSolid(i, j, k + 1, ForgeDirection.getOrientation(2)) && orientation == 2)
+			if (!world.isSideSolid(pos.south(), EnumFacing.NORTH) && facing == 2)
 			{
 				flag = true;
 			}
-			if (!world.isSideSolid(i, j - 1, k, ForgeDirection.getOrientation(1)) && orientation == 1)
+			if (!world.isSideSolid(pos.down(), EnumFacing.UP) && facing == 1)
 			{
 				flag = true;
 			}
-			if (!world.isSideSolid(i, j + 1, k, ForgeDirection.getOrientation(0)) && orientation == 0)
+			if (!world.isSideSolid(pos.up(), EnumFacing.DOWN) && facing == 0)
 			{
 				flag = true;
 			}
 			if (flag)
 			{
-				world.func_147480_a(i, j, k, false);
+				world.destroyBlock(pos, false);
 			}
 			return;
 		}
 	}
 
-	private boolean checkIfAttachedToBlock(World world, int i, int j, int k)
+	private boolean checkIfAttachedToBlock(World world, BlockPos pos, IBlockState state)
 	{
-		if (!this.canPlaceBlockAt(world, i, j, k))
+		if (!this.canPlaceBlockAt(world, pos))
 		{
-			world.func_147480_a(i, j, k, false);
+			world.destroyBlock(pos, false);
 			return false;
 		}
 		return true;
 	}
 
 	@Override
-	public boolean canPlaceBlockOnSide(World world, int i, int j, int k, int meta)
+	public boolean canPlaceBlockOnSide(World world, BlockPos pos, EnumFacing side)
 	{
-		if (meta == 0 && world.isSideSolid(i, j + 1, k, ForgeDirection.getOrientation(0)))
+		if (side == EnumFacing.DOWN && world.isSideSolid(pos.up(), EnumFacing.DOWN))
 		{
 			return true;
 		}
-		if (meta == 1 && world.isSideSolid(i, j - 1, k, ForgeDirection.getOrientation(1)))
+		if (side == EnumFacing.UP && world.isSideSolid(pos.down(), EnumFacing.UP))
 		{
 			return true;
 		}
-		if (meta == 2 && world.isSideSolid(i, j, k + 1, ForgeDirection.getOrientation(2)))
+		if (side == EnumFacing.NORTH && world.isSideSolid(pos.south(), EnumFacing.NORTH))
 		{
 			return true;
 		}
-		if (meta == 3 && world.isSideSolid(i, j, k - 1, ForgeDirection.getOrientation(3)))
+		if (side == EnumFacing.SOUTH && world.isSideSolid(pos.north(), EnumFacing.SOUTH))
 		{
 			return true;
 		}
-		if (meta == 4 && world.isSideSolid(i + 1, j, k, ForgeDirection.getOrientation(4)))
+		if (side == EnumFacing.WEST && world.isSideSolid(pos.east(), EnumFacing.WEST))
 		{
 			return true;
 		}
-		return meta == 5 && world.isSideSolid(i - 1, j, k, ForgeDirection.getOrientation(5));
+		return side == EnumFacing.EAST && world.isSideSolid(pos.west(), EnumFacing.EAST);
 	}
 
 	@Override
-	public boolean canPlaceBlockAt(World world, int i, int j, int k)
+	public boolean canPlaceBlockAt(World world, BlockPos pos)
 	{
-		if (world.isSideSolid(i - 1, j, k, ForgeDirection.getOrientation(5)))
+		if (world.isSideSolid(pos.west(), EnumFacing.EAST))
 		{
 			return true;
 		}
-		if (world.isSideSolid(i + 1, j, k, ForgeDirection.getOrientation(4)))
+		if (world.isSideSolid(pos.east(), EnumFacing.WEST))
 		{
 			return true;
 		}
-		if (world.isSideSolid(i, j, k - 1, ForgeDirection.getOrientation(3)))
+		if (world.isSideSolid(pos.north(), EnumFacing.SOUTH))
 		{
 			return true;
 		}
-		if (world.isSideSolid(i, j, k + 1, ForgeDirection.getOrientation(2)))
+		if (world.isSideSolid(pos.south(), EnumFacing.NORTH))
 		{
 			return true;
 		}
-		if (world.isSideSolid(i, j - 1, k, ForgeDirection.getOrientation(1)))
+		if (world.isSideSolid(pos.down(), EnumFacing.UP))
 		{
 			return true;
 		}
-		return world.isSideSolid(i, j + 1, k, ForgeDirection.getOrientation(0));
+		return world.isSideSolid(pos.up(), EnumFacing.DOWN);
 	}
 }

@@ -13,27 +13,33 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockNibiruFence extends BlockFence
 {
-	private IIcon[] fenceIcon;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockNibiruFence(String name)
 	{
-		super(name, Material.wood);
-		this.blockHardness = 2.0F;
-		this.setStepSound(Block.soundTypeWood);
-		this.setBlockName(name);
+		super(Material.wood);
+		this.setHardness(2.0F);
+		this.setStepSound(soundTypeWood);
+		this.setDefaultState(this.getDefaultState().withProperty(NORTH, Boolean.valueOf(false)).withProperty(EAST, Boolean.valueOf(false)).withProperty(SOUTH, Boolean.valueOf(false)).withProperty(WEST, Boolean.valueOf(false)).withProperty(VARIANT, BlockType.ancient_dark_fence));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
@@ -43,7 +49,7 @@ public class BlockNibiruFence extends BlockFence
 	}
 
 	@Override
-	public boolean canPlaceTorchOnTop(World world, int x, int y, int z)
+	public boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos)
 	{
 		return true;
 	}
@@ -55,45 +61,34 @@ public class BlockNibiruFence extends BlockFence
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
 
 	@Override
-	public boolean getBlocksMovement(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
+	public boolean isPassable(IBlockAccess world, BlockPos pos)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean canConnectFenceTo(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
+	public boolean canConnectTo(IBlockAccess world, BlockPos pos)
 	{
-		final Block block = par1IBlockAccess.getBlock(par2, par3, par4);
-
-		if (block != this && !(block instanceof BlockFenceGate) && !(block instanceof BlockFence))
-		{
-			return block != null && block.getMaterial().isOpaque() && block.renderAsNormalBlock() ? block.getMaterial() != Material.gourd : false;
-		}
-		return true;
+		Block block = world.getBlockState(pos).getBlock();
+		return block == Blocks.barrier ? false : (!(block instanceof BlockFence) || block.getMaterial() != this.blockMaterial) && !(block instanceof BlockFenceGate) ? block.getMaterial().isOpaque() && block.isFullCube() ? block.getMaterial() != Material.gourd : false : true;
 	}
 
-	@SideOnly(Side.CLIENT)
 	@Override
-	public boolean shouldSideBeRendered(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
+	@SideOnly(Side.CLIENT)
+	public boolean shouldSideBeRendered(IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
 		return true;
 	}
 
+	@Override
 	@SideOnly(Side.CLIENT)
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		return this.fenceIcon[meta];
-	}
-
-	@Override
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < 2; ++i)
 		{
@@ -102,29 +97,50 @@ public class BlockNibiruFence extends BlockFence
 	}
 
 	@Override
-	public int getRenderType()
+	public int damageDropped(IBlockState state)
 	{
-		return MorePlanetsCore.proxy.getBlockRender(this);
+		return this.getMetaFromState(state);
 	}
 
 	@Override
-	public int getDamageValue(World world, int x, int y, int z)
+	protected BlockState createBlockState()
 	{
-		return world.getBlockMetadata(x, y, z);
+		return new BlockState(this, new IProperty[] {NORTH, EAST, WEST, SOUTH, VARIANT});
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public IBlockState getStateFromMeta(int meta)
 	{
-		return meta;
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
 	}
 
-	@SideOnly(Side.CLIENT)
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
+	public int getMetaFromState(IBlockState state)
 	{
-		this.fenceIcon = new IIcon[2];
-		this.fenceIcon[0] = par1IconRegister.registerIcon("nibiru:ancient_dark_wood_planks");
-		this.fenceIcon[1] = par1IconRegister.registerIcon("nibiru:orange_wood_planks");
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	@Override
+	public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
+	{
+		return state.withProperty(NORTH, Boolean.valueOf(this.canConnectTo(world, pos.north()))).withProperty(EAST, Boolean.valueOf(this.canConnectTo(world, pos.east()))).withProperty(SOUTH, Boolean.valueOf(this.canConnectTo(world, pos.south()))).withProperty(WEST, Boolean.valueOf(this.canConnectTo(world, pos.west())));
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		ancient_dark_fence,
+		orange_fence;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

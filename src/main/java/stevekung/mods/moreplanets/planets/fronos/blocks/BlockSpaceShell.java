@@ -8,91 +8,93 @@
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.List;
-import java.util.Random;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 
 public class BlockSpaceShell extends BlockBaseMP
 {
-	@SideOnly(Side.CLIENT)
-	private IIcon[] iconArray;
+	public static PropertyEnum COLOR = PropertyEnum.create("color", EnumDyeColor.class);
 
 	public BlockSpaceShell(String name)
 	{
 		super(Material.plants);
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(COLOR, EnumDyeColor.WHITE));
 		this.setBlockBounds(0.3F, 0.0F, 0.275F, 0.675F, 0.175F, 0.775F);
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.iconArray = new IIcon[16];
-
-		for (int i = 0; i < this.iconArray.length; ++i)
-		{
-			this.iconArray[i] = par1IconRegister.registerIcon("fronos:space_shell_" + ItemDye.field_150921_b[BlockSpaceShell.getDyeFromBlock(i)]);
-		}
-	}
-
-	@Override
-	public boolean canHarvestBlock(EntityPlayer player, int meta)
+	public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player)
 	{
 		return true;
 	}
 
+	@Override
+	public int damageDropped(IBlockState state)
+	{
+		return ((EnumDyeColor)state.getValue(COLOR)).getMetadata();
+	}
+
+	@Override
+	public MapColor getMapColor(IBlockState state)
+	{
+		return ((EnumDyeColor)state.getValue(COLOR)).getMapColor();
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(COLOR, EnumDyeColor.byMetadata(meta));
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((EnumDyeColor)state.getValue(COLOR)).getMetadata();
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] {COLOR});
+	}
+
+	@Override
 	@SideOnly(Side.CLIENT)
-	@Override
-	public IIcon getIcon(int par1, int par2)
+	public void getSubBlocks(Item item, CreativeTabs tab, List list)
 	{
-		return this.iconArray[par2 % this.iconArray.length];
-	}
+		EnumDyeColor[] var4 = EnumDyeColor.values();
+		int var5 = var4.length;
 
-	@Override
-	public int damageDropped(int par1)
-	{
-		return par1;
-	}
-
-	public static int getDyeFromBlock(int par0)
-	{
-		return ~par0 & 15;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List)
-	{
-		for (int j = 0; j < 16; ++j)
+		for (int var6 = 0; var6 < var5; ++var6)
 		{
-			par3List.add(new ItemStack(par1, 1, j));
+			EnumDyeColor var7 = var4[var6];
+			list.add(new ItemStack(item, 1, var7.getMetadata()));
 		}
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
-	}
-
-	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
-	{
-		return Item.getItemFromBlock(this);
 	}
 
 	@Override
@@ -101,42 +103,34 @@ public class BlockSpaceShell extends BlockBaseMP
 		return false;
 	}
 
-	@SideOnly(Side.CLIENT)
 	@Override
-	public int getRenderBlockPass()
+	public boolean canPlaceBlockAt(World world, BlockPos pos)
 	{
-		return 1;
-	}
-
-	@Override
-	public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
-	{
-		final Block block = par1World.getBlock(par2, par3 - 1, par4);
+		Block block = world.getBlockState(pos.down()).getBlock();
 
 		if (block == null)
 		{
 			return false;
 		}
-		if (!block.isLeaves(par1World, par2, par3 - 1, par4) && !block.isOpaqueCube())
+		if (!block.isLeaves(world, pos.down()) && !block.isOpaqueCube())
 		{
 			return false;
 		}
-		return par1World.getBlock(par2, par3 - 1, par4).getMaterial().blocksMovement();
+		return world.getBlockState(pos.down()).getBlock().getMaterial().blocksMovement();
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block par5)
 	{
-		this.canBlockStay(par1World, par2, par3, par4);
+		this.checkForDrop(world, pos, state);
 	}
 
-	@Override
-	public boolean canBlockStay(World par1World, int par2, int par3, int par4)
+	private boolean checkForDrop(World world, BlockPos pos, IBlockState state)
 	{
-		if (!this.canPlaceBlockAt(par1World, par2, par3, par4))
+		if (!this.canBlockStay(world, pos))
 		{
-			this.dropBlockAsItem(par1World, par2, par3, par4, par1World.getBlockMetadata(par2, par3, par4), 0);
-			par1World.setBlockToAir(par2, par3, par4);
+			this.dropBlockAsItem(world, pos, state, 0);
+			world.setBlockToAir(pos);
 			return false;
 		}
 		else
@@ -145,9 +139,14 @@ public class BlockSpaceShell extends BlockBaseMP
 		}
 	}
 
-	@SideOnly(Side.CLIENT)
+	private boolean canBlockStay(World world, BlockPos pos)
+	{
+		return !world.isAirBlock(pos.down());
+	}
+
 	@Override
-	public boolean shouldSideBeRendered(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
+	@SideOnly(Side.CLIENT)
+	public boolean shouldSideBeRendered(IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
 		return true;
 	}

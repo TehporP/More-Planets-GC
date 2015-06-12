@@ -7,28 +7,23 @@
 
 package stevekung.mods.moreplanets.planets.fronos.items;
 
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
-import stevekung.mods.moreplanets.core.items.ItemMorePlanet;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.ItemMorePlanets;
 import stevekung.mods.moreplanets.planets.fronos.entities.projectiles.EntityPoisonArrow;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemCandyBow extends ItemMorePlanet
+public class ItemCandyBow extends ItemMorePlanets
 {
-	private static String[] bowPullIconNameArray = new String[] {"_0", "_1", "_2"};
-	@SideOnly(Side.CLIENT)
-	private IIcon[] iconArray;
-
 	public ItemCandyBow(String name)
 	{
 		super();
@@ -38,30 +33,27 @@ public class ItemCandyBow extends ItemMorePlanet
 	}
 
 	@Override
-	public IIcon getIcon(ItemStack par1ItemStack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
+	@SideOnly(Side.CLIENT)
+	public ModelResourceLocation getModel(ItemStack itemStack, EntityPlayer player, int useRemaining)
 	{
-		if (par1ItemStack.getItem().requiresMultipleRenderPasses())
+		if (itemStack != null && itemStack.getItem() == this && player.getItemInUse() != null)
 		{
-			return par1ItemStack.getItem().getIcon(par1ItemStack, renderPass);
-		}
-		if (usingItem != null && par1ItemStack.getItem() == this)
-		{
-			int j = par1ItemStack.getMaxItemUseDuration() - useRemaining;
+			int i = itemStack.getMaxItemUseDuration() - player.getItemInUseCount();
 
-			if (j >= 18)
+			if (i >= 18)
 			{
-				return this.getItemIconForUseDuration(2);
+				return new ModelResourceLocation("moreplanets:candy_bow_pulling_2", "inventory");
 			}
-			if (j > 13)
+			if (i > 13)
 			{
-				return this.getItemIconForUseDuration(1);
+				return new ModelResourceLocation("moreplanets:candy_bow_pulling_1", "inventory");
 			}
-			if (j > 0)
+			if (i > 0)
 			{
-				return this.getItemIconForUseDuration(0);
+				return new ModelResourceLocation("moreplanets:candy_bow_pulling_0", "inventory");
 			}
 		}
-		return this.getIcon(par1ItemStack, renderPass);
+		return null;
 	}
 
 	@Override
@@ -139,7 +131,7 @@ public class ItemCandyBow extends ItemMorePlanet
 	}
 
 	@Override
-	public ItemStack onEaten(ItemStack itemStack, World world, EntityPlayer player)
+	public ItemStack onItemUseFinish(ItemStack itemStack, World world, EntityPlayer player)
 	{
 		return itemStack;
 	}
@@ -153,7 +145,7 @@ public class ItemCandyBow extends ItemMorePlanet
 	@Override
 	public EnumAction getItemUseAction(ItemStack itemStack)
 	{
-		return EnumAction.bow;
+		return EnumAction.BOW;
 	}
 
 	@Override
@@ -177,25 +169,6 @@ public class ItemCandyBow extends ItemMorePlanet
 	public int getItemEnchantability()
 	{
 		return 4;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerIcons(IIconRegister iconRegister)
-	{
-		this.itemIcon = iconRegister.registerIcon("fronos:candy_bow");
-		this.iconArray = new IIcon[ItemCandyBow.bowPullIconNameArray.length];
-
-		for (int i = 0; i < this.iconArray.length; ++i)
-		{
-			this.iconArray[i] = iconRegister.registerIcon("fronos:candy_bow" + ItemCandyBow.bowPullIconNameArray[i]);
-		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	public IIcon getItemIconForUseDuration(int meta)
-	{
-		return this.iconArray[meta];
 	}
 
 	@Override

@@ -10,14 +10,14 @@ package stevekung.mods.moreplanets.planets.nibiru.items.armor;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 import stevekung.mods.moreplanets.planets.nibiru.items.NibiruItems;
 
 public class ArmorNorium extends ItemArmorMP
 {
-	public ArmorNorium(String name, ArmorMaterial par2EnumArmorMaterial, int par3, int par4)
+	public ArmorNorium(String name, ArmorMaterial material, int render, int type)
 	{
-		super(par2EnumArmorMaterial, par3, par4);
+		super(material, render, type);
 		this.setUnlocalizedName(name);
 	}
 
@@ -26,19 +26,13 @@ public class ArmorNorium extends ItemArmorMP
 	{
 		if (stack.getItem() == NibiruArmorItems.norium_helmet || stack.getItem() == NibiruArmorItems.norium_chestplate || stack.getItem() == NibiruArmorItems.norium_boots)
 		{
-			return "nibiru:textures/model/armor/norium_1.png";
+			return "moreplanets:textures/model/armor/norium_1.png";
 		}
 		if (stack.getItem() == NibiruArmorItems.norium_leggings)
 		{
-			return "nibiru:textures/model/armor/norium_2.png";
+			return "moreplanets:textures/model/armor/norium_2.png";
 		}
 		return null;
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "nibiru";
 	}
 
 	@Override

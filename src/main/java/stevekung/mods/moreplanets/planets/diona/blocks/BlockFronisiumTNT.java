@@ -7,143 +7,152 @@
 
 package stevekung.mods.moreplanets.planets.diona.blocks;
 
-import java.util.Random;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
-import net.minecraft.util.IIcon;
+import net.minecraft.item.Item;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.planets.diona.entities.EntityFronisiumTNT;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockFronisiumTNT extends BlockBaseMP
 {
-	private IIcon TNTTop;
-	private IIcon TNTBottom;
-	private IIcon TNTSide;
+	public static PropertyBool EXPLODE = PropertyBool.create("explode");
 
 	public BlockFronisiumTNT(String name)
 	{
 		super(Material.tnt);
-		this.setStepSound(Block.soundTypeMetal);
+		this.setStepSound(soundTypeMetal);
 		this.setHardness(0.3F);
-		this.setBlockName(name);
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public IIcon getIcon(int par1, int par2)
-	{
-		return par1 == 0 ? this.TNTBottom : par1 == 1 ? this.TNTTop : this.TNTSide;
+		this.setDefaultState(this.getDefaultState().withProperty(EXPLODE, false));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void onBlockAdded(World par1World, int par2, int par3, int par4)
+	public void onBlockAdded(World world, BlockPos pos, IBlockState state)
 	{
-		super.onBlockAdded(par1World, par2, par3, par4);
+		super.onBlockAdded(world, pos, state);
 
-		if (par1World.isBlockIndirectlyGettingPowered(par2, par3, par4))
+		if (world.isBlockPowered(pos))
 		{
-			this.onBlockDestroyedByPlayer(par1World, par2, par3, par4, 1);
-			par1World.setBlockToAir(par2, par3, par4);
+			this.onBlockDestroyedByPlayer(world, pos, state.withProperty(EXPLODE, true));
+			world.setBlockToAir(pos);
 		}
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock)
 	{
-		if (par1World.isBlockIndirectlyGettingPowered(par2, par3, par4))
+		if (world.isBlockPowered(pos))
 		{
-			this.onBlockDestroyedByPlayer(par1World, par2, par3, par4, 1);
-			par1World.setBlockToAir(par2, par3, par4);
+			this.onBlockDestroyedByPlayer(world, pos, state.withProperty(EXPLODE, true));
+			world.setBlockToAir(pos);
 		}
 	}
 
 	@Override
-	public int quantityDropped(Random par1Random)
+	public void onBlockDestroyedByExplosion(World world, BlockPos pos, Explosion explosion)
 	{
-		return 1;
-	}
-
-	@Override
-	public void onBlockDestroyedByExplosion(World par1World, int par2, int par3, int par4, Explosion par5Explosion)
-	{
-		if (!par1World.isRemote)
+		if (!world.isRemote)
 		{
-			EntityFronisiumTNT entitytntprimed = new EntityFronisiumTNT(par1World, par2 + 0.5F, par3 + 0.5F, par4 + 0.5F, par5Explosion.getExplosivePlacedBy());
-			entitytntprimed.fuse = par1World.rand.nextInt(entitytntprimed.fuse / 4) + entitytntprimed.fuse / 8;
-			par1World.spawnEntityInWorld(entitytntprimed);
+			EntityFronisiumTNT entitytntprimed = new EntityFronisiumTNT(world, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, explosion.getExplosivePlacedBy());
+			entitytntprimed.fuse = world.rand.nextInt(entitytntprimed.fuse / 4) + entitytntprimed.fuse / 8;
+			world.spawnEntityInWorld(entitytntprimed);
 		}
 	}
 
 	@Override
-	public void onBlockDestroyedByPlayer(World par1World, int par2, int par3, int par4, int par5)
+	public void onBlockDestroyedByPlayer(World world, BlockPos pos, IBlockState state)
 	{
-		this.primeTnt(par1World, par2, par3, par4, par5, (EntityLivingBase)null);
+		this.explode(world, pos, state, (EntityLivingBase)null);
 	}
 
-	public void primeTnt(World par1World, int par2, int par3, int par4, int par5, EntityLivingBase par6EntityLivingBase)
+	public void explode(World world, BlockPos pos, IBlockState state, EntityLivingBase igniter)
 	{
-		if (!par1World.isRemote)
+		if (!world.isRemote)
 		{
-			if ((par5 & 1) == 1)
+			if (((Boolean)state.getValue(EXPLODE)).booleanValue())
 			{
-				EntityFronisiumTNT entitytntprimed = new EntityFronisiumTNT(par1World, par2 + 0.5F, par3 + 0.5F, par4 + 0.5F, par6EntityLivingBase);
-				par1World.spawnEntityInWorld(entitytntprimed);
-				par1World.playSoundAtEntity(entitytntprimed, "game.tnt.primed", 1.0F, 1.0F);
+				EntityFronisiumTNT entitytntprimed = new EntityFronisiumTNT(world, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, igniter);
+				world.spawnEntityInWorld(entitytntprimed);
+				world.playSoundAtEntity(entitytntprimed, "game.tnt.primed", 1.0F, 1.0F);
 			}
 		}
 	}
 
 	@Override
-	public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		if (par5EntityPlayer.getCurrentEquippedItem() != null && par5EntityPlayer.getCurrentEquippedItem().getItem() == Items.flint_and_steel)
+		if (player.getCurrentEquippedItem() != null)
 		{
-			this.primeTnt(par1World, par2, par3, par4, 1, par5EntityPlayer);
-			par1World.setBlockToAir(par2, par3, par4);
-			par5EntityPlayer.getCurrentEquippedItem().damageItem(1, par5EntityPlayer);
-			return true;
+			Item item = player.getCurrentEquippedItem().getItem();
+
+			if (item == Items.flint_and_steel || item == Items.fire_charge)
+			{
+				this.explode(world, pos, state.withProperty(EXPLODE, true), player);
+				world.setBlockToAir(pos);
+
+				if (item == Items.flint_and_steel)
+				{
+					player.getCurrentEquippedItem().damageItem(1, player);
+				}
+				else if (!player.capabilities.isCreativeMode)
+				{
+					--player.getCurrentEquippedItem().stackSize;
+				}
+				return true;
+			}
 		}
-		return super.onBlockActivated(par1World, par2, par3, par4, par5EntityPlayer, par6, par7, par8, par9);
+		return super.onBlockActivated(world, pos, state, player, side, hitX, hitY, hitZ);
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World par1World, int par2, int par3, int par4, Entity par5Entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
-		if (par5Entity instanceof EntityArrow && !par1World.isRemote)
+		if (!world.isRemote && entity instanceof EntityArrow)
 		{
-			EntityArrow entityarrow = (EntityArrow)par5Entity;
+			EntityArrow entityarrow = (EntityArrow)entity;
 
 			if (entityarrow.isBurning())
 			{
-				this.primeTnt(par1World, par2, par3, par4, 1, entityarrow.shootingEntity instanceof EntityLivingBase ? (EntityLivingBase)entityarrow.shootingEntity : null);
-				par1World.setBlockToAir(par2, par3, par4);
+				this.explode(world, pos, world.getBlockState(pos).withProperty(EXPLODE, true), entityarrow.shootingEntity instanceof EntityLivingBase ? (EntityLivingBase)entityarrow.shootingEntity : null);
+				world.setBlockToAir(pos);
 			}
 		}
 	}
 
 	@Override
-	public boolean canDropFromExplosion(Explosion par1Explosion)
+	public boolean canDropFromExplosion(Explosion explosion)
 	{
 		return false;
 	}
 
-	@SideOnly(Side.CLIENT)
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
+	public IBlockState getStateFromMeta(int meta)
 	{
-		this.TNTSide = par1IconRegister.registerIcon("diona:fronisium_tnt_side");
-		this.TNTTop = par1IconRegister.registerIcon("diona:fronisium_tnt_top");
-		this.TNTBottom = par1IconRegister.registerIcon("diona:fronisium_block");
+		return this.getDefaultState().withProperty(EXPLODE, Boolean.valueOf((meta & 1) > 0));
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((Boolean)state.getValue(EXPLODE)).booleanValue() ? 1 : 0;
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] {EXPLODE});
 	}
 }

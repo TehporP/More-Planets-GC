@@ -10,10 +10,12 @@ package stevekung.mods.moreplanets.planets.mercury.blocks;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.planets.mercury.items.MercuryItems;
 
 public class BlockMetallicRock extends BlockBaseMP
@@ -21,13 +23,13 @@ public class BlockMetallicRock extends BlockBaseMP
 	public BlockMetallicRock(String name)
 	{
 		super(Material.rock);
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 		this.setHardness(3.0F);
-		this.setBlockTextureName("mercury:metallic_rock");
+		this.setResistance(8.0F);
 	}
 
 	@Override
-	public Item getItemDropped(int state, Random rand, int fortune)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		if (fortune > 3)
 		{
@@ -41,14 +43,14 @@ public class BlockMetallicRock extends BlockBaseMP
 	}
 
 	@Override
-	public void dropBlockAsItemWithChance(World world, int par2, int par3, int par4, int par5, float par6, int par7)
+	public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float par6, int par7)
 	{
-		super.dropBlockAsItemWithChance(world, par2, par3, par4, par5, par6, par7);
+		super.dropBlockAsItemWithChance(world, pos, state, par6, par7);
 
-		if (this.getItemDropped(par5, world.rand, par7) != Item.getItemFromBlock(this))
+		if (this.getItemDropped(state, world.rand, par7) != Item.getItemFromBlock(this))
 		{
 			int var8 = MathHelper.getRandomIntegerInRange(world.rand, 3, 5);
-			this.dropXpOnBlockBreak(world, par2, par3, par4, var8);
+			this.dropXpOnBlockBreak(world, pos, var8);
 		}
 	}
 }

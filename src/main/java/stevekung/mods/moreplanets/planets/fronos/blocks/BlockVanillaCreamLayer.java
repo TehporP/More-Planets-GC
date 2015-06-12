@@ -15,13 +15,7 @@ public class BlockVanillaCreamLayer extends BlockCreamLayer
 	public BlockVanillaCreamLayer(String name)
 	{
 		super();
-		this.setBlockName(name);
-	}
-
-	@Override
-	public String getCreamTexture()
-	{
-		return "fronos:vanilla_cream";
+		this.setUnlocalizedName(name);
 	}
 
 	@Override

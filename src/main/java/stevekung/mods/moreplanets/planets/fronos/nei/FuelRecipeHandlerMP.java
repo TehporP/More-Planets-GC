@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.recipe.CandyExtractorRecipes;
+import stevekung.mods.moreplanets.common.recipe.CandyExtractorRecipes;
 import codechicken.nei.NEIClientUtils;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.GuiRecipe;
@@ -48,7 +48,7 @@ public class FuelRecipeHandlerMP extends CandyExtractorRecipeHandler
 		}
 	}
 
-	private final ArrayList<SmeltingPair> mfurnace = new ArrayList<CandyExtractorRecipeHandler.SmeltingPair>();
+	private ArrayList<SmeltingPair> mfurnace = new ArrayList<CandyExtractorRecipeHandler.SmeltingPair>();
 
 	public FuelRecipeHandlerMP()
 	{
@@ -64,9 +64,9 @@ public class FuelRecipeHandlerMP extends CandyExtractorRecipeHandler
 
 	private void loadAllSmelting()
 	{
-		final Map<ItemStack, ItemStack> recipes = CandyExtractorRecipes.extracting().getExtractingList();
+		Map<ItemStack, ItemStack> recipes = CandyExtractorRecipes.instance().getExtractingList();
 
-		for (final Entry<ItemStack, ItemStack> recipe : recipes.entrySet())
+		for (Entry<ItemStack, ItemStack> recipe : recipes.entrySet())
 		{
 			this.mfurnace.add(new SmeltingPair(recipe.getKey(), recipe.getValue()));
 		}
@@ -77,7 +77,7 @@ public class FuelRecipeHandlerMP extends CandyExtractorRecipeHandler
 	{
 		if (outputId.equals("fuel") && this.getClass() == FuelRecipeHandlerMP.class)
 		{
-			for (final FuelPair fuel : CandyExtractorRecipeHandler.afuels)
+			for (FuelPair fuel : CandyExtractorRecipeHandler.afuels)
 			{
 				this.arecipes.add(new CachedFuelRecipe(fuel));
 			}
@@ -88,7 +88,7 @@ public class FuelRecipeHandlerMP extends CandyExtractorRecipeHandler
 	@Override
 	public void loadUsageRecipes(ItemStack ingredient)
 	{
-		for (final FuelPair fuel : CandyExtractorRecipeHandler.afuels)
+		for (FuelPair fuel : CandyExtractorRecipeHandler.afuels)
 		{
 			if (fuel.stack.contains(ingredient))
 			{
@@ -106,14 +106,15 @@ public class FuelRecipeHandlerMP extends CandyExtractorRecipeHandler
 	@Override
 	public List<String> handleItemTooltip(GuiRecipe gui, ItemStack stack, List<String> currenttip, int recipe)
 	{
-		final CachedFuelRecipe crecipe = (CachedFuelRecipe) this.arecipes.get(recipe);
-		final FuelPair fuel = crecipe.fuel;
+		CachedFuelRecipe crecipe = (CachedFuelRecipe) this.arecipes.get(recipe);
+		FuelPair fuel = crecipe.fuel;
 		float burnTime = fuel.burnTime / 200F;
 
 		if (gui.isMouseOver(fuel.stack, recipe) && burnTime < 1)
 		{
 			burnTime = 1F / burnTime;
 			String s_time = Float.toString(burnTime);
+
 			if (burnTime == Math.round(burnTime))
 			{
 				s_time = Integer.toString((int) burnTime);

@@ -11,56 +11,37 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockSiriusRedstoneLamp extends Block
+public class BlockSiriusRedstoneLamp extends BlockBaseMP
 {
-	private boolean isLight;
-	private IIcon[] lampIcon;
+	private boolean on;
 
-	public BlockSiriusRedstoneLamp(String name, boolean light)
+	public BlockSiriusRedstoneLamp(String name, boolean on)
 	{
 		super(Material.redstoneLight);
-		this.isLight = light;
-		this.setBlockName(name);
+		this.on = on;
+		this.setUnlocalizedName(name);
 		this.setStepSound(soundTypeGlass);
 
-		if (light)
+		if (on)
 		{
 			this.setLightLevel(1.0F);
 		}
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.lampIcon = new IIcon[2];
-		this.lampIcon[0] = par1IconRegister.registerIcon("siriusb:sirius_redstone_lamp_off");
-		this.lampIcon[1] = par1IconRegister.registerIcon("siriusb:sirius_redstone_lamp_on");
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		if (this.isLight)
-		{
-			return this.lampIcon[1];
-		}
-		return this.lampIcon[0];
-	}
-
-	@Override
 	public CreativeTabs getCreativeTabToDisplayOn()
 	{
-		if (this.isLight)
+		if (this.on)
 		{
 			return null;
 		}
@@ -68,50 +49,50 @@ public class BlockSiriusRedstoneLamp extends Block
 	}
 
 	@Override
-	public void onBlockAdded(World world, int x, int y, int z)
+	public void onBlockAdded(World world, BlockPos pos, IBlockState state)
 	{
 		if (!world.isRemote)
 		{
-			if (this.isLight && !world.isBlockIndirectlyGettingPowered(x, y, z))
+			if (this.on && !world.isBlockPowered(pos))
 			{
-				world.scheduleBlockUpdate(x, y, z, this, 4);
+				world.setBlockState(pos, SiriusBBlocks.sirius_redstone_lamp_off.getDefaultState(), 2);
 			}
-			else if (!this.isLight && world.isBlockIndirectlyGettingPowered(x, y, z))
+			else if (!this.on && world.isBlockPowered(pos))
 			{
-				world.setBlock(x, y, z, SiriusBBlocks.sirius_redstone_lamp_on, 0, 2);
+				world.setBlockState(pos, SiriusBBlocks.sirius_redstone_lamp_on.getDefaultState(), 2);
 			}
 		}
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block block)
 	{
 		if (!world.isRemote)
 		{
-			if (this.isLight && !world.isBlockIndirectlyGettingPowered(x, y, z))
+			if (this.on && !world.isBlockPowered(pos))
 			{
-				world.scheduleBlockUpdate(x, y, z, this, 4);
+				world.setBlockState(pos, SiriusBBlocks.sirius_redstone_lamp_off.getDefaultState(), 2);
 			}
-			else if (!this.isLight && world.isBlockIndirectlyGettingPowered(x, y, z))
+			else if (!this.on && world.isBlockPowered(pos))
 			{
-				world.setBlock(x, y, z, SiriusBBlocks.sirius_redstone_lamp_on, 0, 2);
+				world.setBlockState(pos, SiriusBBlocks.sirius_redstone_lamp_on.getDefaultState(), 2);
 			}
 		}
 	}
 
 	@Override
-	public void updateTick(World world, int x, int y, int z, Random rand)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		if (!world.isRemote && this.isLight && !world.isBlockIndirectlyGettingPowered(x, y, z))
+		if (!world.isRemote && this.on && !world.isBlockPowered(pos))
 		{
-			world.setBlock(x, y, z, SiriusBBlocks.sirius_redstone_lamp_off, 0, 2);
+			world.setBlockState(pos, SiriusBBlocks.sirius_redstone_lamp_off.getDefaultState(), 2);
 		}
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random rand, int fortune)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
-		if (this.isLight)
+		if (this.on)
 		{
 			return Item.getItemFromBlock(SiriusBBlocks.sirius_redstone_lamp_off);
 		}
@@ -119,14 +100,13 @@ public class BlockSiriusRedstoneLamp extends Block
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public Item getItem(World world, int x, int y, int z)
+	public ItemStack getPickBlock(MovingObjectPosition moving, World world, BlockPos pos)
 	{
-		return Item.getItemFromBlock(SiriusBBlocks.sirius_redstone_lamp_off);
+		return new ItemStack(SiriusBBlocks.sirius_redstone_lamp_off);
 	}
 
 	@Override
-	protected ItemStack createStackedBlock(int meta)
+	protected ItemStack createStackedBlock(IBlockState state)
 	{
 		return new ItemStack(SiriusBBlocks.sirius_redstone_lamp_off);
 	}

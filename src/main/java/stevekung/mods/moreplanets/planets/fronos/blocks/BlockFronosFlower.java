@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -23,78 +25,42 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.IIcon;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockFlowerMP;
+import stevekung.mods.moreplanets.common.blocks.IFronosGrass;
+import stevekung.mods.moreplanets.common.util.DamageSourceMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.BlockFlowerMP;
-import stevekung.mods.moreplanets.core.util.DamageSourceMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 
 public class BlockFronosFlower extends BlockFlowerMP
 {
-	private static String[] plants = new String[] {
-		"pink_butter_cup",
-		"orange_butterfly_flower",
-		"yellow_milk_cap",
-		"little_sun_flower",
-		"sky_mushroom",
-		"purple_spike_flower",
-		"jungle_iris",
-		"blue_poison_mushroom",
-		"white_moss"
-	};
-
-	private IIcon[] textures;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockFronosFlower(String name)
 	{
-		super(Material.plants);
-		this.setTickRandomly(true);
+		super();
 		float var4 = 0.2F;
-		this.setStepSound(Block.soundTypeGrass);
-		this.setBlockName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.pink_butter_cup));
+		this.setUnlocalizedName(name);
 		this.setBlockBounds(0.5F - var4, 0.0F, 0.5F - var4, 0.5F + var4, var4 * 3.0F, 0.5F + var4);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
+	public int getLightValue(IBlockAccess world, BlockPos pos)
 	{
-		this.textures = new IIcon[BlockFronosFlower.plants.length];
+		BlockType type = (BlockType)world.getBlockState(pos).getValue(VARIANT);
 
-		for (int i = 0; i < BlockFronosFlower.plants.length; ++i)
-		{
-			this.textures[i] = iconRegister.registerIcon("fronos:" + BlockFronosFlower.plants[i]);
-		}
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		if (meta < 0 || meta >= this.textures.length)
-		{
-			meta = 0;
-		}
-		return this.textures[meta];
-	}
-
-	@Override
-	public int getRenderType()
-	{
-		return 1;
-	}
-
-	@Override
-	public int getLightValue(IBlockAccess world, int x, int y, int z)
-	{
-		int meta = world.getBlockMetadata(x, y, z);
-
-		if (meta == 2 || meta == 5)
+		if (type == BlockType.yellow_milk_cap || type == BlockType.purple_spike_flower)
 		{
 			return 4;
 		}
-		else if (meta == 7)
+		else if (type == BlockType.blue_poison_mushroom)
 		{
 			return 2;
 		}
@@ -102,35 +68,29 @@ public class BlockFronosFlower extends BlockFlowerMP
 	}
 
 	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
+	public void setBlockBoundsBasedOnState(IBlockAccess world, BlockPos pos)
 	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
+		BlockType type = (BlockType)world.getBlockState(pos).getValue(VARIANT);
 
-	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess world, int par2, int par3, int par4)
-	{
-		int meta = world.getBlockMetadata(par2, par3, par4);
-
-		switch (meta)
+		switch (type)
 		{
-		case 2:
+		case yellow_milk_cap:
 			this.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.5F, 0.7F);
 			break;
-		case 3:
+		case little_sun_flower:
 			this.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.8F, 0.7F);
 			break;
-		case 5:
+		case purple_spike_flower:
 			this.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.75F, 0.8F);
 			break;
-		case 6:
+		case jungle_iris:
 			this.setBlockBounds(0.15F, 0.0F, 0.15F, 0.85F, 0.95F, 0.85F);
 			break;
-		case 4:
-		case 7:
+		case sky_mushroom:
+		case blue_poison_mushroom:
 			this.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.45F, 0.7F);
 			break;
-		case 8:
+		case white_moss:
 			this.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.95F, 0.7F);
 			break;
 		default:
@@ -140,11 +100,11 @@ public class BlockFronosFlower extends BlockFlowerMP
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
-		int meta = world.getBlockMetadata(x, y, z);
+		BlockType type = (BlockType)state.getValue(VARIANT);
 
-		if (meta == 5)
+		if (type == BlockType.purple_spike_flower)
 		{
 			if (entity instanceof EntityLivingBase)
 			{
@@ -154,16 +114,16 @@ public class BlockFronosFlower extends BlockFlowerMP
 
 					if (!(inventory.armorInventory[0] != null && inventory.armorInventory[0].getItem() == Items.leather_boots && inventory.armorInventory[1] != null && inventory.armorInventory[1].getItem() == Items.leather_leggings))
 					{
-						entity.attackEntityFrom(DamageSourceMP.purpleSpike, (int) (4.0D * 0.15 + 1.0D));
+						entity.attackEntityFrom(DamageSourceMP.purple_spike, (int) (4.0D * 0.15 + 1.0D));
 					}
 				}
 				else
 				{
-					entity.attackEntityFrom(DamageSourceMP.purpleSpike, (int) (4.0D * 0.15 + 1.0D));
+					entity.attackEntityFrom(DamageSourceMP.purple_spike, (int) (4.0D * 0.15 + 1.0D));
 				}
 			}
 		}
-		else if (meta == 7)
+		else if (type == BlockType.blue_poison_mushroom)
 		{
 			if (entity instanceof EntityLivingBase)
 			{
@@ -185,21 +145,21 @@ public class BlockFronosFlower extends BlockFlowerMP
 	}
 
 	@Override
-	public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta)
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity tile)
 	{
-		super.harvestBlock(world, player, x, y, z, meta);
-
+		super.harvestBlock(world, player, pos, state, tile);
+		BlockType type = (BlockType)state.getValue(VARIANT);
 		ItemStack equippedItem = player.getCurrentEquippedItem();
 
 		if (equippedItem != null)
 		{
 			if (equippedItem.getItem() != Items.shears)
 			{
-				if (meta == 5)
+				if (type == BlockType.purple_spike_flower)
 				{
-					player.attackEntityFrom(DamageSourceMP.purpleSpike, (int) (4.0D * 0.15 + 1.0D));
+					player.attackEntityFrom(DamageSourceMP.purple_spike, (int) (4.0D * 0.15 + 1.0D));
 				}
-				else if (meta == 7)
+				else if (type == BlockType.blue_poison_mushroom)
 				{
 					player.addPotionEffect(new PotionEffect(Potion.poison.id, 100));
 				}
@@ -207,11 +167,11 @@ public class BlockFronosFlower extends BlockFlowerMP
 		}
 		else
 		{
-			if (meta == 5)
+			if (type == BlockType.purple_spike_flower)
 			{
-				player.attackEntityFrom(DamageSourceMP.purpleSpike, (int) (4.0D * 0.15 + 1.0D));
+				player.attackEntityFrom(DamageSourceMP.purple_spike, (int) (4.0D * 0.15 + 1.0D));
 			}
-			else if (meta == 7)
+			else if (type == BlockType.blue_poison_mushroom)
 			{
 				player.addPotionEffect(new PotionEffect(Potion.poison.id, 100));
 			}
@@ -219,19 +179,20 @@ public class BlockFronosFlower extends BlockFlowerMP
 	}
 
 	@Override
-	public void randomDisplayTick(World par1World, int par2, int par3, int par4, Random rand)
+	@SideOnly(Side.CLIENT)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		super.randomDisplayTick(par1World, par2, par3, par4, rand);
-		int meta = par1World.getBlockMetadata(par2, par3, par4);
+		super.randomDisplayTick(world, pos, state, rand);
+		BlockType type = (BlockType)state.getValue(VARIANT);
 
-		if (meta == 5)
+		if (type == BlockType.purple_spike_flower)
 		{
 			if (rand.nextInt(1) == 0)
 			{
-				MorePlanetsCore.proxy.spawnParticle("purpleSpike", par2 + rand.nextFloat(), par3 + rand.nextFloat(), par4 + rand.nextFloat());
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.PURPLE_SPIKE, pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
 			}
 		}
-		else if (meta == 6)
+		else if (type == BlockType.jungle_iris)
 		{
 			if (rand.nextInt(5) == 0)
 			{
@@ -240,7 +201,7 @@ public class BlockFronosFlower extends BlockFlowerMP
 					double d0 = rand.nextGaussian() * 0.02D;
 					double d1 = rand.nextGaussian() * 0.02D;
 					double d2 = rand.nextGaussian() * 0.02D;
-					MorePlanetsCore.proxy.spawnMotionParticle("jungleIris", par2 + rand.nextFloat(), par3 + rand.nextFloat() * 1.0D, par4 + rand.nextFloat(), d0, d1, d2);
+					MorePlanetsCore.proxy.spawnMotionParticle(ParticleTypesMP.JUNGLE_IRIS, pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat() * 1.0D, pos.getZ() + rand.nextFloat(), d0, d1, d2);
 				}
 			}
 		}
@@ -248,42 +209,83 @@ public class BlockFronosFlower extends BlockFlowerMP
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
-		for (int i = 0; i < BlockFronosFlower.plants.length; ++i)
+		for (int i = 0; i < 9; ++i)
 		{
-			list.add(new ItemStack(block, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public boolean isValidPosition(World world, int x, int y, int z, int metadata)
+	public int damageDropped(IBlockState state)
 	{
-		Block block = world.getBlock(x, y - 1, z);
-		int meta = world.getBlockMetadata(x, y - 1, z);
+		return this.getMetaFromState(state);
+	}
 
-		switch (metadata)
+	@Override
+	public boolean canBlockStay(World world, BlockPos pos, IBlockState state)
+	{
+		Block block = world.getBlockState(pos.down()).getBlock();
+		BlockType type = (BlockType)state.getValue(VARIANT);
+
+		if (type == BlockType.blue_poison_mushroom || type == BlockType.sky_mushroom)
 		{
-		case 4:
-			return block == FronosBlocks.fronos_block;
-		case 7:
 			return block == FronosBlocks.fronos_block || block instanceof IFronosGrass || block == FronosBlocks.fronos_dirt;
-		case 8:
-			return block == FronosBlocks.fronos_sand && meta == 1 || block == FronosBlocks.plains_grass || block == FronosBlocks.fronos_dirt;
-		default:
-			return block instanceof IFronosGrass || block == FronosBlocks.fronos_dirt;
 		}
+		else if (type == BlockType.white_moss)
+		{
+			return block == FronosBlocks.fronos_sand && world.getBlockState(pos.down()).getValue(BlockFronosSand.VARIANT) == BlockFronosSand.BlockType.white_sand || block instanceof IFronosGrass || block == FronosBlocks.fronos_dirt;
+		}
+		return block instanceof IFronosGrass || block == FronosBlocks.fronos_dirt;
 	}
 
 	@Override
-	public int getDamageValue(World world, int x, int y, int z)
+	public boolean isReplaceable(World world, BlockPos pos)
 	{
-		return world.getBlockMetadata(x, y, z);
+		return false;
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	protected BlockState createBlockState()
 	{
-		return meta;
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		pink_butter_cup,
+		orange_butterfly_flower,
+		yellow_milk_cap,
+		little_sun_flower,
+		sky_mushroom,
+		purple_spike_flower,
+		jungle_iris,
+		blue_poison_mushroom,
+		white_moss;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

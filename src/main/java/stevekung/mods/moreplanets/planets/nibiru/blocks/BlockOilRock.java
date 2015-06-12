@@ -7,100 +7,59 @@
 
 package stevekung.mods.moreplanets.planets.nibiru.blocks;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import micdoodle8.mods.galacticraft.api.block.IDetectableResource;
-import micdoodle8.mods.galacticraft.core.blocks.GCBlocks;
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.stats.StatList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 
-public class BlockOilRock extends Block implements IDetectableResource
+public class BlockOilRock extends BlockBaseMP /*implements IDetectableResource*/
 {
-	private IIcon[] nibiruBlockIcon;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockOilRock(String name)
 	{
 		super(Material.rock);
-		this.setHardness(3.25F);
-		this.setResistance(3.5F);
-		this.setBlockName(name);
+		this.setHardness(1.5F);
+		this.setResistance(4.0F);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.oil_rock));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
+	public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state)
 	{
 		float f = 0.125F;
-		return AxisAlignedBB.getBoundingBox(x, y, z, x + 1, y + 1 - f, z + 1);
+		return AxisAlignedBB.fromBounds(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1 - f, pos.getZ() + 1);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
+	public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
 	{
-		this.nibiruBlockIcon = new IIcon[4];
-		this.nibiruBlockIcon[0] = par1IconRegister.registerIcon("nibiru:oil_rock");
-		this.nibiruBlockIcon[1] = par1IconRegister.registerIcon("nibiru:oil_ore");
-		this.nibiruBlockIcon[2] = par1IconRegister.registerIcon("nibiru:nibiru_surface_rock");
-		this.nibiruBlockIcon[3] = par1IconRegister.registerIcon("nibiru:nibiru_sub_surface_rock");
+		return true;
 	}
 
 	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		switch (meta)
-		{
-		case 0:
-			switch (side)
-			{
-			case 0:
-				return this.nibiruBlockIcon[3]; //BOTTOM
-			case 1:
-				return this.nibiruBlockIcon[0]; //TOP
-			case 2:
-				return this.nibiruBlockIcon[2]; //Z-
-			case 3:
-				return this.nibiruBlockIcon[2]; //Z+
-			case 4:
-				return this.nibiruBlockIcon[2]; //X-
-			case 5:
-				return this.nibiruBlockIcon[2]; //X+
-			default:
-				return this.nibiruBlockIcon[0];
-			}
-		case 1:
-			return this.nibiruBlockIcon[1];
-		}
-		return this.nibiruBlockIcon[0];
-	}
-
-	@Override
-	public Item getItemDropped(int meta, Random random, int par3)
-	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public int quantityDropped(Random par1Random)
+	public int quantityDropped(Random rand)
 	{
 		return 0;
 	}
@@ -112,20 +71,14 @@ public class BlockOilRock extends Block implements IDetectableResource
 	}
 
 	@Override
-	public boolean canHarvestBlock(EntityPlayer player, int meta)
+	public int damageDropped(IBlockState state)
 	{
-		return super.canHarvestBlock(player, meta);
-	}
-
-	@Override
-	public int getDamageValue(World world, int x, int y, int z)
-	{
-		return world.getBlockMetadata(x, y, z);
+		return this.getMetaFromState(state);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < 2; ++i)
 		{
@@ -133,50 +86,89 @@ public class BlockOilRock extends Block implements IDetectableResource
 		}
 	}
 
-	@Override
-	public boolean canSilkHarvest(World world, EntityPlayer player, int x, int y, int z, int metadata)
+	/*@Override
+	public boolean isValueable(IBlockState state)
 	{
 		return true;
-	}
+	}*/
 
 	@Override
-	public boolean isValueable(int metadata)
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te)
 	{
-		return true;
-	}
+		player.addExhaustion(0.025F);
 
-	@Override
-	public void harvestBlock(World par1World, EntityPlayer par2EntityPlayer, int par3, int par4, int par5, int par6)
-	{
-		par2EntityPlayer.addStat(StatList.mineBlockStatArray[Block.getIdFromBlock(this)], 1);
-		par2EntityPlayer.addExhaustion(0.025F);
-
-		if (this.canSilkHarvest() && EnchantmentHelper.getSilkTouchModifier(par2EntityPlayer))
+		if (this.canSilkHarvest(world, pos, world.getBlockState(pos), player) && EnchantmentHelper.getSilkTouchModifier(player))
 		{
-			ItemStack itemstack = this.createStackedBlock(par6);
+			List<ItemStack> items = new ArrayList<ItemStack>();
+			ItemStack itemstack = this.createStackedBlock(state);
 
 			if (itemstack != null)
 			{
-				this.dropBlockAsItem(par1World, par3, par4, par5, itemstack);
+				items.add(itemstack);
+			}
+
+			ForgeEventFactory.fireBlockHarvesting(items, world, pos, world.getBlockState(pos), 0, 1.0f, true, player);
+
+			for (ItemStack is : items)
+			{
+				spawnAsEntity(world, pos, is);
 			}
 		}
 		else
 		{
-			int i1 = EnchantmentHelper.getFortuneModifier(par2EntityPlayer);
-			this.dropBlockAsItem(par1World, par3, par4, par5, par6, i1);
-			Material material = par1World.getBlock(par3, par4 - 1, par5).getMaterial();
+			int i = EnchantmentHelper.getFortuneModifier(player);
+			this.harvesters.set(player);
+			this.dropBlockAsItem(world, pos, state, i);
+			this.harvesters.set(null);
+			Material material = world.getBlockState(pos.down()).getBlock().getMaterial();
 
 			if (material.blocksMovement() || material.isLiquid())
 			{
-				par1World.setBlock(par3, par4, par5, GCBlocks.crudeOilStill, 0, 3);
+				//world.setBlockState(pos, GCBlocks.crudeOilStill.getDefaultState());
 			}
 		}
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World par1World, int par2, int par3, int par4, Entity par5Entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity)
 	{
-		par5Entity.motionX *= 0.4D;
-		par5Entity.motionZ *= 0.4D;
+		entity.motionX *= 0.4D;
+		entity.motionZ *= 0.4D;
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		oil_rock,
+		oil_ore;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

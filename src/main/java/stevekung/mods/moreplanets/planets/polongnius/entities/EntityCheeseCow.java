@@ -7,7 +7,6 @@
 
 package stevekung.mods.moreplanets.planets.polongnius.entities;
 
-import micdoodle8.mods.galacticraft.api.entity.IEntityBreathable;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -21,26 +20,27 @@ import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
+import net.minecraft.pathfinding.PathNavigateGround;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAITemptMP;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAITemptMP;
 import stevekung.mods.moreplanets.core.init.MPItems;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 import stevekung.mods.moreplanets.planets.polongnius.blocks.PolongniusBlocks;
 import stevekung.mods.moreplanets.planets.polongnius.items.PolongniusItems;
 
-public class EntityCheeseCow extends EntityAnimal implements IEntityBreathable
+public class EntityCheeseCow extends EntityAnimal /*implements IEntityBreathable*/
 {
-	public EntityCheeseCow(World par1World)
+	public EntityCheeseCow(World world)
 	{
-		super(par1World);
+		super(world);
 		this.setSize(0.9F, 1.3F);
-		this.getNavigator().setAvoidsWater(true);
+		((PathNavigateGround)this.getNavigator()).func_179690_a(true);
 		this.tasks.addTask(0, new EntityAISwimming(this));
 		this.tasks.addTask(1, new EntityAIPanic(this, 2.0D));
 		this.tasks.addTask(2, new EntityAIMate(this, 1.0D));
-		this.tasks.addTask(3, new EntityAITemptMP(this, 1.25D, new ItemStack(PolongniusItems.polongnius_food, 1, 0), false));
+		this.tasks.addTask(3, new EntityAITemptMP(this, 1.25D, new ItemStack(PolongniusItems.cheese_food, 1, 0), false));
 		this.tasks.addTask(4, new EntityAIFollowParent(this, 1.25D));
 		this.tasks.addTask(5, new EntityAIWander(this, 1.0D));
 		this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
@@ -50,18 +50,8 @@ public class EntityCheeseCow extends EntityAnimal implements IEntityBreathable
 	@Override
 	public boolean getCanSpawnHere()
 	{
-		int i = MathHelper.floor_double(this.posX);
-		int j = MathHelper.floor_double(this.boundingBox.minY);
-		int k = MathHelper.floor_double(this.posZ);
-		Block block = this.worldObj.getBlock(i, j - 1, k);
-		int meta = this.worldObj.getBlockMetadata(i, j - 1, k);
-		return block == PolongniusBlocks.polongnius_block && meta == 0;
-	}
-
-	@Override
-	public boolean isAIEnabled()
-	{
-		return true;
+		Block block = this.worldObj.getBlockState(this.getPosition().down()).getBlock();
+		return block == PolongniusBlocks.polongnius_block.getDefaultState();
 	}
 
 	@Override
@@ -81,7 +71,7 @@ public class EntityCheeseCow extends EntityAnimal implements IEntityBreathable
 	@Override
 	public boolean isBreedingItem(ItemStack itemStack)
 	{
-		return itemStack.getItem() == PolongniusItems.polongnius_food && itemStack.getItemDamage() == 0;
+		return itemStack != null && itemStack.getItem() == PolongniusItems.cheese_food && itemStack.getItemDamage() == 0;
 	}
 
 	@Override
@@ -103,7 +93,7 @@ public class EntityCheeseCow extends EntityAnimal implements IEntityBreathable
 	}
 
 	@Override
-	protected void func_145780_a(int par1, int par2, int par3, Block par4)
+	protected void playStepSound(BlockPos pos, Block block)
 	{
 		this.playSound("mob.cow.step", 0.15F, 1.0F);
 	}
@@ -194,18 +184,18 @@ public class EntityCheeseCow extends EntityAnimal implements IEntityBreathable
 		{
 			if (this.isBurning())
 			{
-				this.entityDropItem(new ItemStack(PolongniusItems.polongnius_food, 1, 2), 1.0F);
+				this.entityDropItem(new ItemStack(PolongniusItems.cheese_food, 1, 2), 1.0F);
 			}
 			else
 			{
-				this.entityDropItem(new ItemStack(PolongniusItems.polongnius_food, 1, 1), 1.0F);
+				this.entityDropItem(new ItemStack(PolongniusItems.cheese_food, 1, 1), 1.0F);
 			}
 		}
 	}
 
-	@Override
+	/*@Override
 	public boolean canBreath()
 	{
 		return true;
-	}
+	}*/
 }

@@ -22,9 +22,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAIFronosBeg;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAITemptMP;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAIFronosBeg;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAITemptMP;
 import stevekung.mods.moreplanets.core.init.MPItems;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 
@@ -35,13 +36,13 @@ public class EntityBearry extends IFronosPet
 	public EntityBearry(World world)
 	{
 		super(world);
-		this.setSize(0.6F, 1.2F);
+		this.setSize(0.7F, 1.2F);
 		this.tasks.addTask(1, new EntityAISwimming(this));
 		this.tasks.addTask(1, new EntityAIPanic(this, 1.4D));
 		this.tasks.addTask(2, this.aiSit);
 		this.tasks.addTask(3, new EntityAILeapAtTarget(this, 0.4F));
 		this.tasks.addTask(4, new EntityAIFollowOwner(this, 1.0D, 10.0F, 2.0F));
-		this.tasks.addTask(5, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.fronos_food2, 1, 1), false));
+		this.tasks.addTask(5, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.candy_food, 1, 1), false));
 		this.tasks.addTask(6, new EntityAIMate(this, 1.0D));
 		this.tasks.addTask(7, new EntityAIWander(this, 1.0D));
 		this.tasks.addTask(8, new EntityAIFronosBeg(this, 8.0F));
@@ -65,33 +66,9 @@ public class EntityBearry extends IFronosPet
 	}
 
 	@Override
-	public boolean isAIEnabled()
+	public float getEyeHeight()
 	{
-		return true;
-	}
-
-	@Override
-	protected void dropFewItems(boolean par1, int par2)
-	{
-		int j = this.rand.nextInt(3) + 1 + this.rand.nextInt(1 + par2);
-
-		for (int k = 0; k < j; ++k)
-		{
-			this.entityDropItem(new ItemStack(FronosItems.fronos_food, 1, 0), 0.0F);
-		}
-	}
-
-	@Override
-	public void onUpdate()
-	{
-		super.onUpdate();
-
-		if (!this.isChild() && !this.worldObj.isRemote && --this.timeUntilToDropStrawberry <= 0)
-		{
-			this.playSound("mob.chicken.plop", 1.0F, (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F);
-			this.entityDropItem(new ItemStack(FronosItems.fronos_food, 1, 0), 1.0F);
-			this.timeUntilToDropStrawberry = this.rand.nextInt(6000) + 2000;
-		}
+		return this.height - 0.5F;
 	}
 
 	@Override
@@ -113,24 +90,27 @@ public class EntityBearry extends IFronosPet
 	}
 
 	@Override
-	public IEntityLivingData onSpawnWithEgg(IEntityLivingData par1EntityLivingData)
+	protected void dropFewItems(boolean par1, int par2)
 	{
-		if (this.worldObj.rand.nextInt(10) == 0)
+		int j = this.rand.nextInt(3) + 1 + this.rand.nextInt(1 + par2);
+
+		for (int i = 0; i < j; ++i)
 		{
-			EntityMarshmallow marshmallow = new EntityMarshmallow(this.worldObj);
-			marshmallow.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);
-			marshmallow.onSpawnWithEgg((IEntityLivingData)null);
-			this.worldObj.spawnEntityInWorld(marshmallow);
-			marshmallow.mountEntity(this);
-			marshmallow.setGrowingAge(-8000);
+			this.entityDropItem(new ItemStack(FronosItems.fronos_food, 1, 0), 0.0F);
 		}
-		return par1EntityLivingData;
 	}
 
 	@Override
-	public boolean canLivingInIvy()
+	public void onUpdate()
 	{
-		return true;
+		super.onUpdate();
+
+		if (!this.isChild() && !this.worldObj.isRemote && --this.timeUntilToDropStrawberry <= 0)
+		{
+			this.playSound("mob.chicken.plop", 1.0F, (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F);
+			this.entityDropItem(new ItemStack(FronosItems.fronos_food, 1, 0), 1.0F);
+			this.timeUntilToDropStrawberry = this.rand.nextInt(6000) + 2000;
+		}
 	}
 
 	@Override
@@ -177,14 +157,35 @@ public class EntityBearry extends IFronosPet
 	}
 
 	@Override
+	public IEntityLivingData func_180482_a(DifficultyInstance diff, IEntityLivingData data)
+	{
+		if (this.worldObj.rand.nextInt(10) == 0)
+		{
+			EntityMarshmallow marshmallow = new EntityMarshmallow(this.worldObj);
+			marshmallow.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);
+			marshmallow.func_180482_a(diff, (IEntityLivingData)null);
+			marshmallow.mountEntity(this);
+			marshmallow.setGrowingAge(-8000);
+			this.worldObj.spawnEntityInWorld(marshmallow);
+		}
+		return data;
+	}
+
+	@Override
+	public boolean canLivingInIvy()
+	{
+		return true;
+	}
+
+	@Override
 	public EntityBearry createChild(EntityAgeable entity)
 	{
 		EntityBearry pet = new EntityBearry(this.worldObj);
-		String owner = this.func_152113_b();
+		String owner = this.getOwnerId();
 
 		if (owner != null && owner.trim().length() > 0)
 		{
-			pet.func_152115_b(owner);
+			pet.setOwnerId(owner);
 			pet.setTamed(true);
 		}
 		return pet;

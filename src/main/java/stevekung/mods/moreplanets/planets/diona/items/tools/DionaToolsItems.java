@@ -10,11 +10,11 @@ package stevekung.mods.moreplanets.planets.diona.items.tools;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraftforge.common.util.EnumHelper;
-import stevekung.mods.moreplanets.core.items.tools.ItemAxeMP;
-import stevekung.mods.moreplanets.core.items.tools.ItemHoeMP;
-import stevekung.mods.moreplanets.core.items.tools.ItemPickaxeMP;
-import stevekung.mods.moreplanets.core.items.tools.ItemShovelMP;
-import stevekung.mods.moreplanets.core.items.tools.ItemSwordMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemAxeMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemHoeMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemPickaxeMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemShovelMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemSwordMP;
 import stevekung.mods.moreplanets.planets.diona.items.DionaItems;
 import stevekung.mods.stevecore.RegisterHelper;
 
@@ -31,7 +31,7 @@ public class DionaToolsItems
 	public static Item fronisium_axe;
 	public static Item fronisium_hoe;
 
-	/**Name,HarvestLevel,MaxUse,Efficiency,Damage,Enchantability**/
+	// Name,HarvestLevel,MaxUse,Efficiency,Damage,Enchantability
 	public static ToolMaterial quontonium = EnumHelper.addToolMaterial("quontonium", 4, 1648, 9.5F, 3.5F, 8);
 	public static ToolMaterial fronisium = EnumHelper.addToolMaterial("fronisium", 4, 1680, 9.5F, 3.75F, 8);
 
@@ -44,16 +44,16 @@ public class DionaToolsItems
 
 	private static void initItems()
 	{
-		DionaToolsItems.quontonium_sword = new ItemSwordMP("quontonium_sword", DionaToolsItems.quontonium, DionaItems.diona_item, 2, "diona:quontonium_sword");
-		DionaToolsItems.quontonium_shovel = new ItemShovelMP("quontonium_spade", DionaToolsItems.quontonium, DionaItems.diona_item, 2, "diona:quontonium_shovel");
-		DionaToolsItems.quontonium_pickaxe = new ItemPickaxeMP("quontonium_pickaxe", DionaToolsItems.quontonium, DionaItems.diona_item, 2, "diona:quontonium_pickaxe");
-		DionaToolsItems.quontonium_axe = new ItemAxeMP("quontonium_axe", DionaToolsItems.quontonium, DionaItems.diona_item, 2, "diona:quontonium_axe");
-		DionaToolsItems.quontonium_hoe = new ItemHoeMP("quontonium_hoe", DionaToolsItems.quontonium, DionaItems.diona_item, 2, "diona:quontonium_hoe");
-		DionaToolsItems.fronisium_sword = new ItemSwordMP("fronisium_sword", fronisium, DionaItems.diona_item, 3, "diona:fronisium_sword");
-		DionaToolsItems.fronisium_shovel = new ItemShovelMP("fronisium_spade", fronisium, DionaItems.diona_item, 3, "diona:fronisium_shovel");
-		DionaToolsItems.fronisium_pickaxe = new ItemPickaxeMP("fronisium_pickaxe", fronisium, DionaItems.diona_item, 3, "diona:fronisium_pickaxe");
-		DionaToolsItems.fronisium_axe = new ItemAxeMP("fronisium_axe", fronisium, DionaItems.diona_item, 3, "diona:fronisium_axe");
-		DionaToolsItems.fronisium_hoe = new ItemHoeMP("fronisium_hoe", fronisium, DionaItems.diona_item, 3, "diona:fronisium_hoe");
+		DionaToolsItems.quontonium_sword = new ItemSwordMP("quontonium_sword", DionaToolsItems.quontonium, DionaItems.diona_item, 2);
+		DionaToolsItems.quontonium_shovel = new ItemShovelMP("quontonium_shovel", DionaToolsItems.quontonium, DionaItems.diona_item, 2);
+		DionaToolsItems.quontonium_pickaxe = new ItemPickaxeMP("quontonium_pickaxe", DionaToolsItems.quontonium, DionaItems.diona_item, 2);
+		DionaToolsItems.quontonium_axe = new ItemAxeMP("quontonium_axe", DionaToolsItems.quontonium, DionaItems.diona_item, 2);
+		DionaToolsItems.quontonium_hoe = new ItemHoeMP("quontonium_hoe", DionaToolsItems.quontonium, DionaItems.diona_item, 2);
+		DionaToolsItems.fronisium_sword = new ItemSwordMP("fronisium_sword", fronisium, DionaItems.diona_item, 3);
+		DionaToolsItems.fronisium_shovel = new ItemShovelMP("fronisium_shovel", fronisium, DionaItems.diona_item, 3);
+		DionaToolsItems.fronisium_pickaxe = new ItemPickaxeMP("fronisium_pickaxe", fronisium, DionaItems.diona_item, 3);
+		DionaToolsItems.fronisium_axe = new ItemAxeMP("fronisium_axe", fronisium, DionaItems.diona_item, 3);
+		DionaToolsItems.fronisium_hoe = new ItemHoeMP("fronisium_hoe", fronisium, DionaItems.diona_item, 3);
 	}
 
 	private static void registerHarvestLevels()

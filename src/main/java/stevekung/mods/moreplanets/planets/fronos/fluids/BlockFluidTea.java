@@ -9,65 +9,57 @@ package stevekung.mods.moreplanets.planets.fronos.fluids;
 
 import java.util.Random;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockFluidBaseMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.BlockFluidBaseMP;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockFluidTea extends BlockFluidBaseMP
 {
 	public BlockFluidTea(String name)
 	{
 		super(FronosBlocks.tea_fluid);
-		this.setRenderPass(1);
+		this.setRenderLayer(EnumWorldBlockLayer.TRANSLUCENT);
 		this.setQuantaPerBlock(4);
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void randomDisplayTick(World par1World, int par2, int par3, int par4, Random par5Random)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		super.randomDisplayTick(par1World, par2, par3, par4, par5Random);
+		super.randomDisplayTick(world, pos, state, rand);
 
-		if (par5Random.nextInt(1) == 0)
+		if (rand.nextInt(1) == 0)
 		{
-			MorePlanetsCore.proxy.spawnParticle("tea", par2 + par5Random.nextFloat(), par3 + 1, par4 + par5Random.nextFloat());
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.TEA, pos.getX() + rand.nextFloat(), pos.getY() + 1, pos.getZ() + rand.nextFloat());
 		}
-		if (par5Random.nextInt(10) == 0 && World.doesBlockHaveSolidTopSurface(par1World, par2, par3 - 1, par4) && !par1World.getBlock(par2, par3 - 2, par4).getMaterial().blocksMovement())
+		if (rand.nextInt(10) == 0 && World.doesBlockHaveSolidTopSurface(world, pos.down()) && !world.getBlockState(pos.down(2)).getBlock().getMaterial().blocksMovement())
 		{
-			double d5 = par2 + par5Random.nextFloat();
-			double d6 = par3 - 1.05D;
-			double d7 = par4 + par5Random.nextFloat();
-			MorePlanetsCore.proxy.spawnParticle("teaDrip", d5, d6, d7);
+			double d5 = pos.getX() + rand.nextFloat();
+			double d6 = pos.getY() - 1.05D;
+			double d7 = pos.getZ() + rand.nextFloat();
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.TEA_DRIP, d5, d6, d7);
 		}
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
 		if (entity instanceof EntityLivingBase)
 		{
 			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(Potion.resistance.id, 60, 1));
 			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(Potion.moveSpeed.id, 100, 1));
 		}
-	}
-
-	@Override
-	public String getStillTextures()
-	{
-		return "fronos:tea_still";
-	}
-
-	@Override
-	public String getFlowingTextures()
-	{
-		return "fronos:tea_flowing";
 	}
 }

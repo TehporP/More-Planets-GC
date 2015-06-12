@@ -7,27 +7,24 @@
 
 package stevekung.mods.moreplanets.planets.kapteynb.items.tools;
 
-import micdoodle8.mods.galacticraft.core.proxy.ClientProxyCore;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
 import stevekung.mods.moreplanets.core.init.MPPotions;
 import stevekung.mods.moreplanets.planets.kapteynb.items.KapteynBItems;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemIceCrystalPickaxe extends ItemPickaxe
 {
-	public ItemIceCrystalPickaxe(String name, ToolMaterial par2EnumToolMaterial)
+	public ItemIceCrystalPickaxe(String name, ToolMaterial material)
 	{
-		super(par2EnumToolMaterial);
+		super(material);
 		this.setUnlocalizedName(name);
 	}
 
@@ -49,7 +46,7 @@ public class ItemIceCrystalPickaxe extends ItemPickaxe
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean hasEffect(ItemStack itemStack, int pass)
+	public boolean hasEffect(ItemStack itemStack)
 	{
 		if (!itemStack.isItemEnchanted())
 		{
@@ -60,17 +57,11 @@ public class ItemIceCrystalPickaxe extends ItemPickaxe
 		return true;
 	}
 
-	@Override
-	public EnumRarity getRarity(ItemStack par1ItemStack)
-	{
-		return ClientProxyCore.galacticraftItem;
-	}
-
-	@Override
-	public void registerIcons(IIconRegister par1IconRegister)
-	{
-		this.itemIcon = par1IconRegister.registerIcon(this.getUnlocalizedName().replace("item.", "kapteynb:"));
-	}
+	//	@Override
+	//	public EnumRarity getRarity(ItemStack par1ItemStack)
+	//	{
+	//		return ClientProxyCore.galacticraftItem;
+	//	}
 
 	@Override
 	public boolean getIsRepairable(ItemStack par1ItemStack, ItemStack par2ItemStack)

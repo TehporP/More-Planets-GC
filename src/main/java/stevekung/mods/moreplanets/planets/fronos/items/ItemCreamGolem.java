@@ -9,16 +9,23 @@ package stevekung.mods.moreplanets.planets.fronos.items;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Facing;
+import net.minecraft.tileentity.MobSpawnerBaseLogic;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.items.ItemBaseMP;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.ItemBaseMP;
 import stevekung.mods.moreplanets.planets.fronos.entities.EntityCreamGolem;
 
 public class ItemCreamGolem extends ItemBaseMP
@@ -30,176 +37,79 @@ public class ItemCreamGolem extends ItemBaseMP
 	}
 
 	@Override
-	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List)
+	@SideOnly(Side.CLIENT)
+	public void getSubItems(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < this.getItemVariantsName().length; i++)
 		{
-			par3List.add(new ItemStack(par1, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float xoffset, float yoffset, float zoffset)
+	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float xoffset, float yoffset, float zoffset)
 	{
 		int meta = itemStack.getItemDamage();
+		IBlockState state = world.getBlockState(pos);
 
 		if (world.isRemote)
 		{
 			return true;
 		}
+		if (player.capabilities.isCreativeMode)
+		{
+			if (state.getBlock() == Blocks.mob_spawner)
+			{
+				TileEntity localTileEntity = world.getTileEntity(pos);
+
+				if (localTileEntity instanceof TileEntityMobSpawner)
+				{
+					MobSpawnerBaseLogic mobSpawner = ((TileEntityMobSpawner)localTileEntity).getSpawnerBaseLogic();
+					mobSpawner.setEntityName("CreamGolem");
+					localTileEntity.markDirty();
+					world.markBlockForUpdate(pos);
+
+					if (!player.capabilities.isCreativeMode)
+					{
+						itemStack.stackSize -= 1;
+					}
+					return true;
+				}
+			}
+		}
+		if (!player.canPlayerEdit(pos.offset(side), side, itemStack))
+		{
+			return false;
+		}
 		else
 		{
-			Block targetBlock = world.getBlock(x, y, z);
-			x += Facing.offsetsXForSide[side];
-			y += Facing.offsetsYForSide[side];
-			z += Facing.offsetsZForSide[side];
-			double yOffsetForFence = 0.0D;
+			pos = pos.offset(side);
+			double d = 0.0D;
+			EntityCreamGolem cream = new EntityCreamGolem(world);
 
-			if (side == 1 && targetBlock instanceof BlockFence)
+			if (side == EnumFacing.UP && state instanceof BlockFence)
 			{
-				yOffsetForFence = 0.5D;
+				d = 0.5D;
 			}
 
-			if (meta == 0)
+			if (this.spawnCreamGolem(world, meta, pos.getX() + 0.5D, pos.getY() + d, pos.getZ() + 0.5D) && !player.capabilities.isCreativeMode)
 			{
-				EntityCreamGolem cream = new EntityCreamGolem(world);
-
-				if (ItemCreamGolem.spawnVanillaCreamGolem(world, x + 0.5D, y + yOffsetForFence, z + 0.5D) && !player.capabilities.isCreativeMode)
-				{
-					--itemStack.stackSize;
-				}
-				if (itemStack.hasDisplayName())
-				{
-					((EntityLiving)cream).setCustomNameTag(itemStack.getDisplayName());
-				}
+				--itemStack.stackSize;
 			}
-			else if (meta == 1)
+			if (itemStack.hasDisplayName())
 			{
-				EntityCreamGolem cream = new EntityCreamGolem(world);
-
-				if (ItemCreamGolem.spawnChocolateCreamGolem(world, x + 0.5D, y + yOffsetForFence, z + 0.5D) && !player.capabilities.isCreativeMode)
-				{
-					--itemStack.stackSize;
-				}
-				if (itemStack.hasDisplayName())
-				{
-					((EntityLiving)cream).setCustomNameTag(itemStack.getDisplayName());
-				}
-			}
-			else if (meta == 2)
-			{
-				EntityCreamGolem cream = new EntityCreamGolem(world);
-
-				if (ItemCreamGolem.spawnStrawberryCreamGolem(world, x + 0.5D, y + yOffsetForFence, z + 0.5D) && !player.capabilities.isCreativeMode)
-				{
-					--itemStack.stackSize;
-				}
-				if (itemStack.hasDisplayName())
-				{
-					((EntityLiving)cream).setCustomNameTag(itemStack.getDisplayName());
-				}
-			}
-			else if (meta == 3)
-			{
-				EntityCreamGolem cream = new EntityCreamGolem(world);
-
-				if (ItemCreamGolem.spawnOrangeCreamGolem(world, x + 0.5D, y + yOffsetForFence, z + 0.5D) && !player.capabilities.isCreativeMode)
-				{
-					--itemStack.stackSize;
-				}
-				if (itemStack.hasDisplayName())
-				{
-					((EntityLiving)cream).setCustomNameTag(itemStack.getDisplayName());
-				}
-			}
-			else if (meta == 4)
-			{
-				if (ItemCreamGolem.spawnTeaCreamGolem(world, x + 0.5D, y + yOffsetForFence, z + 0.5D) && !player.capabilities.isCreativeMode)
-				{
-					--itemStack.stackSize;
-				}
-
-				EntityCreamGolem cream = new EntityCreamGolem(world);
-
-				if (itemStack.hasDisplayName())
-				{
-					((EntityLiving)cream).setCustomNameTag(itemStack.getDisplayName());
-				}
-			}
-			else if (meta == 5)
-			{
-				if (ItemCreamGolem.spawnLemonCreamGolem(world, x + 0.5D, y + yOffsetForFence, z + 0.5D) && !player.capabilities.isCreativeMode)
-				{
-					--itemStack.stackSize;
-				}
-
-				EntityCreamGolem cream = new EntityCreamGolem(world);
-
-				if (itemStack.hasDisplayName())
-				{
-					((EntityLiving)cream).setCustomNameTag(itemStack.getDisplayName());
-				}
+				((EntityLiving)cream).setCustomNameTag(itemStack.getDisplayName());
 			}
 			return true;
 		}
 	}
 
-	private static boolean spawnVanillaCreamGolem(World world, double x, double y, double z)
+	boolean spawnCreamGolem(World world, int type, double x, double y, double z)
 	{
 		EntityCreamGolem cream = new EntityCreamGolem(world);
 		cream.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0F, 0.0F);
+		cream.setCreamGolemType(type);
 		world.spawnEntityInWorld(cream);
-		cream.setCreamGolemType(0);
-		cream.playLivingSound();
-		return true;
-	}
-
-	private static boolean spawnChocolateCreamGolem(World world, double x, double y, double z)
-	{
-		EntityCreamGolem cream = new EntityCreamGolem(world);
-		cream.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0F, 0.0F);
-		world.spawnEntityInWorld(cream);
-		cream.setCreamGolemType(1);
-		cream.playLivingSound();
-		return true;
-	}
-
-	private static boolean spawnStrawberryCreamGolem(World world, double x, double y, double z)
-	{
-		EntityCreamGolem cream = new EntityCreamGolem(world);
-		cream.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0F, 0.0F);
-		world.spawnEntityInWorld(cream);
-		cream.setCreamGolemType(2);
-		cream.playLivingSound();
-		return true;
-	}
-
-	private static boolean spawnOrangeCreamGolem(World world, double x, double y, double z)
-	{
-		EntityCreamGolem cream = new EntityCreamGolem(world);
-		cream.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0F, 0.0F);
-		world.spawnEntityInWorld(cream);
-		cream.setCreamGolemType(3);
-		cream.playLivingSound();
-		return true;
-	}
-
-	private static boolean spawnTeaCreamGolem(World world, double x, double y, double z)
-	{
-		EntityCreamGolem cream = new EntityCreamGolem(world);
-		cream.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0F, 0.0F);
-		world.spawnEntityInWorld(cream);
-		cream.setCreamGolemType(4);
-		cream.playLivingSound();
-		return true;
-	}
-
-	private static boolean spawnLemonCreamGolem(World world, double x, double y, double z)
-	{
-		EntityCreamGolem cream = new EntityCreamGolem(world);
-		cream.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0F, 0.0F);
-		world.spawnEntityInWorld(cream);
-		cream.setCreamGolemType(5);
 		cream.playLivingSound();
 		return true;
 	}
@@ -208,11 +118,5 @@ public class ItemCreamGolem extends ItemBaseMP
 	public String[] getItemVariantsName()
 	{
 		return new String[] { "vanilla_cream_golem", "chocolate_cream_golem", "strawberry_cream_golem", "orange_cream_golem", "tea_cream_golem", "lemon_cream_golem" };
-	}
-
-	@Override
-	public String getTexturesFolder()
-	{
-		return "fronos";
 	}
 }

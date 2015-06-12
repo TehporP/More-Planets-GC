@@ -7,10 +7,7 @@
 
 package stevekung.mods.moreplanets.planets.diona.entities;
 
-import micdoodle8.mods.galacticraft.api.entity.IEntityBreathable;
-import micdoodle8.mods.galacticraft.core.items.GCItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockColored;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,6 +18,7 @@ import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAILeapAtTarget;
 import net.minecraft.entity.ai.EntityAILookIdle;
 import net.minecraft.entity.ai.EntityAIMate;
+import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIOwnerHurtByTarget;
 import net.minecraft.entity.ai.EntityAIOwnerHurtTarget;
 import net.minecraft.entity.ai.EntityAISwimming;
@@ -29,34 +27,41 @@ import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityGhast;
+import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityHorse;
+import net.minecraft.entity.passive.EntityRabbit;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.pathfinding.PathNavigateGround;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.moreplanets.core.init.MPItems;
-import stevekung.mods.moreplanets.planets.diona.blocks.DionaBlocks;
 import stevekung.mods.moreplanets.planets.diona.entities.ai.EntityAISpaceWolfBeg;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
+import com.google.common.base.Predicate;
+
+public class EntitySpaceWolf extends EntityTameable /*implements IEntityBreathable*/
 {
-	private float field_70926_e;
-	private float field_70924_f;
+	private float headRotationCourse;
+	private float headRotationCourseOld;
+	private boolean isWet;
 	private boolean isShaking;
-	private boolean field_70928_h;
 	private float timeWolfIsShaking;
 	private float prevTimeWolfIsShaking;
 
@@ -64,7 +69,7 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	{
 		super(world);
 		this.setSize(0.6F, 0.8F);
-		this.getNavigator().setAvoidsWater(true);
+		((PathNavigateGround)this.getNavigator()).func_179690_a(true);
 		this.tasks.addTask(1, new EntityAISwimming(this));
 		this.tasks.addTask(2, this.aiSit);
 		this.tasks.addTask(3, new EntityAILeapAtTarget(this, 0.4F));
@@ -77,27 +82,28 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 		this.tasks.addTask(9, new EntityAILookIdle(this));
 		this.targetTasks.addTask(1, new EntityAIOwnerHurtByTarget(this));
 		this.targetTasks.addTask(2, new EntityAIOwnerHurtTarget(this));
-		this.targetTasks.addTask(3, new EntityAIHurtByTarget(this, true));
-		this.targetTasks.addTask(4, new EntityAITargetNonTamed(this, EntitySheep.class, 200, false));
+		this.targetTasks.addTask(3, new EntityAIHurtByTarget(this, true, new Class[0]));
+		this.targetTasks.addTask(4, new EntityAITargetNonTamed(this, EntityAnimal.class, false, new Predicate()
+		{
+			public boolean func_180094_a(Entity entity)
+			{
+				return entity instanceof EntitySheep || entity instanceof EntityRabbit;
+			}
+			@Override
+			public boolean apply(Object entity)
+			{
+				return this.func_180094_a((Entity)entity);
+			}
+		}));
+		this.targetTasks.addTask(5, new EntityAINearestAttackableTarget(this, EntitySkeleton.class, false));
 		this.setTamed(false);
-	}
-
-	@Override
-	public boolean getCanSpawnHere()
-	{
-		int i = MathHelper.floor_double(this.posX);
-		int j = MathHelper.floor_double(this.boundingBox.minY);
-		int k = MathHelper.floor_double(this.posZ);
-		Block block = this.worldObj.getBlock(i, j - 1, k);
-		int meta = this.worldObj.getBlockMetadata(i, j - 1, k);
-		return block == DionaBlocks.diona_block && meta == 0;
 	}
 
 	@Override
 	protected void applyEntityAttributes()
 	{
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.300000011920929D);
+		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.30000001192092896D);
 
 		if (this.isTamed())
 		{
@@ -107,20 +113,17 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 		{
 			this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(8.0D);
 		}
+
+		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.attackDamage);
+		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(2.0D);
 	}
 
 	@Override
-	public boolean isAIEnabled()
+	public void setAttackTarget(EntityLivingBase entity)
 	{
-		return true;
-	}
+		super.setAttackTarget(entity);
 
-	@Override
-	public void setAttackTarget(EntityLivingBase living)
-	{
-		super.setAttackTarget(living);
-
-		if (living == null)
+		if (entity == null)
 		{
 			this.setAngry(false);
 		}
@@ -131,7 +134,7 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	}
 
 	@Override
-	protected void updateAITick()
+	protected void updateAITasks()
 	{
 		this.dataWatcher.updateObject(18, Float.valueOf(this.getHealth()));
 	}
@@ -142,11 +145,11 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 		super.entityInit();
 		this.dataWatcher.addObject(18, new Float(this.getHealth()));
 		this.dataWatcher.addObject(19, new Byte((byte)0));
-		this.dataWatcher.addObject(20, new Byte((byte)BlockColored.func_150032_b(1)));
+		this.dataWatcher.addObject(20, new Byte((byte)EnumDyeColor.RED.getMetadata()));
 	}
 
 	@Override
-	protected void func_145780_a(int x, int y, int z, Block block)
+	protected void playStepSound(BlockPos pos, Block block)
 	{
 		this.playSound("mob.wolf.step", 0.15F, 1.0F);
 	}
@@ -156,7 +159,7 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	{
 		super.writeEntityToNBT(nbt);
 		nbt.setBoolean("Angry", this.isAngry());
-		nbt.setByte("CollarColor", (byte)this.getCollarColor());
+		nbt.setByte("CollarColor", (byte)this.getCollarColor().getDyeDamage());
 	}
 
 	@Override
@@ -167,26 +170,14 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 
 		if (nbt.hasKey("CollarColor", 99))
 		{
-			this.setCollarColor(nbt.getByte("CollarColor"));
+			this.setCollarColor(EnumDyeColor.byDyeDamage(nbt.getByte("CollarColor")));
 		}
 	}
 
 	@Override
 	protected String getLivingSound()
 	{
-		if (this.isAngry())
-		{
-			return "mob.wolf.growl";
-		}
-		if (this.rand.nextInt(3) == 0)
-		{
-			if (this.isTamed() && this.dataWatcher.getWatchableObjectFloat(18) < 10.0F)
-			{
-				return "mob.wolf.whine";
-			}
-			return "mob.wolf.panting";
-		}
-		return "mob.wolf.bark";
+		return this.isAngry() ? "mob.wolf.growl" : this.rand.nextInt(3) == 0 ? this.isTamed() && this.dataWatcher.getWatchableObjectFloat(18) < 10.0F ? "mob.wolf.whine" : "mob.wolf.panting" : "mob.wolf.bark";
 	}
 
 	@Override
@@ -210,7 +201,7 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	@Override
 	protected Item getDropItem()
 	{
-		return Item.getItemFromBlock(Blocks.air);
+		return Item.getItemById(-1);
 	}
 
 	@Override
@@ -218,12 +209,17 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	{
 		super.onLivingUpdate();
 
-		if (!this.worldObj.isRemote && this.isShaking && !this.field_70928_h && !this.hasPath() && this.onGround)
+		if (!this.worldObj.isRemote && this.isWet && !this.isShaking && !this.hasPath() && this.onGround)
 		{
-			this.field_70928_h = true;
+			this.isShaking = true;
 			this.timeWolfIsShaking = 0.0F;
 			this.prevTimeWolfIsShaking = 0.0F;
 			this.worldObj.setEntityState(this, (byte)8);
+		}
+
+		if (!this.worldObj.isRemote && this.getAttackTarget() == null && this.isAngry())
+		{
+			this.setAngry(false);
 		}
 	}
 
@@ -231,28 +227,25 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	public void onUpdate()
 	{
 		super.onUpdate();
-		this.field_70924_f = this.field_70926_e;
+		this.headRotationCourseOld = this.headRotationCourse;
 
 		if (this.func_70922_bv())
 		{
-			this.field_70926_e += (1.0F - this.field_70926_e) * 0.4F;
+			this.headRotationCourse += (1.0F - this.headRotationCourse) * 0.4F;
 		}
 		else
 		{
-			this.field_70926_e += (0.0F - this.field_70926_e) * 0.4F;
+			this.headRotationCourse += (0.0F - this.headRotationCourse) * 0.4F;
 		}
-		if (this.func_70922_bv())
-		{
-			this.numTicksToChaseTarget = 10;
-		}
+
 		if (this.isWet())
 		{
-			this.isShaking = true;
-			this.field_70928_h = false;
+			this.isWet = true;
+			this.isShaking = false;
 			this.timeWolfIsShaking = 0.0F;
 			this.prevTimeWolfIsShaking = 0.0F;
 		}
-		else if ((this.isShaking || this.field_70928_h) && this.field_70928_h)
+		else if ((this.isWet || this.isShaking) && this.isShaking)
 		{
 			if (this.timeWolfIsShaking == 0.0F)
 			{
@@ -264,34 +257,35 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 
 			if (this.prevTimeWolfIsShaking >= 2.0F)
 			{
+				this.isWet = false;
 				this.isShaking = false;
-				this.field_70928_h = false;
 				this.prevTimeWolfIsShaking = 0.0F;
 				this.timeWolfIsShaking = 0.0F;
 			}
+
 			if (this.timeWolfIsShaking > 0.4F)
 			{
-				float f1 = (float)this.boundingBox.minY;
-				int i = (int)(MathHelper.sin((this.timeWolfIsShaking - 0.4F) * 3.141593F) * 7.0F);
+				float f = (float)this.getEntityBoundingBox().minY;
+				int i = (int)(MathHelper.sin((this.timeWolfIsShaking - 0.4F) * (float)Math.PI) * 7.0F);
 
-				for (int j = 0; j < i; j++)
+				for (int j = 0; j < i; ++j)
 				{
+					float f1 = (this.rand.nextFloat() * 2.0F - 1.0F) * this.width * 0.5F;
 					float f2 = (this.rand.nextFloat() * 2.0F - 1.0F) * this.width * 0.5F;
-					float f3 = (this.rand.nextFloat() * 2.0F - 1.0F) * this.width * 0.5F;
-					this.worldObj.spawnParticle("splash", this.posX + f2, f1 + 0.8F, this.posZ + f3, this.motionX, this.motionY, this.motionZ);
+					this.worldObj.spawnParticle(EnumParticleTypes.WATER_SPLASH, this.posX + f1, f + 0.8F, this.posZ + f2, this.motionX, this.motionY, this.motionZ, new int[0]);
 				}
 			}
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
-	public boolean getWolfShaking()
+	public boolean isWolfWet()
 	{
-		return this.isShaking;
+		return this.isWet;
 	}
 
 	@SideOnly(Side.CLIENT)
-	public float getShadingWhileShaking(float par1)
+	public float getShadingWhileWet(float par1)
 	{
 		return 0.75F + (this.prevTimeWolfIsShaking + (this.timeWolfIsShaking - this.prevTimeWolfIsShaking) * par1) / 2.0F * 0.25F;
 	}
@@ -299,23 +293,23 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	@SideOnly(Side.CLIENT)
 	public float getShakeAngle(float par1, float par2)
 	{
-		float f = (this.prevTimeWolfIsShaking + (this.timeWolfIsShaking - this.prevTimeWolfIsShaking) * par1 + par2) / 1.8F;
+		float f2 = (this.prevTimeWolfIsShaking + (this.timeWolfIsShaking - this.prevTimeWolfIsShaking) * par1 + par2) / 1.8F;
 
-		if (f < 0.0F)
+		if (f2 < 0.0F)
 		{
-			f = 0.0F;
+			f2 = 0.0F;
 		}
-		else if (f > 1.0F)
+		else if (f2 > 1.0F)
 		{
-			f = 1.0F;
+			f2 = 1.0F;
 		}
-		return MathHelper.sin(f * 3.141593F) * MathHelper.sin(f * 3.141593F * 11.0F) * 0.15F * 3.141593F;
+		return MathHelper.sin(f2 * (float)Math.PI) * MathHelper.sin(f2 * (float)Math.PI * 11.0F) * 0.15F * (float)Math.PI;
 	}
 
 	@SideOnly(Side.CLIENT)
 	public float getInterestedAngle(float par1)
 	{
-		return (this.field_70924_f + (this.field_70926_e - this.field_70924_f) * par1) * 0.15F * 3.141593F;
+		return (this.headRotationCourseOld + (this.headRotationCourse - this.headRotationCourseOld) * par1) * 0.15F * (float)Math.PI;
 	}
 
 	@Override
@@ -327,44 +321,47 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	@Override
 	public int getVerticalFaceSpeed()
 	{
-		if (this.isSitting())
-		{
-			return 20;
-		}
-		return super.getVerticalFaceSpeed();
+		return this.isSitting() ? 20 : super.getVerticalFaceSpeed();
 	}
 
 	@Override
-	public boolean attackEntityFrom(DamageSource source, float par2)
+	public boolean attackEntityFrom(DamageSource source, float amount)
 	{
-		if (this.isEntityInvulnerable())
+		if (this.isEntityInvulnerable(source))
 		{
 			return false;
 		}
-
-		Entity localEntity = source.getEntity();
-		this.aiSit.setSitting(false);
-
-		if (localEntity != null && !(localEntity instanceof EntityPlayer) && !(localEntity instanceof EntityArrow))
+		else
 		{
-			par2 = (par2 + 1.0F) / 2.0F;
+			Entity entity = source.getEntity();
+			this.aiSit.setSitting(false);
+
+			if (entity != null && !(entity instanceof EntityPlayer) && !(entity instanceof EntityArrow))
+			{
+				amount = (amount + 1.0F) / 2.0F;
+			}
+			return super.attackEntityFrom(source, amount);
 		}
-		return super.attackEntityFrom(source, par2);
 	}
 
 	@Override
 	public boolean attackEntityAsMob(Entity entity)
 	{
-		int i = this.isTamed() ? 4 : 2;
-		return entity.attackEntityFrom(DamageSource.causeMobDamage(this), i);
+		boolean flag = entity.attackEntityFrom(DamageSource.causeMobDamage(this), (int)this.getEntityAttribute(SharedMonsterAttributes.attackDamage).getAttributeValue());
+
+		if (flag)
+		{
+			this.func_174815_a(this, entity);
+		}
+		return flag;
 	}
 
 	@Override
-	public void setTamed(boolean tame)
+	public void setTamed(boolean tamed)
 	{
-		super.setTamed(tame);
+		super.setTamed(tamed);
 
-		if (tame)
+		if (tamed)
 		{
 			this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(20.0D);
 		}
@@ -372,6 +369,7 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 		{
 			this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(8.0D);
 		}
+		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(4.0D);
 	}
 
 	@Override
@@ -385,72 +383,70 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 			{
 				if (itemStack.getItem() instanceof ItemFood)
 				{
-					ItemFood localItemFood = (ItemFood)itemStack.getItem();
+					ItemFood itemfood = (ItemFood)itemStack.getItem();
 
-					if (localItemFood.isWolfsFavoriteMeat() && this.dataWatcher.getWatchableObjectFloat(18) < 20.0F)
+					if (itemfood.isWolfsFavoriteMeat() && this.dataWatcher.getWatchableObjectFloat(18) < 20.0F)
 					{
 						if (!player.capabilities.isCreativeMode)
 						{
-							itemStack.stackSize -= 1;
+							--itemStack.stackSize;
 						}
 
-						this.heal(localItemFood.func_150905_g(itemStack));
+						this.heal(itemfood.getHealAmount(itemStack));
 
 						if (itemStack.stackSize <= 0)
 						{
-							player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+							player.inventory.setInventorySlotContents(player.inventory.currentItem, (ItemStack)null);
 						}
 						return true;
 					}
 				}
 				else if (itemStack.getItem() == Items.dye)
 				{
-					int i = BlockColored.func_150032_b(itemStack.getItemDamage());
+					EnumDyeColor enumdyecolor = EnumDyeColor.byDyeDamage(itemStack.getMetadata());
 
-					if (i != this.getCollarColor())
+					if (enumdyecolor != this.getCollarColor())
 					{
-						this.setCollarColor(i);
+						this.setCollarColor(enumdyecolor);
 
-						if (!player.capabilities.isCreativeMode)
+						if (!player.capabilities.isCreativeMode && --itemStack.stackSize <= 0)
 						{
-							if (--itemStack.stackSize <= 0)
-							{
-								player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
-							}
+							player.inventory.setInventorySlotContents(player.inventory.currentItem, (ItemStack)null);
 						}
 						return true;
 					}
 				}
 			}
-			if (this.func_152114_e(player) && !this.worldObj.isRemote && !this.isBreedingItem(itemStack))
+
+			if (this.isOwner(player) && !this.worldObj.isRemote && !this.isBreedingItem(itemStack))
 			{
 				this.aiSit.setSitting(!this.isSitting());
 				this.isJumping = false;
-				this.setPathToEntity(null);
-				this.setTarget(null);
-				this.setAttackTarget(null);
+				this.navigator.clearPathEntity();
+				this.setAttackTarget((EntityLivingBase)null);
 			}
 		}
 		else if (itemStack != null && itemStack.getItem() == Items.bone && !this.isAngry())
 		{
 			if (!player.capabilities.isCreativeMode)
 			{
-				itemStack.stackSize -= 1;
+				--itemStack.stackSize;
 			}
 			if (itemStack.stackSize <= 0)
 			{
-				player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+				player.inventory.setInventorySlotContents(player.inventory.currentItem, (ItemStack)null);
 			}
+
 			if (!this.worldObj.isRemote)
 			{
 				if (this.rand.nextInt(3) == 0)
 				{
 					this.setTamed(true);
-					this.setPathToEntity(null);
-					this.setAttackTarget(null);
+					this.navigator.clearPathEntity();
+					this.setAttackTarget((EntityLivingBase)null);
 					this.aiSit.setSitting(true);
 					this.setHealth(20.0F);
-					this.func_152115_b(player.getUniqueID().toString());
+					this.setOwnerId(player.getUniqueID().toString());
 					this.playTameEffect(true);
 					this.worldObj.setEntityState(this, (byte)7);
 				}
@@ -462,7 +458,6 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 			}
 			return true;
 		}
-
 		if (itemStack != null && itemStack.getItem() == MPItems.spawn_egg_mp && itemStack.getItemDamage() == 1000)
 		{
 			if (!this.worldObj.isRemote)
@@ -507,7 +502,7 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	{
 		if (health == 8)
 		{
-			this.field_70928_h = true;
+			this.isShaking = true;
 			this.timeWolfIsShaking = 0.0F;
 			this.prevTimeWolfIsShaking = 0.0F;
 		}
@@ -520,29 +515,13 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	@SideOnly(Side.CLIENT)
 	public float getTailRotation()
 	{
-		if (this.isAngry())
-		{
-			return 1.53938F;
-		}
-		if (this.isTamed())
-		{
-			return (0.55F - (20.0F - this.dataWatcher.getWatchableObjectFloat(18)) * 0.02F) * 3.141593F;
-		}
-		return 0.6283186F;
+		return this.isAngry() ? 1.5393804F : this.isTamed() ? (0.55F - (20.0F - this.dataWatcher.getWatchableObjectFloat(18)) * 0.02F) * (float)Math.PI : (float)Math.PI / 5F;
 	}
 
 	@Override
 	public boolean isBreedingItem(ItemStack itemStack)
 	{
-		if (itemStack == null)
-		{
-			return false;
-		}
-		if (!(itemStack.getItem() instanceof ItemFood))
-		{
-			return false;
-		}
-		return ((ItemFood)itemStack.getItem()).isWolfsFavoriteMeat();
+		return itemStack == null ? false : !(itemStack.getItem() instanceof ItemFood) ? false : ((ItemFood)itemStack.getItem()).isWolfsFavoriteMeat();
 	}
 
 	@Override
@@ -553,50 +532,50 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 
 	public boolean isAngry()
 	{
-		return (this.dataWatcher.getWatchableObjectByte(16) & 0x2) != 0;
+		return (this.dataWatcher.getWatchableObjectByte(16) & 2) != 0;
 	}
 
 	public void setAngry(boolean angry)
 	{
-		int i = this.dataWatcher.getWatchableObjectByte(16);
+		byte b0 = this.dataWatcher.getWatchableObjectByte(16);
 
 		if (angry)
 		{
-			this.dataWatcher.updateObject(16, Byte.valueOf((byte)(i | 2)));
+			this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 | 2)));
 		}
 		else
 		{
-			this.dataWatcher.updateObject(16, Byte.valueOf((byte)(i & -3)));
+			this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 & -3)));
 		}
 	}
 
-	public int getCollarColor()
+	public EnumDyeColor getCollarColor()
 	{
-		return this.dataWatcher.getWatchableObjectByte(20) & 15;
+		return EnumDyeColor.byDyeDamage(this.dataWatcher.getWatchableObjectByte(20) & 15);
 	}
 
-	public void setCollarColor(int color)
+	public void setCollarColor(EnumDyeColor collarcolor)
 	{
-		this.dataWatcher.updateObject(20, Byte.valueOf((byte)(color & 15)));
+		this.dataWatcher.updateObject(20, Byte.valueOf((byte)(collarcolor.getDyeDamage() & 15)));
 	}
 
 	@Override
-	public EntitySpaceWolf createChild(EntityAgeable entity)
+	public EntitySpaceWolf createChild(EntityAgeable ageable)
 	{
-		EntitySpaceWolf localEntityWolf = new EntitySpaceWolf(this.worldObj);
-		String str = this.func_152113_b();
+		EntitySpaceWolf entitywolf = new EntitySpaceWolf(this.worldObj);
+		String s = this.getOwnerId();
 
-		if (str != null && str.trim().length() > 0)
+		if (s != null && s.trim().length() > 0)
 		{
-			localEntityWolf.func_152115_b(str);
-			localEntityWolf.setTamed(true);
+			entitywolf.setOwnerId(s);
+			entitywolf.setTamed(true);
 		}
-		return localEntityWolf;
+		return entitywolf;
 	}
 
-	public void func_70918_i(boolean par1)
+	public void func_70918_i(boolean p_70918_1_)
 	{
-		if (par1)
+		if (p_70918_1_)
 		{
 			this.dataWatcher.updateObject(19, Byte.valueOf((byte)1));
 		}
@@ -607,32 +586,25 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	}
 
 	@Override
-	public boolean canMateWith(EntityAnimal entity)
+	public boolean canMateWith(EntityAnimal otherAnimal)
 	{
-		if (entity == this)
+		if (otherAnimal == this)
 		{
 			return false;
 		}
-		if (!this.isTamed())
+		else if (!this.isTamed())
 		{
 			return false;
 		}
-		if (!(entity instanceof EntitySpaceWolf))
+		else if (!(otherAnimal instanceof EntitySpaceWolf))
 		{
 			return false;
 		}
-
-		EntitySpaceWolf localEntityWolf = (EntitySpaceWolf)entity;
-
-		if (!localEntityWolf.isTamed())
+		else
 		{
-			return false;
+			EntitySpaceWolf entitywolf = (EntitySpaceWolf)otherAnimal;
+			return !entitywolf.isTamed() ? false : entitywolf.isSitting() ? false : this.isInLove() && entitywolf.isInLove();
 		}
-		if (localEntityWolf.isSitting())
-		{
-			return false;
-		}
-		return this.isInLove() && localEntityWolf.isInLove();
 	}
 
 	public boolean func_70922_bv()
@@ -649,38 +621,39 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 	@Override
 	public boolean func_142018_a(EntityLivingBase living, EntityLivingBase living2)
 	{
-		if (living instanceof EntityCreeper || living instanceof EntityGhast)
+		if (!(living instanceof EntityCreeper) && !(living instanceof EntityGhast))
 		{
-			return false;
-		}
-		if (living instanceof EntitySpaceWolf)
-		{
-			EntitySpaceWolf localEntityWolf = (EntitySpaceWolf)living;
-
-			if (localEntityWolf.isTamed() && localEntityWolf.getOwner() == living2)
+			if (living instanceof EntitySpaceWolf)
 			{
-				return false;
+				EntitySpaceWolf entitywolf = (EntitySpaceWolf)living;
+
+				if (entitywolf.isTamed() && entitywolf.getOwnerEntity() == living2)
+				{
+					return false;
+				}
 			}
+			return living instanceof EntityPlayer && living2 instanceof EntityPlayer && !((EntityPlayer)living2).canAttackPlayer((EntityPlayer)living) ? false : !(living instanceof EntityHorse) || !((EntityHorse)living).isTame();
 		}
-		if (living instanceof EntityPlayer && living2 instanceof EntityPlayer && !((EntityPlayer)living2).canAttackPlayer((EntityPlayer)living))
+		else
 		{
 			return false;
 		}
-		if (living instanceof EntityHorse && ((EntityHorse)living).isTame())
-		{
-			return false;
-		}
-		return true;
 	}
 
 	@Override
+	public boolean allowLeashing()
+	{
+		return !this.isAngry() && super.allowLeashing();
+	}
+
+	/*@Override
 	public boolean canBreath()
 	{
 		return true;
-	}
+	}*/
 
 	@Override
-	protected void dropRareDrop(int par1)
+	protected void addRandomArmor()
 	{
 		switch (this.rand.nextInt(10))
 		{
@@ -694,16 +667,16 @@ public class EntitySpaceWolf extends EntityTameable implements IEntityBreathable
 			break;
 		case 7:
 			//Oxygen tank half empty or less
-			this.entityDropItem(new ItemStack(GCItems.oxTankMedium, 1, 901 + this.rand.nextInt(900)), 0.0F);
+			//this.entityDropItem(new ItemStack(GCItems.oxTankMedium, 1, 901 + this.rand.nextInt(900)), 0.0F);
 			break;
 		case 8:
 			this.dropItem(Item.getItemFromBlock(Blocks.glass), 1);
 			break;
 		case 9:
-			this.dropItem(GCItems.oxygenGear, 1);
+			//this.dropItem(GCItems.oxygenGear, 1);
 			break;
 		case 10:
-			this.dropItem(GCItems.oxMask, 1);
+			//this.dropItem(GCItems.oxMask, 1);
 			break;
 		}
 	}

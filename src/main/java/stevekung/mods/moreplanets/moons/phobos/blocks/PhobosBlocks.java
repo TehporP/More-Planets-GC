@@ -17,14 +17,14 @@ public class PhobosBlocks
 
 	public static void init()
 	{
-		initBlocks();
-		setHarvestLevels();
-		registerBlocks();
+		PhobosBlocks.initBlocks();
+		PhobosBlocks.setHarvestLevels();
+		PhobosBlocks.registerBlocks();
 	}
 
 	private static void initBlocks()
 	{
-		PhobosBlocks.phobos_block = new BlockBasicPhobos("phobos_block");
+		PhobosBlocks.phobos_block = new BlockPhobos("phobos_block");
 	}
 
 	private static void setHarvestLevels()

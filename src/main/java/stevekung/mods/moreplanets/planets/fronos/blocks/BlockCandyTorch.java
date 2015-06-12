@@ -7,24 +7,19 @@
 
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockTorch;
 import net.minecraft.creativetab.CreativeTabs;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
 
 public class BlockCandyTorch extends BlockTorch
 {
-	private String torchTexture;
-
-	public BlockCandyTorch(String name, String texture)
+	public BlockCandyTorch(String name)
 	{
 		super();
-		this.torchTexture = texture;
 		this.setTickRandomly(true);
 		this.setLightLevel(1.0F);
-		this.setStepSound(Block.soundTypeCloth);
-		this.setBlockTextureName(this.torchTexture);
-		this.setBlockName(name);
+		this.setStepSound(soundTypeCloth);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override

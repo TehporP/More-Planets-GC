@@ -11,50 +11,51 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.recipe.CandyExtractorRecipes;
-import stevekung.mods.moreplanets.planets.fronos.inventory.slot.SlotCandyExtractor;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.recipe.CandyExtractorRecipes;
+import stevekung.mods.moreplanets.planets.fronos.inventory.slot.SlotCandyExtractorFuel;
+import stevekung.mods.moreplanets.planets.fronos.inventory.slot.SlotCandyExtractorOutput;
 import stevekung.mods.moreplanets.planets.fronos.tileentities.TileEntityCandyExtractor;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ContainerCandyExtractor extends Container
 {
-	private final TileEntityCandyExtractor candyExtractor;
-	private int lastCookTime;
-	private int lastExtractTime;
-	private int lastItemExtractTime;
+	private IInventory tileFurnace;
+	private int field_178152_f;
+	private int field_178153_g;
+	private int field_178154_h;
+	private int field_178155_i;
 
-	public ContainerCandyExtractor(InventoryPlayer par1InventoryPlayer, TileEntityCandyExtractor par2TileEntityFurnace)
+	public ContainerCandyExtractor(InventoryPlayer p_i45794_1_, IInventory furnaceInventory)
 	{
-		this.candyExtractor = par2TileEntityFurnace;
-		this.addSlotToContainer(new Slot(par2TileEntityFurnace, 0, 56, 17));
-		this.addSlotToContainer(new Slot(par2TileEntityFurnace, 1, 56, 53));
-		this.addSlotToContainer(new SlotCandyExtractor(par1InventoryPlayer.player, par2TileEntityFurnace, 2, 116, 35));
+		this.tileFurnace = furnaceInventory;
+		this.addSlotToContainer(new Slot(furnaceInventory, 0, 56, 17));
+		this.addSlotToContainer(new SlotCandyExtractorFuel(furnaceInventory, 1, 56, 53));
+		this.addSlotToContainer(new SlotCandyExtractorOutput(p_i45794_1_.player, furnaceInventory, 2, 116, 35));
 		int i;
 
 		for (i = 0; i < 3; ++i)
 		{
 			for (int j = 0; j < 9; ++j)
 			{
-				this.addSlotToContainer(new Slot(par1InventoryPlayer, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+				this.addSlotToContainer(new Slot(p_i45794_1_, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
 			}
 		}
 
 		for (i = 0; i < 9; ++i)
 		{
-			this.addSlotToContainer(new Slot(par1InventoryPlayer, i, 8 + i * 18, 142));
+			this.addSlotToContainer(new Slot(p_i45794_1_, i, 8 + i * 18, 142));
 		}
 	}
 
 	@Override
-	public void addCraftingToCrafters(ICrafting par1ICrafting)
+	public void addCraftingToCrafters(ICrafting listener)
 	{
-		super.addCraftingToCrafters(par1ICrafting);
-		par1ICrafting.sendProgressBarUpdate(this, 0, this.candyExtractor.candyCookTime);
-		par1ICrafting.sendProgressBarUpdate(this, 1, this.candyExtractor.extractorTime);
-		par1ICrafting.sendProgressBarUpdate(this, 2, this.candyExtractor.currentItemExtractTime);
+		super.addCraftingToCrafters(listener);
+		listener.func_175173_a(this, this.tileFurnace);
 	}
 
 	@Override
@@ -64,77 +65,66 @@ public class ContainerCandyExtractor extends Container
 
 		for (int i = 0; i < this.crafters.size(); ++i)
 		{
-			final ICrafting icrafting = (ICrafting)this.crafters.get(i);
+			ICrafting icrafting = (ICrafting)this.crafters.get(i);
 
-			if (this.lastCookTime != this.candyExtractor.candyCookTime)
+			if (this.field_178152_f != this.tileFurnace.getField(2))
 			{
-				icrafting.sendProgressBarUpdate(this, 0, this.candyExtractor.candyCookTime);
+				icrafting.sendProgressBarUpdate(this, 2, this.tileFurnace.getField(2));
 			}
-
-			if (this.lastExtractTime != this.candyExtractor.extractorTime)
+			if (this.field_178154_h != this.tileFurnace.getField(0))
 			{
-				icrafting.sendProgressBarUpdate(this, 1, this.candyExtractor.extractorTime);
+				icrafting.sendProgressBarUpdate(this, 0, this.tileFurnace.getField(0));
 			}
-
-			if (this.lastItemExtractTime != this.candyExtractor.currentItemExtractTime)
+			if (this.field_178155_i != this.tileFurnace.getField(1))
 			{
-				icrafting.sendProgressBarUpdate(this, 2, this.candyExtractor.currentItemExtractTime);
+				icrafting.sendProgressBarUpdate(this, 1, this.tileFurnace.getField(1));
+			}
+			if (this.field_178153_g != this.tileFurnace.getField(3))
+			{
+				icrafting.sendProgressBarUpdate(this, 3, this.tileFurnace.getField(3));
 			}
 		}
-		this.lastCookTime = this.candyExtractor.candyCookTime;
-		this.lastExtractTime = this.candyExtractor.extractorTime;
-		this.lastItemExtractTime = this.candyExtractor.currentItemExtractTime;
+		this.field_178152_f = this.tileFurnace.getField(2);
+		this.field_178154_h = this.tileFurnace.getField(0);
+		this.field_178155_i = this.tileFurnace.getField(1);
+		this.field_178153_g = this.tileFurnace.getField(3);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void updateProgressBar(int par1, int par2)
+	public void updateProgressBar(int id, int data)
 	{
-		if (par1 == 0)
-		{
-			this.candyExtractor.candyCookTime = par2;
-		}
-
-		if (par1 == 1)
-		{
-			this.candyExtractor.extractorTime = par2;
-		}
-
-		if (par1 == 2)
-		{
-			this.candyExtractor.currentItemExtractTime = par2;
-		}
+		this.tileFurnace.setField(id, data);
 	}
 
 	@Override
-	public boolean canInteractWith(EntityPlayer par1EntityPlayer)
+	public boolean canInteractWith(EntityPlayer player)
 	{
-		return this.candyExtractor.isUseableByPlayer(par1EntityPlayer);
+		return this.tileFurnace.isUseableByPlayer(player);
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int par2)
+	public ItemStack transferStackInSlot(EntityPlayer player, int index)
 	{
 		ItemStack itemstack = null;
-		final Slot slot = (Slot)this.inventorySlots.get(par2);
+		Slot slot = (Slot)this.inventorySlots.get(index);
 
 		if (slot != null && slot.getHasStack())
 		{
-			final ItemStack itemstack1 = slot.getStack();
+			ItemStack itemstack1 = slot.getStack();
 			itemstack = itemstack1.copy();
 
-			if (par2 == 2)
+			if (index == 2)
 			{
 				if (!this.mergeItemStack(itemstack1, 3, 39, true))
 				{
 					return null;
 				}
-
 				slot.onSlotChange(itemstack1, itemstack);
 			}
-			else if (par2 != 1 && par2 != 0)
+			else if (index != 1 && index != 0)
 			{
-				if (CandyExtractorRecipes.extracting().getExtractingResult(itemstack1) != null)
+				if (CandyExtractorRecipes.instance().getExtractingResult(itemstack1) != null)
 				{
 					if (!this.mergeItemStack(itemstack1, 0, 1, false))
 					{
@@ -148,14 +138,14 @@ public class ContainerCandyExtractor extends Container
 						return null;
 					}
 				}
-				else if (par2 >= 3 && par2 < 30)
+				else if (index >= 3 && index < 30)
 				{
 					if (!this.mergeItemStack(itemstack1, 30, 39, false))
 					{
 						return null;
 					}
 				}
-				else if (par2 >= 30 && par2 < 39 && !this.mergeItemStack(itemstack1, 3, 30, false))
+				else if (index >= 30 && index < 39 && !this.mergeItemStack(itemstack1, 3, 30, false))
 				{
 					return null;
 				}
@@ -178,7 +168,7 @@ public class ContainerCandyExtractor extends Container
 			{
 				return null;
 			}
-			slot.onPickupFromSlot(par1EntityPlayer, itemstack1);
+			slot.onPickupFromSlot(player, itemstack1);
 		}
 		return itemstack;
 	}

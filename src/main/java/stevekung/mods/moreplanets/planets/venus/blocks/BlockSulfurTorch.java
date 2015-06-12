@@ -19,8 +19,7 @@ public class BlockSulfurTorch extends BlockTorch
 		this.setTickRandomly(true);
 		this.setLightLevel(0.8F);
 		this.setStepSound(soundTypeWood);
-		this.setBlockTextureName("venus:sulfur_torch");
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override

@@ -11,159 +11,78 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockFlowerMP;
+import stevekung.mods.moreplanets.common.blocks.IFronosGrass;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.BlockFlowerMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 
 public class BlockDandelion extends BlockFlowerMP
 {
-	private static String[] plants = new String[] {
-		"orange_dandelion_0",
-		"pink_dandelion_0",
-		"purple_dandelion_0",
-		"orange_dandelion_1",
-		"pink_dandelion_1",
-		"purple_dandelion_1"
-	};
-
-	private IIcon[] textures;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockDandelion(String name)
 	{
-		super(Material.plants);
-		this.setTickRandomly(true);
-		this.setStepSound(Block.soundTypeGrass);
+		super();
 		this.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.6F, 0.7F);
-		this.setBlockName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.young_orange_dandelion));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		this.textures = new IIcon[BlockDandelion.plants.length];
-
-		for (int i = 0; i < BlockDandelion.plants.length; ++i)
-		{
-			this.textures[i] = iconRegister.registerIcon("fronos:" + BlockDandelion.plants[i]);
-		}
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		if (meta < 0 || meta >= this.textures.length)
-		{
-			meta = 0;
-		}
-		return this.textures[meta];
-	}
-
-	@Override
-	public int getRenderType()
-	{
-		return 1;
-	}
-
-	@Override
-	public void updateTick(World world, int x, int y, int z, Random rand)
-	{
-		super.updateTick(world, x, y, z, rand);
-		int meta = world.getBlockMetadata(x, y, z);
+		super.updateTick(world, pos, state, rand);
+		BlockType type = (BlockType)state.getValue(VARIANT);
 
 		if (!world.isRemote)
 		{
 			if (world.isDaytime() && !world.isRaining())
 			{
-				if (meta == 0)
+				if (type == BlockType.young_orange_dandelion)
 				{
-					world.setBlock(x, y, z, this, 3, 3);
+					world.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, BlockType.orange_dandelion), 3);
 				}
-				if (meta == 1)
+				if (type == BlockType.young_pink_dandelion)
 				{
-					world.setBlock(x, y, z, this, 4, 3);
+					world.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, BlockType.pink_dandelion), 3);
 				}
-				if (meta == 2)
+				if (type == BlockType.young_purple_dandelion)
 				{
-					world.setBlock(x, y, z, this, 5, 3);
+					world.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, BlockType.purple_dandelion), 3);
 				}
 			}
 			if (world.isRaining())
 			{
 				if (rand.nextInt(20) == 0)
 				{
-					if (meta == 3)
+					if (type == BlockType.orange_dandelion)
 					{
-						world.setBlock(x, y, z, this, 0, 3);
+						world.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, BlockType.young_orange_dandelion), 3);
 					}
-					if (meta == 4)
+					if (type == BlockType.pink_dandelion)
 					{
-						world.setBlock(x, y, z, this, 1, 3);
+						world.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, BlockType.young_pink_dandelion), 3);
 					}
-					if (meta == 5)
+					if (type == BlockType.purple_dandelion)
 					{
-						world.setBlock(x, y, z, this, 2, 3);
+						world.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, BlockType.young_purple_dandelion), 3);
 					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public void randomDisplayTick(World world, int x, int y, int z, Random rand)
-	{
-		super.randomDisplayTick(world, x, y, z, rand);
-		int meta = world.getBlockMetadata(x, y, z);
-
-		if (meta == 3)
-		{
-			if (rand.nextInt(20) == 0)
-			{
-				MorePlanetsCore.proxy.spawnParticle("orangeDandelion", x + rand.nextFloat(), y + rand.nextFloat(), z + rand.nextFloat());
-			}
-			else if (rand.nextInt(2) == 0)
-			{
-				if (world.isRaining())
-				{
-					MorePlanetsCore.proxy.spawnParticle("orangeDandelion", x + rand.nextFloat(), y + rand.nextFloat(), z + rand.nextFloat());
-				}
-			}
-		}
-		else if (meta == 4)
-		{
-			if (rand.nextInt(20) == 0)
-			{
-				MorePlanetsCore.proxy.spawnParticle("pinkDandelion", x + rand.nextFloat(), y + rand.nextFloat(), z + rand.nextFloat());
-			}
-			else if (rand.nextInt(2) == 0)
-			{
-				if (world.isRaining())
-				{
-					MorePlanetsCore.proxy.spawnParticle("pinkDandelion", x + rand.nextFloat(), y + rand.nextFloat(), z + rand.nextFloat());
-				}
-			}
-		}
-		else if (meta == 5)
-		{
-			if (rand.nextInt(20) == 0)
-			{
-				MorePlanetsCore.proxy.spawnParticle("purpleDandelion", x + rand.nextFloat(), y + rand.nextFloat(), z + rand.nextFloat());
-			}
-			else if (rand.nextInt(2) == 0)
-			{
-				if (world.isRaining())
-				{
-					MorePlanetsCore.proxy.spawnParticle("purpleDandelion", x + rand.nextFloat(), y + rand.nextFloat(), z + rand.nextFloat());
 				}
 			}
 		}
@@ -171,50 +90,101 @@ public class BlockDandelion extends BlockFlowerMP
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		for (int i = 0; i < BlockDandelion.plants.length; ++i)
+		super.randomDisplayTick(world, pos, state, rand);
+		BlockType type = (BlockType)state.getValue(VARIANT);
+
+		if (type == BlockType.orange_dandelion)
 		{
-			list.add(new ItemStack(block, 1, i));
+			if (rand.nextInt(20) == 0)
+			{
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.ORANGE_DANDELION, pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
+			}
+			else if (rand.nextInt(2) == 0)
+			{
+				if (world.isRaining())
+				{
+					MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.ORANGE_DANDELION, pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
+				}
+			}
+		}
+		else if (type == BlockType.pink_dandelion)
+		{
+			if (rand.nextInt(20) == 0)
+			{
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.PINK_DANDELION, pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
+			}
+			else if (rand.nextInt(2) == 0)
+			{
+				if (world.isRaining())
+				{
+					MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.PINK_DANDELION, pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
+				}
+			}
+		}
+		else if (type == BlockType.purple_dandelion)
+		{
+			if (rand.nextInt(20) == 0)
+			{
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.PURPLE_DANDELION, pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
+			}
+			else if (rand.nextInt(2) == 0)
+			{
+				if (world.isRaining())
+				{
+					MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.PURPLE_DANDELION, pos.getX() + rand.nextFloat(), pos.getY() + rand.nextFloat(), pos.getZ() + rand.nextFloat());
+				}
+			}
 		}
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random rand, int fortune)
+	@SideOnly(Side.CLIENT)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
-		return Item.getItemFromBlock(this);
+		for (int i = 0; i < 6; ++i)
+		{
+			list.add(new ItemStack(this, 1, i));
+		}
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public boolean isReplaceable(World world, BlockPos pos)
 	{
-		return meta;
+		return false;
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9)
+	public int damageDropped(IBlockState state)
 	{
-		int meta = world.getBlockMetadata(x, y, z);
+		return this.getMetaFromState(state);
+	}
+
+	@Override
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float par7, float par8, float par9)
+	{
+		BlockType type = (BlockType)state.getValue(VARIANT);
 
 		if (player.isPotionActive(Potion.regeneration.id))
 		{
 			return false;
 		}
-		if (meta == 3)
+		if (type == BlockType.orange_dandelion)
 		{
-			world.setBlock(x, y, z, this, 0, 3);
+			world.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, BlockType.young_orange_dandelion), 3);
 			player.addPotionEffect(new PotionEffect(Potion.regeneration.id, 120, 1));
 			return true;
 		}
-		else if (meta == 4)
+		else if (type == BlockType.pink_dandelion)
 		{
-			world.setBlock(x, y, z, this, 1, 3);
+			world.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, BlockType.young_pink_dandelion), 3);
 			player.addPotionEffect(new PotionEffect(Potion.regeneration.id, 120, 1));
 			return true;
 		}
-		else if (meta == 5)
+		else if (type == BlockType.purple_dandelion)
 		{
-			world.setBlock(x, y, z, this, 2, 3);
+			world.setBlockState(pos, this.getDefaultState().withProperty(VARIANT, BlockType.young_purple_dandelion), 3);
 			player.addPotionEffect(new PotionEffect(Potion.regeneration.id, 120, 1));
 			return true;
 		}
@@ -222,15 +192,49 @@ public class BlockDandelion extends BlockFlowerMP
 	}
 
 	@Override
-	public boolean isValidPosition(World world, int x, int y, int z, int metadata)
+	public boolean canBlockStay(World world, BlockPos pos, IBlockState state)
 	{
-		Block block = world.getBlock(x, y - 1, z);
+		Block block = world.getBlockState(pos.down()).getBlock();
 		return block instanceof IFronosGrass || block == FronosBlocks.fronos_dirt;
 	}
 
 	@Override
-	public int getDamageValue(World world, int x, int y, int z)
+	protected BlockState createBlockState()
 	{
-		return world.getBlockMetadata(x, y, z);
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		young_orange_dandelion,
+		young_pink_dandelion,
+		young_purple_dandelion,
+		orange_dandelion,
+		pink_dandelion,
+		purple_dandelion;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

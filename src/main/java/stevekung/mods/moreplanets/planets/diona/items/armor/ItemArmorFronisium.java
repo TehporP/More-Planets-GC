@@ -10,14 +10,14 @@ package stevekung.mods.moreplanets.planets.diona.items.armor;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 import stevekung.mods.moreplanets.planets.diona.items.DionaItems;
 
 public class ItemArmorFronisium extends ItemArmorMP
 {
-	public ItemArmorFronisium(String name, ArmorMaterial par2EnumArmorMaterial, int par3, int par4)
+	public ItemArmorFronisium(String name, ArmorMaterial material, int render, int type)
 	{
-		super(par2EnumArmorMaterial, par3, par4);
+		super(material, render, type);
 		this.setUnlocalizedName(name);
 	}
 
@@ -26,19 +26,13 @@ public class ItemArmorFronisium extends ItemArmorMP
 	{
 		if (stack.getItem() == DionaArmorItems.fronisium_helmet || stack.getItem() == DionaArmorItems.fronisium_chestplate || stack.getItem() == DionaArmorItems.fronisium_boots)
 		{
-			return "diona:textures/model/armor/fronisium_1.png";
+			return "moreplanets:textures/model/armor/fronisium_1.png";
 		}
-		if (stack.getItem() == DionaArmorItems.fronisium_leggings)
+		else if (stack.getItem() == DionaArmorItems.fronisium_leggings)
 		{
-			return "diona:textures/model/armor/fronisium_2.png";
+			return "moreplanets:textures/model/armor/fronisium_2.png";
 		}
 		return null;
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "diona";
 	}
 
 	@Override

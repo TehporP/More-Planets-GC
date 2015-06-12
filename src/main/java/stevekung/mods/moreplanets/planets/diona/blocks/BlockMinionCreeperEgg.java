@@ -7,9 +7,10 @@
 
 package stevekung.mods.moreplanets.planets.diona.blocks;
 
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.BlockEggMP;
+import stevekung.mods.moreplanets.common.blocks.BlockEggMP;
 import stevekung.mods.moreplanets.planets.diona.entities.EntityDionaMinionCreeper;
 
 public class BlockMinionCreeperEgg extends BlockEggMP
@@ -17,22 +18,19 @@ public class BlockMinionCreeperEgg extends BlockEggMP
 	public BlockMinionCreeperEgg(String name)
 	{
 		super();
-		this.setResistance(0.0F);
-		this.setHardness(-1.0F);
-		this.setBlockName(name);
-		this.setBlockTextureName("diona:minion_creeper_egg");
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void onBlockExploded(World world, int par2, int par3, int par4, Explosion explosion)
+	public void onBlockExploded(World world, BlockPos pos, Explosion explosion)
 	{
 		if (!world.isRemote)
 		{
 			EntityDionaMinionCreeper minionCreeper = new EntityDionaMinionCreeper(world);
-			minionCreeper.setPosition(par2 + 0.5, par3 + 1, par4 + 0.5);
+			minionCreeper.setPosition(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
 			world.spawnEntityInWorld(minionCreeper);
 		}
-		world.setBlockToAir(par2, par3, par4);
-		this.onBlockDestroyedByExplosion(world, par2, par3, par4, explosion);
+		world.setBlockToAir(pos);
+		this.onBlockDestroyedByExplosion(world, pos, explosion);
 	}
 }

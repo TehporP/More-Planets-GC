@@ -7,8 +7,6 @@
 
 package stevekung.mods.moreplanets.moons.phobos.recipe;
 
-import micdoodle8.mods.galacticraft.core.items.GCItems;
-import micdoodle8.mods.galacticraft.planets.mars.items.MarsItems;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
@@ -80,14 +78,14 @@ public class CraftingRecipesPhobos
 
 	private static void addBlockSmelting()
 	{
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(PhobosBlocks.phobos_block, 1, 3), new ItemStack(PhobosBlocks.phobos_block, 1, 2), 0.5F);
+		FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(PhobosBlocks.phobos_block, 1, 3), new ItemStack(PhobosBlocks.phobos_block, 1, 2), 0.5F);
 	}
 
 	private static void addItemSmelting()
 	{
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(PhobosBlocks.phobos_block, 1, 4), new ItemStack(GCItems.basicItem, 1, 4), 0.7F);
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(PhobosBlocks.phobos_block, 1, 5), new ItemStack(GCItems.basicItem, 1, 3), 0.7F);
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(PhobosBlocks.phobos_block, 1, 6), new ItemStack(Items.iron_ingot), 0.8F);
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(PhobosBlocks.phobos_block, 1, 7), new ItemStack(MarsItems.marsItemBasic, 1, 2), 0.8F);
+		//FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(PhobosBlocks.phobos_block, 1, 4), new ItemStack(GCItems.basicItem, 1, 4), 0.7F);
+		//FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(PhobosBlocks.phobos_block, 1, 5), new ItemStack(GCItems.basicItem, 1, 3), 0.7F);
+		FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(PhobosBlocks.phobos_block, 1, 6), new ItemStack(Items.iron_ingot), 0.8F);
+		//FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(PhobosBlocks.phobos_block, 1, 7), new ItemStack(MarsItems.marsItemBasic, 1, 2), 0.8F);
 	}
 }

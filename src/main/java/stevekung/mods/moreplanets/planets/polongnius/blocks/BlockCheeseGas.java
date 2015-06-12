@@ -7,42 +7,30 @@
 
 package stevekung.mods.moreplanets.planets.polongnius.blocks;
 
-import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBreakableMP;
 
-public class BlockCheeseGas extends BlockBreakable
+public class BlockCheeseGas extends BlockBreakableMP
 {
-	int tick;
-
 	public BlockCheeseGas(String name)
 	{
-		super("polongnius:cheese_gas_block", Material.cloth, false);
+		super(Material.cloth);
 		this.setStepSound(soundTypeCloth);
 		this.setHardness(0.25F);
 		this.setResistance(0.5F);
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
-	{
-		this.tick++;
-
 		if (entity instanceof EntityLivingBase)
 		{
 			if (!((EntityLivingBase)entity).isSneaking())
@@ -51,6 +39,7 @@ public class BlockCheeseGas extends BlockBreakable
 				entity.motionY = 0.15F;
 				entity.motionZ *= 1.0F;
 				entity.fallDistance = 0.0F;
+				return;
 			}
 			else
 			{
@@ -58,39 +47,26 @@ public class BlockCheeseGas extends BlockBreakable
 				entity.motionY = -0.05F;
 				entity.motionZ *= 1.0F;
 				entity.fallDistance = 0.0F;
+				return;
 			}
 		}
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int var2, int var3, int var4)
+	public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state)
 	{
 		return null;
 	}
 
 	@Override
-	public boolean isOpaqueCube()
+	public boolean isFullCube()
 	{
 		return false;
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public EnumWorldBlockLayer getBlockLayer()
 	{
-		return false;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public int getRenderBlockPass()
-	{
-		return 1;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int side)
-	{
-		return super.shouldSideBeRendered(world, x, y, z, 1 - side);
+		return EnumWorldBlockLayer.TRANSLUCENT;
 	}
 }

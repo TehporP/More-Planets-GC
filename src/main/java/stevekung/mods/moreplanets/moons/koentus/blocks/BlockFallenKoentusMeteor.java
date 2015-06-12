@@ -11,43 +11,30 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.moons.koentus.items.KoentusItems;
 
-public class BlockFallenKoentusMeteor extends Block
+public class BlockFallenKoentusMeteor extends BlockBaseMP
 {
 	public BlockFallenKoentusMeteor(String name)
 	{
 		super(Material.rock);
-		this.setBlockBounds(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F);
+		this.setBlockBounds(0.186F, 0.186F, 0.186F, 0.814F, 0.814F, 0.814F);
 		this.setHardness(50.0F);
-		this.setBlockName(name);
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.blockIcon = par1IconRegister.registerIcon("koentus:koentus_meteor");
-	}
-
-	@Override
-	public int getRenderType()
-	{
-		return MorePlanetsCore.proxy.getBlockRender(this);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
@@ -57,123 +44,124 @@ public class BlockFallenKoentusMeteor extends Block
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return KoentusItems.koentus_item;
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
 		return 3;
 	}
 
 	@Override
-	public boolean canSilkHarvest()
+	public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
 	{
 		return true;
 	}
 
 	@Override
-	public void randomDisplayTick(World par1World, int par2, int par3, int par4, Random par5Random)
+	@SideOnly(Side.CLIENT)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		if (!World.doesBlockHaveSolidTopSurface(par1World, par2, par3 + 1, par4))
+		if (!World.doesBlockHaveSolidTopSurface(world, pos.up()))
 		{
 			for (int l = 0; l < 4; ++l)
 			{
-				double d0 = par2 + par5Random.nextFloat();
-				double d1 = par3 + par5Random.nextFloat();
-				double d2 = par4 + par5Random.nextFloat();
+				double d0 = pos.getX() + rand.nextFloat();
+				double d1 = pos.getY() + rand.nextFloat();
+				double d2 = pos.getZ() + rand.nextFloat();
 				double d3 = 0.0D;
 				double d4 = 0.0D;
 				double d5 = 0.0D;
-				d3 = (par5Random.nextFloat() - 0.5D) * 0.5D;
-				d4 = (par5Random.nextFloat() - 0.5D) * 0.5D;
-				d5 = (par5Random.nextFloat() - 0.5D) * 0.5D;
-				MorePlanetsCore.proxy.spawnMotionParticle("koentusSmoke", d0, d1, d2, d3, d4, d5);
+				d3 = (rand.nextFloat() - 0.5D) * 0.5D;
+				d4 = (rand.nextFloat() - 0.5D) * 0.5D;
+				d5 = (rand.nextFloat() - 0.5D) * 0.5D;
+				MorePlanetsCore.proxy.spawnMotionParticle(ParticleTypesMP.KOENTUS_METEOR_SMOKE, d0, d1, d2, d3, d4, d5);
 			}
 		}
 	}
 
 	@Override
-	public void dropBlockAsItemWithChance(World world, int par2, int par3, int par4, int par5, float par6, int par7)
+	public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float par6, int par7)
 	{
-		super.dropBlockAsItemWithChance(world, par2, par3, par4, par5, par6, par7);
+		super.dropBlockAsItemWithChance(world, pos, state, par6, par7);
 
-		if (this.getItemDropped(par5, world.rand, par7) != Item.getItemFromBlock(this))
+		if (this.getItemDropped(state, world.rand, par7) != Item.getItemFromBlock(this))
 		{
 			int var8 =  MathHelper.getRandomIntegerInRange(world.rand, 3, 5);
-			this.dropXpOnBlockBreak(world, par2, par3, par4, var8);
+			this.dropXpOnBlockBreak(world, pos, var8);
 		}
 	}
 
 	@Override
-	public void onBlockAdded(World par1World, int par2, int par3, int par4)
+	public void onBlockAdded(World world, BlockPos pos, IBlockState state)
 	{
-		par1World.scheduleBlockUpdate(par2, par3, par4, this, this.tickRate(par1World));
+		world.scheduleUpdate(pos, this, this.tickRate(world));
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block par5)
 	{
-		par1World.scheduleBlockUpdate(par2, par3, par4, this, this.tickRate(par1World));
+		world.scheduleUpdate(pos, this, this.tickRate(world));
 	}
 
 	@Override
-	public void updateTick(World par1World, int par2, int par3, int par4, Random par5Random)
+	public void updateTick(World par1World, BlockPos pos, IBlockState state, Random rand)
 	{
 		if (!par1World.isRemote)
 		{
-			this.tryToFall(par1World, par2, par3, par4);
+			this.tryToFall(par1World, pos);
 		}
 	}
 
-	private void tryToFall(World par1World, int par2, int par3, int par4)
+	private void tryToFall(World world, BlockPos pos)
 	{
-		if (BlockFallenKoentusMeteor.canFallBelow(par1World, par2, par3 - 1, par4) && par3 >= 0)
+		if (canFallBelow(world, pos.down()) && pos.getY() >= 0)
 		{
-			par1World.setBlock(par2, par3, par4, Blocks.air, 0, 3);
+			world.setBlockState(pos, Blocks.air.getDefaultState(), 3);
+			BlockPos blockpos1;
 
-			while (BlockFallenKoentusMeteor.canFallBelow(par1World, par2, par3 - 1, par4) && par3 > 0)
+			for (blockpos1 = pos.down(); canFallBelow(world, blockpos1) && blockpos1.getY() > 0; blockpos1 = blockpos1.down())
 			{
-				--par3;
 			}
 
-			if (par3 > 0)
+			if (blockpos1.getY() > 0)
 			{
-				par1World.setBlock(par2, par3, par4, this, 0, 3);
+				world.setBlockState(blockpos1.up(), this.getDefaultState(), 3);
 			}
 		}
 	}
 
-	public static boolean canFallBelow(World par0World, int par1, int par2, int par3)
+	public static boolean canFallBelow(World world, BlockPos pos)
 	{
-		Block var4 = par0World.getBlock(par1, par2, par3);
+		Block block = world.getBlockState(pos).getBlock();
 
-		if (var4.getMaterial() == Material.air)
+		if (block.getMaterial() == Material.air)
 		{
 			return true;
 		}
-		else if (var4 == Blocks.fire)
+		else if (block == Blocks.fire)
 		{
 			return true;
 		}
 		else
 		{
-			Material var5 = var4.getMaterial();
+			Material var5 = block.getMaterial();
 			return var5 == Material.water ? true : var5 == Material.lava;
 		}
 	}
 
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos)
 	{
-		return new ItemStack(Item.getItemFromBlock(this), 1, 0);
+		return new ItemStack(this, 1, 0);
 	}
 }

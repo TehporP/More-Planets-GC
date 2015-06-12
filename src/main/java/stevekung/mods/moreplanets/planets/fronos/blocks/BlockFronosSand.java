@@ -8,37 +8,31 @@
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.List;
-import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.World;
+import net.minecraft.util.IStringSerializable;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
 
 public class BlockFronosSand extends BlockFalling
 {
-	private IIcon[] sandIcon;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockFronosSand(String name)
 	{
 		super();
-		this.setStepSound(Block.soundTypeSand);
+		this.setStepSound(soundTypeSand);
 		this.setHardness(0.5F);
-		this.setBlockName(name);
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.sandIcon = new IIcon[3];
-		this.sandIcon[0] = par1IconRegister.registerIcon("fronos:fronos_sand");
-		this.sandIcon[1] = par1IconRegister.registerIcon("fronos:white_sand");
-		this.sandIcon[2] = par1IconRegister.registerIcon("fronos:cheese_sand");
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.fronos_sand));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
@@ -48,35 +42,55 @@ public class BlockFronosSand extends BlockFalling
 	}
 
 	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		return this.sandIcon[meta];
-	}
-
-	@Override
-	public int getDamageValue(World world, int x, int y, int z)
-	{
-		return world.getBlockMetadata(x, y, z);
-	}
-
-	@Override
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	@SideOnly(Side.CLIENT)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < 3; ++i)
 		{
-			list.add(new ItemStack(block, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random par2Random, int par3)
+	public int damageDropped(IBlockState state)
 	{
-		return Item.getItemFromBlock(this);
+		return this.getMetaFromState(state);
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	protected BlockState createBlockState()
 	{
-		return meta;
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		fronos_sand,
+		white_sand,
+		cheese_sand;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

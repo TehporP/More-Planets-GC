@@ -8,7 +8,7 @@
 package stevekung.mods.moreplanets.moons.io.itemblocks;
 
 import net.minecraft.block.Block;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
 public class ItemBlockIo extends ItemBlockBaseMP
 {

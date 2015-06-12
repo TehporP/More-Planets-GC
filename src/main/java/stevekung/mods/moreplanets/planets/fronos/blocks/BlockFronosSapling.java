@@ -11,164 +11,154 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockSapling;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
-import net.minecraftforge.common.util.ForgeDirection;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.worldgen.feature.WorldGenTreeMP;
-import stevekung.mods.moreplanets.planets.fronos.worldgen.tree.WorldGenCoconutTree;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockSaplingMP;
+import stevekung.mods.moreplanets.common.blocks.IFronosGrass;
+import stevekung.mods.moreplanets.common.world.gen.feature.WorldGenTreeMP;
+import stevekung.mods.moreplanets.planets.fronos.world.gen.tree.WorldGenCoconutTree;
 
-public class BlockFronosSapling extends BlockSapling
+public class BlockFronosSapling extends BlockSaplingMP
 {
-	private static String[] saplings = new String[] {
-		"coconut",
-		"red_maple",
-		"yellow_maple",
-		"purple_maple"
-	};
-
-	private IIcon[] textures;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockFronosSapling(String name)
 	{
 		super();
-		this.setHardness(0.0F);
-		this.setStepSound(Block.soundTypeGrass);
-		this.setBlockName(name);
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
-	{
-		this.textures = new IIcon[BlockFronosSapling.saplings.length];
-
-		for (int i = 0; i < BlockFronosSapling.saplings.length; ++i)
-		{
-			this.textures[i] = iconRegister.registerIcon("fronos:sapling_" + BlockFronosSapling.saplings[i]);
-		}
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.coconut_sapling));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IIcon getIcon(int side, int meta)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
-		if (meta < 0 || meta >= BlockFronosSapling.saplings.length)
+		for (int i = 0; i < 4; ++i)
 		{
-			meta = 0;
-		}
-		return this.textures[meta];
-	}
-
-	@Override
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
-	{
-		for (int i = 0; i < BlockFronosSapling.saplings.length; ++i)
-		{
-			list.add(new ItemStack(block, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public boolean canPlaceBlockOnSide(World world, int x, int y, int z, int side)
+	public boolean canBlockStay(World world, BlockPos pos, IBlockState state)
 	{
-		return this.isValidPosition(world, x, y, z, -1);
-	}
-
-	public boolean isValidPosition(World world, int x, int y, int z, int metadata)
-	{
-		Block block = world.getBlock(x, y - 1, z);
-
-		switch (metadata)
-		{
-		default:
-			return block == Blocks.grass || block == Blocks.dirt || block instanceof IFronosGrass || block == FronosBlocks.fronos_dirt || block.canSustainPlant(world, x, y - 1, z, ForgeDirection.UP, this);
-		}
+		Block block = world.getBlockState(pos.down()).getBlock();
+		return block == Blocks.grass || block == Blocks.dirt || block instanceof IFronosGrass || block == FronosBlocks.fronos_dirt || block.canSustainPlant(world, pos.down(), EnumFacing.UP, this);
 	}
 
 	@Override
-	public boolean canBlockStay(World par1World, int par2, int par3, int par4)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		Block soil = par1World.getBlock(par2, par3 - 1, par4);
-		return (par1World.getFullBlockLightValue(par2, par3, par4) >= 8 || par1World.canBlockSeeTheSky(par2, par3, par4)) && soil != null && soil.canSustainPlant(par1World, par2, par3 - 1, par4, ForgeDirection.UP, this);
-	}
+		super.updateTick(world, pos, state, rand);
+		this.checkAndDropBlock(world, pos, state);
 
-	@Override
-	public void updateTick(World world, int x, int y, int z, Random random)
-	{
 		if (!world.isRemote)
 		{
-			if (world.getBlockLightValue(x, y + 1, z) >= 9 && random.nextInt(7) == 0)
+			super.updateTick(world, pos, state, rand);
+
+			if (world.getLightFromNeighbors(pos.up()) >= 9 && rand.nextInt(7) == 0)
 			{
-				this.func_149878_d(world, x, y, z, random);
+				this.grow(world, rand, pos, state);
 			}
 		}
 	}
 
 	@Override
-	public void func_149878_d(World world, int x, int y, int z, Random random)
+	public void grow(World world, Random rand, BlockPos pos, IBlockState state)
 	{
-		int meta = world.getBlockMetadata(x, y, z);
+		BlockType type = (BlockType)state.getValue(VARIANT);
 		Object obj = null;
-		random.nextInt(8);
 
 		if (obj == null)
 		{
-			switch (meta)
+			switch (type)
 			{
-			// Coconut
-			case 0:
+			case coconut_sapling:
 				obj = new WorldGenCoconutTree(35, 10, 1.3D);
 				break;
-				// Red Maple
-			case 1:
-				obj = new WorldGenTreeMP(FronosBlocks.fronos_log, FronosBlocks.fronos_leaves, 1, 0, false, 5, 3, false);
+			case red_maple_sapling:
+				obj = new WorldGenTreeMP(4, FronosBlocks.fronos_log, FronosBlocks.fronos_leaves, 1, 0, false, this);
 				break;
-				// Yellow Maple
-			case 2:
-				obj = new WorldGenTreeMP(FronosBlocks.fronos_log, FronosBlocks.fronos_leaves, 1, 1, false, 5, 3, false);
+			case yellow_maple_sapling:
+				obj = new WorldGenTreeMP(4, FronosBlocks.fronos_log, FronosBlocks.fronos_leaves, 1, 1, false, this);
 				break;
-				// Purple Maple
-			case 3:
-				obj = new WorldGenTreeMP(FronosBlocks.fronos_log, FronosBlocks.fronos_leaves, 1, 2, false, 5, 3, false);
+			case purple_maple_sapling:
+				obj = new WorldGenTreeMP(4, FronosBlocks.fronos_log, FronosBlocks.fronos_leaves, 1, 2, false, this);
 				break;
 			}
 		}
 
 		if (obj != null)
 		{
-			world.setBlockToAir(x, y, z);
+			world.setBlockToAir(pos);
 
-			if (!((WorldGenerator)obj).generate(world, random, x, y, z))
+			if (!((WorldGenerator)obj).generate(world, rand, pos))
 			{
-				world.setBlock(x, y, z, this, meta, 2);
+				world.setBlockState(pos, state, 2);
 			}
 		}
 	}
 
 	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
+	public boolean isReplaceable(World world, BlockPos pos)
 	{
-		return MorePlanetsCore.mpBlocksTab;
+		return false;
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
-		return meta;
+		return this.getMetaFromState(state);
 	}
 
 	@Override
-	public int getDamageValue(World world, int x, int y, int z)
+	protected BlockState createBlockState()
 	{
-		return world.getBlockMetadata(x, y, z);
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		coconut_sapling,
+		red_maple_sapling,
+		yellow_maple_sapling,
+		purple_maple_sapling;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

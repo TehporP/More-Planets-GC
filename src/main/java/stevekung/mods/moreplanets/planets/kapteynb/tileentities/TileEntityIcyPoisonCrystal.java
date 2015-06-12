@@ -15,25 +15,25 @@ import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityIcyPoisonCrystal extends TileEntity
 {
-	public short orientation;
+	public short facing;
 
 	public TileEntityIcyPoisonCrystal()
 	{
-		this.orientation = 1;
+		this.facing = 1;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
 		super.readFromNBT(nbt);
-		this.orientation = nbt.getShort("Orientation");
+		this.facing = nbt.getShort("Facing");
 	}
 
 	@Override
 	public void writeToNBT(NBTTagCompound nbt)
 	{
 		super.writeToNBT(nbt);
-		nbt.setShort("Orientation", this.orientation);
+		nbt.setShort("Facing", this.facing);
 	}
 
 	@Override
@@ -41,13 +41,13 @@ public class TileEntityIcyPoisonCrystal extends TileEntity
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);
-		return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, -999, nbt);
+		return new S35PacketUpdateTileEntity(this.pos, -999, nbt);
 	}
 
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
 	{
 		super.onDataPacket(net, pkt);
-		this.readFromNBT(pkt.func_148857_g());
+		this.readFromNBT(pkt.getNbtCompound());
 	}
 }

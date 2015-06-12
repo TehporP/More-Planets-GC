@@ -16,14 +16,14 @@ public class EMPEffect extends Potion
 {
 	public EMPEffect(boolean isBad, int color)
 	{
-		super(MPPotions.getNextID(), isBad, color);
+		super(MPPotions.getNextID(), new ResourceLocation("moreplanets:emp"), isBad, color);
 		this.setIconIndex(1, 0);
 	}
 
 	@Override
 	public int getStatusIconIndex()
 	{
-		Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation("mpcore:textures/potions/MPPotionFX.png"));
+		Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation("moreplanets:textures/potions/MPPotionFX.png"));
 		return 2;
 	}
 

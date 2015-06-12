@@ -15,9 +15,9 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.items.ItemFoodMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.ItemFoodMP;
 
 public class ItemCandyCane extends ItemFoodMP
 {
@@ -31,49 +31,43 @@ public class ItemCandyCane extends ItemFoodMP
 	@Override
 	public EnumAction getItemUseAction(ItemStack par1ItemStack)
 	{
-		return EnumAction.eat;
+		return EnumAction.EAT;
 	}
 
 	@Override
-	public ItemStack onEaten(ItemStack itemStack, World world, EntityPlayer player)
+	public ItemStack onItemUseFinish(ItemStack itemStack, World world, EntityPlayer player)
 	{
 		--itemStack.stackSize;
 		world.playSoundAtEntity(player, "random.burp", 0.5F, world.rand.nextFloat() * 0.1F + 0.9F);
 		this.onFoodEaten(itemStack, world, player);
-		player.getFoodStats().func_151686_a(this, itemStack);
+		player.getFoodStats().addStats(this, itemStack);
 		return itemStack;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubItems(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < this.getItemVariantsName().length; i++)
 		{
-			par3List.add(new ItemStack(par1, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
 	public String[] getItemVariantsName()
 	{
-		return new String[] { "pink_candy_cane", "orange_candy_cane", "green_candy_cane", "yellow_candy_cane", "light_blue_candy_cane", "blue_candy_cane", "red_candy_cane", "purple_candy_cane" };
+		return new String[] { "pink_candy_cane_item", "orange_candy_cane_item", "green_candy_cane_item", "yellow_candy_cane_item", "light_blue_candy_cane_item", "blue_candy_cane_item", "red_candy_cane_item", "purple_candy_cane_item" };
 	}
 
 	@Override
-	public String getResourceLocation()
-	{
-		return "fronos";
-	}
-
-	@Override
-	public int getFoodAmount(ItemStack itemStack)
+	public int getHealAmount(ItemStack itemStack)
 	{
 		return 4;
 	}
 
 	@Override
-	public float getFoodSaturation(ItemStack itemStack)
+	public float getSaturationModifier(ItemStack itemStack)
 	{
 		return 0.6F;
 	}

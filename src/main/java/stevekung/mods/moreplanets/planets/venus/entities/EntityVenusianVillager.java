@@ -7,7 +7,6 @@
 
 package stevekung.mods.moreplanets.planets.venus.entities;
 
-import micdoodle8.mods.galacticraft.api.entity.IEntityBreathable;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -25,14 +24,12 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import stevekung.mods.moreplanets.core.init.MPItems;
 
-public class EntityVenusianVillager extends EntityAgeable implements IEntityBreathable
+public class EntityVenusianVillager extends EntityAgeable /*implements IEntityBreathable*/
 {
-	public EntityVenusianVillager(World par1World)
+	public EntityVenusianVillager(World world)
 	{
-		super(par1World);
+		super(world);
 		this.setSize(0.6F, 2.35F);
-		this.getNavigator().setBreakDoors(true);
-		this.getNavigator().setAvoidsWater(true);
 		this.tasks.addTask(0, new EntityAISwimming(this));
 		this.tasks.addTask(2, new EntityAIMoveIndoors(this));
 		this.tasks.addTask(3, new EntityAIRestrictOpenDoor(this));
@@ -52,9 +49,27 @@ public class EntityVenusianVillager extends EntityAgeable implements IEntityBrea
 	}
 
 	@Override
-	public boolean isAIEnabled()
+	protected String getLivingSound()
 	{
-		return true;
+		return "mob.villager.idle";
+	}
+
+	@Override
+	protected String getHurtSound()
+	{
+		return "mob.villager.hit";
+	}
+
+	@Override
+	protected String getDeathSound()
+	{
+		return "mob.villager.death";
+	}
+
+	@Override
+	public EntityVenusianVillager createChild(EntityAgeable entity)
+	{
+		return new EntityVenusianVillager(this.worldObj);
 	}
 
 	@Override
@@ -100,33 +115,9 @@ public class EntityVenusianVillager extends EntityAgeable implements IEntityBrea
 		return new ItemStack(MPItems.spawn_egg_mp, 1, 1036);
 	}
 
-	@Override
-	protected String getLivingSound()
-	{
-		return "mob.villager.idle";
-	}
-
-	@Override
-	protected String getHurtSound()
-	{
-		return "mob.villager.hit";
-	}
-
-	@Override
-	protected String getDeathSound()
-	{
-		return "mob.villager.death";
-	}
-
-	@Override
-	public EntityVenusianVillager createChild(EntityAgeable par1EntityAgeable)
-	{
-		return new EntityVenusianVillager(this.worldObj);
-	}
-
-	@Override
+	/*@Override
 	public boolean canBreath()
 	{
 		return true;
-	}
+	}*/
 }

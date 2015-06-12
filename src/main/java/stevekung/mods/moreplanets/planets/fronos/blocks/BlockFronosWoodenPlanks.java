@@ -9,69 +9,81 @@ package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import net.minecraft.util.IStringSerializable;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 
-public class BlockFronosWoodenPlanks extends Block
+public class BlockFronosWoodenPlanks extends BlockBaseMP
 {
-	private static final String[] woodTypes = new String[] {
-		"coconut_wood_planks", "maple_wood_planks"
-	};
-	private IIcon[] textures;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockFronosWoodenPlanks(String name)
 	{
 		super(Material.wood);
 		this.setHardness(2.0F);
-		this.setStepSound(Block.soundTypeWood);
-		this.setBlockName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.coconut_wood_planks));
+		this.setStepSound(soundTypeWood);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
+	@SideOnly(Side.CLIENT)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
-		this.textures = new IIcon[BlockFronosWoodenPlanks.woodTypes.length];
-
-		for (int i = 0; i < BlockFronosWoodenPlanks.woodTypes.length; ++i)
-		{
-			this.textures[i] = iconRegister.registerIcon("fronos:" + BlockFronosWoodenPlanks.woodTypes[i]);
-		}
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		if (meta < 0 || meta >= this.textures.length)
-		{
-			meta = 0;
-		}
-		return this.textures[meta];
-	}
-
-	@Override
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
-	{
-		for (int i = 0; i < BlockFronosWoodenPlanks.woodTypes.length; ++i)
+		for (int i = 0; i < 2; ++i)
 		{
 			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
-		return meta;
+		return this.getMetaFromState(state);
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		coconut_wood_planks,
+		maple_wood_planks;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

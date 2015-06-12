@@ -8,18 +8,17 @@
 package stevekung.mods.moreplanets.planets.kapteynb.tileentities;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
 import stevekung.mods.moreplanets.planets.kapteynb.blocks.BlockUraniumWaste;
 
-public class TileEntityUraniumWaste extends TileEntity
+public class TileEntityUraniumWaste extends TileEntity implements IUpdatePlayerListBox
 {
 	public int radiationLevel = 10000;
 
 	@Override
-	public void updateEntity()
+	public void update()
 	{
-		super.updateEntity();
-
 		boolean flag = this.radiationLevel > 0;
 
 		if (!this.worldObj.isRemote && this.radiationLevel > 0)
@@ -28,7 +27,7 @@ public class TileEntityUraniumWaste extends TileEntity
 		}
 		if (flag != this.radiationLevel > 0)
 		{
-			BlockUraniumWaste.updateBlockState(this.radiationLevel <= 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+			BlockUraniumWaste.updateState(this.radiationLevel < 0, this.worldObj, this.pos);
 		}
 	}
 

@@ -15,36 +15,37 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 
 public class EntityTeaCreamBall extends EntityThrowable
 {
-	public EntityTeaCreamBall(World par1World)
+	public EntityTeaCreamBall(World world)
 	{
-		super(par1World);
+		super(world);
 	}
 
-	public EntityTeaCreamBall(World par1World, EntityLivingBase par2EntityLivingBase)
+	public EntityTeaCreamBall(World world, EntityLivingBase living)
 	{
-		super(par1World, par2EntityLivingBase);
+		super(world, living);
 	}
 
 	@Override
-	protected void onImpact(MovingObjectPosition par1MovingObjectPosition)
+	protected void onImpact(MovingObjectPosition moving)
 	{
-		if (par1MovingObjectPosition.entityHit != null)
+		if (moving.entityHit != null)
 		{
-			par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0);
+			moving.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0);
 
-			if (par1MovingObjectPosition.entityHit instanceof EntityLivingBase)
+			if (moving.entityHit instanceof EntityLivingBase)
 			{
-				((EntityLivingBase)par1MovingObjectPosition.entityHit).addPotionEffect(new PotionEffect(Potion.resistance.id, 120, 2));
-				((EntityLivingBase)par1MovingObjectPosition.entityHit).addPotionEffect(new PotionEffect(Potion.regeneration.id, 260, 2));
+				((EntityLivingBase)moving.entityHit).addPotionEffect(new PotionEffect(Potion.resistance.id, 120, 2));
+				((EntityLivingBase)moving.entityHit).addPotionEffect(new PotionEffect(Potion.regeneration.id, 260, 2));
 			}
 		}
 
 		for (int i = 0; i < 8; ++i)
 		{
-			MorePlanetsCore.proxy.spawnParticle("teaBall", this.posX, this.posY, this.posZ);
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.TEA_CREAM_BALL, this.posX, this.posY, this.posZ);
 		}
 
 		if (!this.worldObj.isRemote)

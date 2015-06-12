@@ -7,18 +7,19 @@
 
 package stevekung.mods.moreplanets.planets.pluto.blocks;
 
+import java.util.Iterator;
+
 import net.minecraft.block.Block;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import stevekung.mods.moreplanets.core.blocks.BlockAncientChestMP;
+import stevekung.mods.moreplanets.common.blocks.BlockAncientChestMP;
 import stevekung.mods.moreplanets.planets.pluto.tileentities.TileEntityPlutoAncientChest;
 
 public class BlockPlutoAncientChest extends BlockAncientChestMP
@@ -26,139 +27,91 @@ public class BlockPlutoAncientChest extends BlockAncientChestMP
 	public BlockPlutoAncientChest(String name)
 	{
 		super();
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock)
 	{
-		super.onNeighborBlockChange(par1World, par2, par3, par4, par5);
-		TileEntityPlutoAncientChest tileentitychest = (TileEntityPlutoAncientChest)par1World.getTileEntity(par2, par3, par4);
+		super.onNeighborBlockChange(world, pos, state, neighborBlock);
+		TileEntity tileentity = world.getTileEntity(pos);
 
-		if (tileentitychest != null)
+		if (tileentity instanceof TileEntityPlutoAncientChest)
 		{
-			tileentitychest.updateContainingBlockInfo();
+			tileentity.updateContainingBlockInfo();
 		}
 	}
 
 	@Override
-	public void breakBlock(World par1World, int par2, int par3, int par4, Block par5, int par6)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		TileEntityPlutoAncientChest tileentitychest = (TileEntityPlutoAncientChest)par1World.getTileEntity(par2, par3, par4);
-
-		if (tileentitychest != null)
-		{
-			for (int j1 = 0; j1 < tileentitychest.getSizeInventory(); ++j1)
-			{
-				ItemStack itemstack = tileentitychest.getStackInSlot(j1);
-
-				if (itemstack != null)
-				{
-					float f = this.random.nextFloat() * 0.8F + 0.1F;
-					float f1 = this.random.nextFloat() * 0.8F + 0.1F;
-					EntityItem entityitem;
-
-					for (float f2 = this.random.nextFloat() * 0.8F + 0.1F; itemstack.stackSize > 0; par1World.spawnEntityInWorld(entityitem))
-					{
-						int k1 = this.random.nextInt(21) + 10;
-
-						if (k1 > itemstack.stackSize)
-						{
-							k1 = itemstack.stackSize;
-						}
-
-						itemstack.stackSize -= k1;
-						entityitem = new EntityItem(par1World, par2 + f, par3 + f1, par4 + f2, new ItemStack(itemstack.getItem(), k1, itemstack.getItemDamage()));
-						float f3 = 0.05F;
-						entityitem.motionX = (float)this.random.nextGaussian() * f3;
-						entityitem.motionY = (float)this.random.nextGaussian() * f3 + 0.2F;
-						entityitem.motionZ = (float)this.random.nextGaussian() * f3;
-
-						if (itemstack.hasTagCompound())
-						{
-							entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
-						}
-					}
-				}
-			}
-			par1World.func_147453_f(par2, par3, par4, par5);
-		}
-		super.breakBlock(par1World, par2, par3, par4, par5, par6);
-	}
-
-	@Override
-	public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
-	{
-		if (par1World.isRemote)
+		if (world.isRemote)
 		{
 			return true;
 		}
 		else
 		{
-			IInventory iinventory = this.getInventory(par1World, par2, par3, par4);
+			ILockableContainer lock = this.getLockableContainer(world, pos);
 
-			if (iinventory != null)
+			if (lock != null)
 			{
-				par5EntityPlayer.displayGUIChest(iinventory);
+				player.displayGUIChest(lock);
 			}
 		}
 		return true;
 	}
 
-	public IInventory getInventory(World par1World, int par2, int par3, int par4)
+	public ILockableContainer getLockableContainer(World world, BlockPos pos)
 	{
-		Object object = par1World.getTileEntity(par2, par3, par4);
+		TileEntity tileentity = world.getTileEntity(pos);
 
-		if (object == null)
-		{
-			return null;
-		}
-		else if (par1World.isSideSolid(par2, par3 + 1, par4, ForgeDirection.DOWN))
-		{
-			return null;
-		}
-		else if (par1World.getBlock(par2 - 1, par3, par4) == this && par1World.isSideSolid(par2 - 1, par3 + 1, par4, ForgeDirection.DOWN))
-		{
-			return null;
-		}
-		else if (par1World.getBlock(par2 + 1, par3, par4) == this && par1World.isSideSolid(par2 + 1, par3 + 1, par4, ForgeDirection.DOWN))
-		{
-			return null;
-		}
-		else if (par1World.getBlock(par2, par3, par4 - 1) == this && par1World.isSideSolid(par2, par3 + 1, par4 - 1, ForgeDirection.DOWN))
-		{
-			return null;
-		}
-		else if (par1World.getBlock(par2, par3, par4 + 1) == this && par1World.isSideSolid(par2, par3 + 1, par4 + 1, ForgeDirection.DOWN))
+		if (!(tileentity instanceof TileEntityPlutoAncientChest))
 		{
 			return null;
 		}
 		else
 		{
-			if (par1World.getBlock(par2 - 1, par3, par4) == this)
-			{
-				object = new InventoryLargeChest(StatCollector.translateToLocal("container.pluto.ancientchest.name"), (TileEntityPlutoAncientChest)par1World.getTileEntity(par2 - 1, par3, par4), (IInventory)object);
-			}
-			if (par1World.getBlock(par2 + 1, par3, par4) == this)
-			{
-				object = new InventoryLargeChest(StatCollector.translateToLocal("container.pluto.ancientchest.name"), (IInventory)object, (TileEntityPlutoAncientChest)par1World.getTileEntity(par2 + 1, par3, par4));
-			}
-			if (par1World.getBlock(par2, par3, par4 - 1) == this)
-			{
-				object = new InventoryLargeChest(StatCollector.translateToLocal("container.pluto.ancientchest.name"), (TileEntityPlutoAncientChest)par1World.getTileEntity(par2, par3, par4 - 1), (IInventory)object);
-			}
-			if (par1World.getBlock(par2, par3, par4 + 1) == this)
-			{
-				object = new InventoryLargeChest(StatCollector.translateToLocal("container.pluto.ancientchest.name"), (IInventory)object, (TileEntityPlutoAncientChest)par1World.getTileEntity(par2, par3, par4 + 1));
-			}
-			return (IInventory)object;
-		}
-	}
+			Object object = tileentity;
 
-	@Override
-	public String chestTexture()
-	{
-		return "pluto:pluto_ancient_chest";
+			if (this.isBlocked(world, pos))
+			{
+				return null;
+			}
+			else
+			{
+				Iterator iterator = EnumFacing.Plane.HORIZONTAL.iterator();
+
+				while (iterator.hasNext())
+				{
+					EnumFacing enumfacing = (EnumFacing)iterator.next();
+					BlockPos blockpos1 = pos.offset(enumfacing);
+					Block block = world.getBlockState(blockpos1).getBlock();
+
+					if (block == this)
+					{
+						if (this.isBlocked(world, blockpos1))
+						{
+							return null;
+						}
+
+						TileEntity tileentity1 = world.getTileEntity(blockpos1);
+
+						if (tileentity1 instanceof TileEntityPlutoAncientChest)
+						{
+							if (enumfacing != EnumFacing.WEST && enumfacing != EnumFacing.NORTH)
+							{
+								object = new InventoryLargeChest(StatCollector.translateToLocal("container.pluto.ancientchest.name"), (ILockableContainer)object, (TileEntityPlutoAncientChest)tileentity1);
+							}
+							else
+							{
+								object = new InventoryLargeChest(StatCollector.translateToLocal("container.pluto.ancientchest.name"), (TileEntityPlutoAncientChest)tileentity1, (ILockableContainer)object);
+							}
+						}
+					}
+				}
+				return (ILockableContainer)object;
+			}
+		}
 	}
 
 	@Override

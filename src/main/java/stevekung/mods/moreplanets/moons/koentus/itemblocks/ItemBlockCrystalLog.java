@@ -9,27 +9,25 @@ package stevekung.mods.moreplanets.moons.koentus.itemblocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockMorePlanet;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockMorePlanets;
 import stevekung.mods.moreplanets.moons.koentus.blocks.BlockCrystalLog;
 
-public class ItemBlockCrystalLog extends ItemBlockMorePlanet
+public class ItemBlockCrystalLog extends ItemBlockMorePlanets
 {
 	public ItemBlockCrystalLog(Block block)
 	{
 		super(block);
-		this.setHasSubtypes(true);
 	}
 
 	@Override
 	public int getMetadata(int meta)
 	{
-		return meta;
+		return meta & 3;
 	}
 
 	@Override
 	public String getUnlocalizedName(ItemStack itemStack)
 	{
-		BlockCrystalLog block = (BlockCrystalLog)this.field_150939_a;
-		return super.getUnlocalizedName() + "." + block.getWoodType(itemStack.getItemDamage()) + "Wood";
+		return super.getUnlocalizedName() + "." + BlockCrystalLog.BlockType.byMetadata(itemStack.getMetadata()).getUnlocalizedName();
 	}
 }

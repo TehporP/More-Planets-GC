@@ -15,41 +15,37 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 
 public class EntityStrawberryCreamBall extends EntityThrowable
 {
-	public EntityStrawberryCreamBall(World par1World)
+	public EntityStrawberryCreamBall(World world)
 	{
-		super(par1World);
+		super(world);
 	}
 
-	public EntityStrawberryCreamBall(World par1World, EntityLivingBase par2EntityLivingBase)
+	public EntityStrawberryCreamBall(World world, EntityLivingBase living)
 	{
-		super(par1World, par2EntityLivingBase);
-	}
-
-	public EntityStrawberryCreamBall(World par1World, double par2, double par4, double par6)
-	{
-		super(par1World, par2, par4, par6);
+		super(world, living);
 	}
 
 	@Override
-	protected void onImpact(MovingObjectPosition par1MovingObjectPosition)
+	protected void onImpact(MovingObjectPosition moving)
 	{
-		if (par1MovingObjectPosition.entityHit != null)
+		if (moving.entityHit != null)
 		{
-			par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0);
+			moving.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0);
 
-			if (par1MovingObjectPosition.entityHit instanceof EntityLivingBase)
+			if (moving.entityHit instanceof EntityLivingBase)
 			{
-				((EntityLivingBase)par1MovingObjectPosition.entityHit).addPotionEffect(new PotionEffect(Potion.moveSpeed.id, 160, 2));
-				((EntityLivingBase)par1MovingObjectPosition.entityHit).addPotionEffect(new PotionEffect(Potion.regeneration.id, 250, 2));
+				((EntityLivingBase)moving.entityHit).addPotionEffect(new PotionEffect(Potion.moveSpeed.id, 160, 2));
+				((EntityLivingBase)moving.entityHit).addPotionEffect(new PotionEffect(Potion.regeneration.id, 250, 2));
 			}
 		}
 
 		for (int i = 0; i < 8; ++i)
 		{
-			MorePlanetsCore.proxy.spawnParticle("strawberryBall", this.posX, this.posY, this.posZ);
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.STRAWBERRY_CREAM_BALL, this.posX, this.posY, this.posZ);
 		}
 
 		if (!this.worldObj.isRemote)

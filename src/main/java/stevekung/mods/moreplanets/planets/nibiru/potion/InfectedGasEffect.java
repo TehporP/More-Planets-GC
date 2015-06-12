@@ -16,14 +16,14 @@ public class InfectedGasEffect extends Potion
 {
 	public InfectedGasEffect(boolean isBad, int color)
 	{
-		super(MPPotions.getNextID(), isBad, color);
+		super(MPPotions.getNextID(), new ResourceLocation("moreplanets:infected_gas"), isBad, color);
 		this.setIconIndex(1, 0);
 	}
 
 	@Override
 	public int getStatusIconIndex()
 	{
-		Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation("mpcore:textures/potions/MPPotionFX.png"));
+		Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation("moreplanets:textures/potions/MPPotionFX.png"));
 		return 0;
 	}
 

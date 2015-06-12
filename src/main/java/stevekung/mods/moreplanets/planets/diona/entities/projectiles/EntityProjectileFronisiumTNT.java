@@ -11,32 +11,33 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.projectile.EntityFireball;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.moreplanets.planets.diona.entities.EntityDionaMinionCreeper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class EntityProjectileFronisiumTNT extends EntityFireball
 {
-	public EntityProjectileFronisiumTNT(World par1World)
+	public EntityProjectileFronisiumTNT(World world)
 	{
-		super(par1World);
+		super(world);
 		this.setSize(1.0F, 1.0F);
 	}
 
-	public EntityProjectileFronisiumTNT(World par1World, EntityLivingBase par2EntityLivingBase, double par3, double par5, double par7)
+	public EntityProjectileFronisiumTNT(World world, EntityLivingBase living, double x, double y, double z)
 	{
-		super(par1World, par2EntityLivingBase, par3, par5, par7);
+		super(world, living, x, y, z);
 		this.setSize(1.0F, 1.0F);
 	}
 
 	@SideOnly(Side.CLIENT)
-	public EntityProjectileFronisiumTNT(World par1World, double par2, double par4, double par6, double par8, double par10, double par12)
+	public EntityProjectileFronisiumTNT(World world, double x, double y, double z, double moX, double moY, double moZ)
 	{
-		super(par1World, par2, par4, par6, par8, par10, par12);
+		super(world, x, y, z, moX, moY, moZ);
 		this.setSize(0.3125F, 0.3125F);
 	}
 
@@ -47,13 +48,13 @@ public class EntityProjectileFronisiumTNT extends EntityFireball
 	}
 
 	@Override
-	protected void onImpact(MovingObjectPosition movingObjectPosition)
+	protected void onImpact(MovingObjectPosition moving)
 	{
 		if (!this.worldObj.isRemote)
 		{
-			if (movingObjectPosition.entityHit != null && !(movingObjectPosition.entityHit instanceof EntityCreeper))
+			if (moving.entityHit != null && !(moving.entityHit instanceof EntityCreeper))
 			{
-				movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeFireballDamage(this, this.shootingEntity), 6.0F);
+				moving.entityHit.attackEntityFrom(DamageSource.causeFireballDamage(this, this.shootingEntity), 6.0F);
 			}
 			this.worldObj.newExplosion((Entity) null, this.posX, this.posY, this.posZ, 1.0F, false, this.worldObj.getGameRules().getGameRuleBooleanValue("mobGriefing"));
 			this.setDead();
@@ -79,7 +80,6 @@ public class EntityProjectileFronisiumTNT extends EntityFireball
 					{
 						creeper.getDataWatcher().updateObject(17, Byte.valueOf((byte) 1));
 					}
-
 					this.worldObj.spawnEntityInWorld(creeper);
 				}
 			}
@@ -93,39 +93,37 @@ public class EntityProjectileFronisiumTNT extends EntityFireball
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public int getBrightnessForRender(float light)
-	{
-		int i = MathHelper.floor_double(this.posX);
-		int j = MathHelper.floor_double(this.posZ);
-
-		if (this.worldObj.blockExists(i, 0, j))
-		{
-			double d0 = (this.boundingBox.maxY - this.boundingBox.minY) * 0.66D;
-			int k = MathHelper.floor_double(this.posY - this.yOffset + d0);
-			return this.worldObj.getLightBrightnessForSkyBlocks(i, k, j, 0);
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
-	@Override
 	public float getBrightness(float light)
 	{
-		int i = MathHelper.floor_double(this.posX);
-		int j = MathHelper.floor_double(this.posZ);
+		BlockPos blockpos = new BlockPos(this.posX, 0.0D, this.posZ);
 
-		if (this.worldObj.blockExists(i, 0, j))
+		if (this.worldObj.isBlockLoaded(blockpos))
 		{
-			double d0 = (this.boundingBox.maxY - this.boundingBox.minY) * 0.66D;
-			int k = MathHelper.floor_double(this.posY - this.yOffset + d0);
-			return this.worldObj.getLightBrightness(i, k, j);
+			double d0 = (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * 0.66D;
+			int i = MathHelper.floor_double(this.posY + d0);
+			return this.worldObj.getLightBrightness(blockpos.up(i));
 		}
 		else
 		{
 			return 0.0F;
+		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getBrightnessForRender(float light)
+	{
+		BlockPos blockpos = new BlockPos(this.posX, 0.0D, this.posZ);
+
+		if (this.worldObj.isBlockLoaded(blockpos))
+		{
+			double d0 = (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * 0.66D;
+			int i = MathHelper.floor_double(this.posY + d0);
+			return this.worldObj.getCombinedLight(blockpos.up(i), 0);
+		}
+		else
+		{
+			return 0;
 		}
 	}
 }

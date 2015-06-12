@@ -10,14 +10,14 @@ package stevekung.mods.moreplanets.planets.polongnius.items.armor;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 import stevekung.mods.moreplanets.planets.polongnius.items.PolongniusItems;
 
 public class ArmorCheeseLeather extends ItemArmorMP
 {
-	public ArmorCheeseLeather(String name, ArmorMaterial par2EnumArmorMaterial, int par3, int par4)
+	public ArmorCheeseLeather(String name, ArmorMaterial material, int render, int type)
 	{
-		super(par2EnumArmorMaterial, par3, par4);
+		super(material, render, type);
 		this.setUnlocalizedName(name);
 	}
 
@@ -26,19 +26,13 @@ public class ArmorCheeseLeather extends ItemArmorMP
 	{
 		if (stack.getItem() == PolongniusArmorItems.cheese_leather_helmet || stack.getItem() == PolongniusArmorItems.cheese_leather_chestplate || stack.getItem() == PolongniusArmorItems.cheese_leather_boots)
 		{
-			return "polongnius:textures/model/armor/cheese_leather_1.png";
+			return "moreplanets:textures/model/armor/cheese_leather_1.png";
 		}
 		else if (stack.getItem() == PolongniusArmorItems.cheese_leather_leggings)
 		{
-			return "polongnius:textures/model/armor/cheese_leather_2.png";
+			return "moreplanets:textures/model/armor/cheese_leather_2.png";
 		}
 		return null;
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "polongnius";
 	}
 
 	@Override

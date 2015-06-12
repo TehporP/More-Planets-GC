@@ -17,7 +17,7 @@ import stevekung.mods.moreplanets.moons.io.fluids.BlockFluidLiquidOrangeSulfur;
 import stevekung.mods.moreplanets.moons.io.fluids.BlockFluidLiquidRedSulfur;
 import stevekung.mods.moreplanets.moons.io.fluids.BlockFluidLiquidYellowSulfur;
 import stevekung.mods.moreplanets.moons.io.itemblocks.ItemBlockIo;
-import stevekung.mods.moreplanets.moons.io.itemblocks.ItemBlockMagmaRock;
+import stevekung.mods.moreplanets.moons.io.itemblocks.ItemBlockIoMagmaRock;
 import stevekung.mods.stevecore.RegisterHelper;
 
 public class IoBlocks
@@ -47,7 +47,7 @@ public class IoBlocks
 
 	private static void initBlocks()
 	{
-		IoBlocks.io_block = new BlockBasicIo("io_block");
+		IoBlocks.io_block = new BlockIo("io_block");
 		IoBlocks.io_magma_rock = new BlockIoMagmaRock("io_magma_rock");
 
 		IoBlocks.io_lava_fluid = new Fluid("io_lava").setBlock(IoBlocks.io_lava).setLuminosity(15).setDensity(3000).setViscosity(6000).setTemperature(1300);
@@ -79,7 +79,7 @@ public class IoBlocks
 	private static void registerBlocks()
 	{
 		RegisterHelper.registerBlock(IoBlocks.io_block, ItemBlockIo.class);
-		RegisterHelper.registerBlock(IoBlocks.io_magma_rock, ItemBlockMagmaRock.class);
+		RegisterHelper.registerBlock(IoBlocks.io_magma_rock, ItemBlockIoMagmaRock.class);
 		RegisterHelper.registerBlock(IoBlocks.io_lava);
 		RegisterHelper.registerBlock(IoBlocks.io_black_lava);
 		RegisterHelper.registerBlock(IoBlocks.liquid_red_sulfur);

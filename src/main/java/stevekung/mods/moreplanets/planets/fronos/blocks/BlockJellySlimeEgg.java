@@ -8,208 +8,159 @@
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.List;
-import java.util.Random;
 
-import micdoodle8.mods.galacticraft.planets.mars.items.MarsItems;
-import net.minecraft.block.BlockDragonEgg;
-import net.minecraft.block.BlockFalling;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.item.EntityFallingBlock;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.Explosion;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockEggMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
 import stevekung.mods.moreplanets.planets.fronos.entities.EntityJellySlime;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockJellySlimeEgg extends BlockDragonEgg
+public class BlockJellySlimeEgg extends BlockEggMP
 {
-	private IIcon[] textures;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockJellySlimeEgg(String name)
 	{
 		super();
 		this.setStepSound(MorePlanetsCore.soundTypeSmallSlime);
-		this.setResistance(0.0F);
-		this.setHardness(-1.0F);
-		this.setBlockName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.grape_jelly_slime_egg));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerBlockIcons(IIconRegister par1IconRegister)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
-		this.textures = new IIcon[this.getTypes().length];
-
-		for (int i = 0; i < this.getTypes().length; ++i)
+		for (int i = 0; i < 8; ++i)
 		{
-			this.textures[i] = par1IconRegister.registerIcon("fronos:" + this.getTypes()[i]);
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public void updateTick(World world, int p_149674_2_, int p_149674_3_, int p_149674_4_, Random rand)
+	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance)
 	{
-		this.func_150018_e(world, p_149674_2_, p_149674_3_, p_149674_4_);
-	}
-
-	private void func_150018_e(World world, int p_150018_2_, int p_150018_3_, int p_150018_4_)
-	{
-		if (BlockFalling.func_149831_e(world, p_150018_2_, p_150018_3_ - 1, p_150018_4_) && p_150018_3_ >= 0)
+		if (entity.isSneaking())
 		{
-			byte b0 = 32;
-
-			if (!BlockFalling.fallInstantly && world.checkChunksExist(p_150018_2_ - b0, p_150018_3_ - b0, p_150018_4_ - b0, p_150018_2_ + b0, p_150018_3_ + b0, p_150018_4_ + b0))
-			{
-				EntityFallingBlock entityfallingblock = new EntityFallingBlock(world, p_150018_2_ + 0.5F, p_150018_3_ + 0.5F, p_150018_4_ + 0.5F, this, world.getBlockMetadata(p_150018_2_, p_150018_3_, p_150018_4_));
-				world.spawnEntityInWorld(entityfallingblock);
-			}
-			else
-			{
-				world.setBlockToAir(p_150018_2_, p_150018_3_, p_150018_4_);
-
-				while (BlockFalling.func_149831_e(world, p_150018_2_, p_150018_3_ - 1, p_150018_4_) && p_150018_3_ > 0)
-				{
-					--p_150018_3_;
-				}
-
-				if (p_150018_3_ > 0)
-				{
-					world.setBlock(p_150018_2_, p_150018_3_, p_150018_4_, this, world.getBlockMetadata(p_150018_2_, p_150018_3_, p_150018_4_), 2);
-				}
-			}
+			super.onFallenUpon(world, pos, entity, fallDistance);
+		}
+		else
+		{
+			entity.fall(fallDistance, 0.0F);
 		}
 	}
 
 	@Override
-	public IIcon getIcon(int side, int meta)
+	public void onLanded(World world, Entity entity)
 	{
-		if (meta < 0 || meta >= this.textures.length)
+		if (entity.isSneaking())
 		{
-			meta = 0;
+			super.onLanded(world, entity);
 		}
-		return this.textures[meta];
-	}
-
-	@Override
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
-	{
-		for (int i = 0; i < this.getTypes().length; ++i)
+		else if (entity.motionY < 0.0D)
 		{
-			list.add(new ItemStack(block, 1, i));
+			entity.motionY = -entity.motionY;
 		}
 	}
 
-	private String[] getTypes()
-	{
-		return new String[] { "grape_jelly_block", "raspberry_jelly_block", "strawberry_jelly_block", "berry_jelly_block", "lime_jelly_block", "orange_jelly_block", "green_jelly_block", "lemon_jelly_block" };
-	}
-
 	@Override
-	@SideOnly(Side.CLIENT)
-	public int getRenderBlockPass()
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity)
 	{
-		return 1;
-	}
-
-	@Override
-	public boolean shouldSideBeRendered(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
-	{
-		return super.shouldSideBeRendered(par1IBlockAccess, par2, par3, par4, par5 - 1);
-	}
-
-	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
-	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public boolean isOpaqueCube()
-	{
-		return false;
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
-	{
-		return false;
-	}
-
-	@Override
-	public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
-	{
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public Item getItem(World par1World, int par2, int par3, int par4)
-	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public int damageDropped(int meta)
-	{
-		return meta;
-	}
-
-	@Override
-	public boolean canHarvestBlock(EntityPlayer player, int metadata)
-	{
-		ItemStack stack = player.inventory.getCurrentItem();
-
-		if (stack == null)
+		if (Math.abs(entity.motionY) < 0.1D && !entity.isSneaking())
 		{
-			return player.canHarvestBlock(this);
+			double d = 0.4D + Math.abs(entity.motionY) * 0.2D;
+			entity.motionX *= d;
+			entity.motionZ *= d;
 		}
-		return stack.getItem() == MarsItems.deshPickSlime;
+		super.onEntityCollidedWithBlock(world, pos, entity);
 	}
 
 	@Override
-	public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z)
+	public EnumWorldBlockLayer getBlockLayer()
 	{
-		ItemStack stack = player.inventory.getCurrentItem();
-
-		if (stack != null && stack.getItem() == MarsItems.deshPickSlime)
-		{
-			return 0.2F;
-		}
-		return ForgeHooks.blockStrength(this, player, world, x, y, z);
+		return EnumWorldBlockLayer.TRANSLUCENT;
 	}
 
 	@Override
-	public void onBlockExploded(World par1World, int par2, int par3, int par4, Explosion explosion)
+	public ItemStack getPickBlock(MovingObjectPosition moving, World world, BlockPos pos)
 	{
-		if (!par1World.isRemote)
+		return new ItemStack(this, 1, this.getMetaFromState(world.getBlockState(pos)));
+	}
+
+	@Override
+	public int damageDropped(IBlockState state)
+	{
+		return this.getMetaFromState(state);
+	}
+
+	@Override
+	public void onBlockExploded(World world, BlockPos pos, Explosion explosion)
+	{
+		if (!world.isRemote)
 		{
-			EntityJellySlime slime = new EntityJellySlime(par1World);
-			slime.setPosition(par2 + 0.5, par3 + 1, par4 + 0.5);
-			slime.setSlimeSize(par1World.rand.nextInt(2));
-			slime.setTameSkin(par1World.getBlockMetadata(par2, par3, par4));
-			par1World.spawnEntityInWorld(slime);
+			EntityJellySlime slime = new EntityJellySlime(world);
+			slime.setPosition(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
+			slime.setJellySlimeType(this.getMetaFromState(world.getBlockState(pos)));
+			world.spawnEntityInWorld(slime);
 		}
-		par1World.setBlockToAir(par2, par3, par4);
-		par1World.playSoundEffect(par2, par3, par4, "mob.slime.big", 1.0F, 1.0F);
-		this.onBlockDestroyedByExplosion(par1World, par2, par3, par4, explosion);
+		world.setBlockToAir(pos);
+		world.playSoundEffect(pos.getX(), pos.getY(), pos.getZ(), "mob.slime.big", 1.0F, 1.0F);
+		this.onBlockDestroyedByExplosion(world, pos, explosion);
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		grape_jelly_slime_egg,
+		raspberry_jelly_slime_egg,
+		strawberry_jelly_slime_egg,
+		berry_jelly_slime_egg,
+		lime_jelly_slime_egg,
+		orange_jelly_slime_egg,
+		green_jelly_slime_egg,
+		lemon_jelly_slime_egg;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

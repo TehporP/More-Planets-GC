@@ -10,7 +10,7 @@ package stevekung.mods.moreplanets.planets.pluto.items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraftforge.common.util.EnumHelper;
-import stevekung.mods.moreplanets.core.items.ItemMorePlanet;
+import stevekung.mods.moreplanets.common.items.ItemMorePlanets;
 import stevekung.mods.stevecore.RegisterHelper;
 
 public class PlutoItems
@@ -20,7 +20,7 @@ public class PlutoItems
 	public static Item xeonium_dust;
 	public static Item gravity_boots;
 
-	public static ArmorMaterial gravity = EnumHelper.addArmorMaterial("gravity", 0, new int[] { 0, 0, 0, 0 }, 0);
+	public static ArmorMaterial gravity = EnumHelper.addArmorMaterial("gravity", "gravity", 0, new int[] { 0, 0, 0, 0 }, 0);
 
 	public static void init()
 	{
@@ -30,9 +30,9 @@ public class PlutoItems
 
 	private static void initItems()
 	{
-		PlutoItems.pluto_item = new ItemBasicPluto("pluto_item");
+		PlutoItems.pluto_item = new ItemPluto("pluto_item");
 		PlutoItems.space_potato = new ItemSpacePotato("space_potato");
-		PlutoItems.xeonium_dust = new ItemMorePlanet("xeonium_dust", "pluto");
+		PlutoItems.xeonium_dust = new ItemMorePlanets("xeonium_dust");
 		PlutoItems.gravity_boots = new ItemGravityBoots("gravity_boots", PlutoItems.gravity, 7, 3);
 	}
 

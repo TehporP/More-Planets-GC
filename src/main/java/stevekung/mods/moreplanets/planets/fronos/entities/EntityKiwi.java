@@ -21,8 +21,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAIFronosBeg;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAITemptMP;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAIFronosBeg;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAITemptMP;
 import stevekung.mods.moreplanets.core.init.MPItems;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 
@@ -37,7 +37,7 @@ public class EntityKiwi extends IFronosPet
 		this.tasks.addTask(2, this.aiSit);
 		this.tasks.addTask(3, new EntityAILeapAtTarget(this, 0.4F));
 		this.tasks.addTask(4, new EntityAIFollowOwner(this, 1.0D, 10.0F, 2.0F));
-		this.tasks.addTask(5, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.fronos_food2, 1, 1), false));
+		this.tasks.addTask(5, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.candy_food, 1, 1), false));
 		this.tasks.addTask(6, new EntityAIMate(this, 1.0D));
 		this.tasks.addTask(7, new EntityAIWander(this, 1.0D));
 		this.tasks.addTask(8, new EntityAIFronosBeg(this, 8.0F));
@@ -46,9 +46,21 @@ public class EntityKiwi extends IFronosPet
 	}
 
 	@Override
-	protected boolean isAIEnabled()
+	protected void applyEntityAttributes()
 	{
-		return true;
+		super.applyEntityAttributes();
+		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.15D);
+	}
+
+	@Override
+	protected void dropFewItems(boolean par1, int par2)
+	{
+		int j = this.rand.nextInt(3) + 1 + this.rand.nextInt(1 + par2);
+
+		for (int k = 0; k < j; ++k)
+		{
+			this.entityDropItem(new ItemStack(FronosItems.fronos_fruits, 1, 0), 0.0F);
+		}
 	}
 
 	@Override
@@ -95,32 +107,14 @@ public class EntityKiwi extends IFronosPet
 	}
 
 	@Override
-	protected void applyEntityAttributes()
-	{
-		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.15D);
-	}
-
-	@Override
-	protected void dropFewItems(boolean par1, int par2)
-	{
-		int j = this.rand.nextInt(3) + 1 + this.rand.nextInt(1 + par2);
-
-		for (int k = 0; k < j; ++k)
-		{
-			this.entityDropItem(new ItemStack(FronosItems.fruits, 1, 0), 0.0F);
-		}
-	}
-
-	@Override
 	public EntityKiwi createChild(EntityAgeable entity)
 	{
 		EntityKiwi pet = new EntityKiwi(this.worldObj);
-		String owner = this.func_152113_b();
+		String owner = this.getOwnerId();
 
 		if (owner != null && owner.trim().length() > 0)
 		{
-			pet.func_152115_b(owner);
+			pet.setOwnerId(owner);
 			pet.setTamed(true);
 		}
 		return pet;

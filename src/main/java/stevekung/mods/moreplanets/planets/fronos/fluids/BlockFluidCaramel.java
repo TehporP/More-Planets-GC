@@ -10,36 +10,36 @@ package stevekung.mods.moreplanets.planets.fronos.fluids;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.BlockFluidFinite;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockFluidCaramel extends BlockFluidFinite
 {
-	public IIcon caramelStillIcon;
-	public IIcon caramelFlowingIcon;
-
 	public BlockFluidCaramel(String name)
 	{
 		super(FronosBlocks.caramel_fluid, Material.water);
 		this.setQuantaPerBlock(4);
-		this.setRenderPass(1);
+		this.setRenderLayer(EnumWorldBlockLayer.TRANSLUCENT);
 		this.setLightOpacity(1);
-		this.setBlockName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(LEVEL, 3));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
 		if (entity instanceof EntityLivingBase)
 		{
@@ -48,52 +48,37 @@ public class BlockFluidCaramel extends BlockFluidFinite
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
-	{
-		this.caramelStillIcon = iconRegister.registerIcon("fronos:caramel_still");
-		this.caramelFlowingIcon = iconRegister.registerIcon("fronos:caramel_flowing");
-		FronosBlocks.caramel_fluid.setFlowingIcon(this.caramelStillIcon);
-		FronosBlocks.caramel_fluid.setStillIcon(this.caramelFlowingIcon);
-	}
-
-	@Override
 	@SideOnly(Side.CLIENT)
-	public void randomDisplayTick(World par1World, int par2, int par3, int par4, Random par5Random)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		super.randomDisplayTick(par1World, par2, par3, par4, par5Random);
+		super.randomDisplayTick(world, pos, state, rand);
 
-		if (par5Random.nextInt(10) == 0 && World.doesBlockHaveSolidTopSurface(par1World, par2, par3 - 1, par4) && !par1World.getBlock(par2, par3 - 2, par4).getMaterial().blocksMovement())
+		if (rand.nextInt(10) == 0 && World.doesBlockHaveSolidTopSurface(world, pos.down()) && !world.getBlockState(pos.down(2)).getBlock().getMaterial().blocksMovement())
 		{
-			double d5 = par2 + par5Random.nextFloat();
-			double d6 = par3 - 1.05D;
-			double d7 = par4 + par5Random.nextFloat();
-			MorePlanetsCore.proxy.spawnParticle("caramelDrip", d5, d6, d7);
+			double d5 = pos.getX() + rand.nextFloat();
+			double d6 = pos.getY() - 1.05D;
+			double d7 = pos.getZ() + rand.nextFloat();
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.CARAMEL_DRIP, d5, d6, d7);
 		}
 	}
 
 	@Override
-	public boolean canDisplace(IBlockAccess world, int x, int y, int z)
+	public boolean canDisplace(IBlockAccess world, BlockPos pos)
 	{
-		if (world.getBlock(x, y, z).getMaterial().isLiquid())
-		{
-			return false;
-		}
-		return super.canDisplace(world, x, y, z);
-	}
-
-	@Override
-	public boolean displaceIfPossible(World world, int x, int y, int z)
-	{
-		if (world.getBlock(x, y, z).getMaterial().isLiquid())
+		if (world.getBlockState(pos).getBlock().getMaterial().isLiquid())
 		{
 			return false;
 		}
-		return super.displaceIfPossible(world, x, y, z);
+		return super.canDisplace(world, pos);
 	}
 
 	@Override
-	public IIcon getIcon(int side, int meta)
+	public boolean displaceIfPossible(World world, BlockPos pos)
 	{
-		return side != 0 && side != 1 ? this.caramelFlowingIcon : this.caramelStillIcon;
+		if (world.getBlockState(pos).getBlock().getMaterial().isLiquid())
+		{
+			return false;
+		}
+		return super.displaceIfPossible(world, pos);
 	}
 }

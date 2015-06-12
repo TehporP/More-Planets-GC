@@ -18,8 +18,8 @@ import net.minecraft.block.Block;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
-import stevekung.mods.moreplanets.core.recipe.CandyExtractorRecipes;
-import stevekung.mods.moreplanets.planets.fronos.gui.GuiCandyExtractor;
+import stevekung.mods.moreplanets.common.recipe.CandyExtractorRecipes;
+import stevekung.mods.moreplanets.planets.fronos.client.gui.GuiCandyExtractor;
 import stevekung.mods.moreplanets.planets.fronos.tileentities.TileEntityCandyExtractor;
 import codechicken.nei.ItemList;
 import codechicken.nei.NEIServerUtils;
@@ -101,7 +101,7 @@ public class CandyExtractorRecipeHandler extends TemplateRecipeHandler
 	{
 		if (outputId.equals("smelting") && this.getClass() == CandyExtractorRecipeHandler.class)
 		{
-			Map<ItemStack, ItemStack> recipes = CandyExtractorRecipes.extracting().getExtractingList();
+			Map<ItemStack, ItemStack> recipes = CandyExtractorRecipes.instance().getExtractingList();
 
 			for (Entry<ItemStack, ItemStack> recipe : recipes.entrySet())
 			{
@@ -114,7 +114,7 @@ public class CandyExtractorRecipeHandler extends TemplateRecipeHandler
 	@Override
 	public void loadCraftingRecipes(ItemStack result)
 	{
-		Map<ItemStack, ItemStack> recipes = CandyExtractorRecipes.extracting().getExtractingList();
+		Map<ItemStack, ItemStack> recipes = CandyExtractorRecipes.instance().getExtractingList();
 
 		for (Entry<ItemStack, ItemStack> recipe : recipes.entrySet())
 		{
@@ -138,7 +138,7 @@ public class CandyExtractorRecipeHandler extends TemplateRecipeHandler
 	@Override
 	public void loadUsageRecipes(ItemStack ingredient)
 	{
-		Map<ItemStack, ItemStack> recipes = CandyExtractorRecipes.extracting().getExtractingList();
+		Map<ItemStack, ItemStack> recipes = CandyExtractorRecipes.instance().getExtractingList();
 
 		for (Entry<ItemStack, ItemStack> recipe : recipes.entrySet())
 		{
@@ -154,7 +154,7 @@ public class CandyExtractorRecipeHandler extends TemplateRecipeHandler
 	@Override
 	public String getGuiTexture()
 	{
-		return "fronos:textures/gui/candy_extractor_nei.png";
+		return "moreplanets:textures/gui/candy_extractor_nei.png";
 	}
 
 	@Override
@@ -170,7 +170,7 @@ public class CandyExtractorRecipeHandler extends TemplateRecipeHandler
 
 		for (ItemStack item : ItemList.items)
 		{
-			int burnTime = TileEntityCandyExtractor.getItemExtractTime(item);
+			int burnTime = TileEntityCandyExtractor.getItemBurnTime(item);
 
 			if (burnTime > 0)
 			{

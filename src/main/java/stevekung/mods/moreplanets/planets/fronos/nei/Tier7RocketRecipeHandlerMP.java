@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.nei.RocketRecipeHandlerMP;
+import stevekung.mods.moreplanets.common.nei.RocketRecipeHandlerMP;
 import codechicken.nei.NEIServerUtils;
 import codechicken.nei.PositionedStack;
 
@@ -76,6 +76,6 @@ public class Tier7RocketRecipeHandlerMP extends RocketRecipeHandlerMP
 	@Override
 	public String getRocketGuiTexture()
 	{
-		return "fronos:textures/gui/schematic_tier7_rocket.png";
+		return "moreplanets:textures/gui/tier_7_rocket_schematic.png";
 	}
 }

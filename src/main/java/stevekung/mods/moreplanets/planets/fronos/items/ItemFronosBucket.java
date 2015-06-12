@@ -11,19 +11,22 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.items.ItemBaseMP;
+import net.minecraftforge.fluids.BlockFluidBase;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.ItemBaseMP;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemFronosBucket extends ItemBaseMP
 {
@@ -40,223 +43,117 @@ public class ItemFronosBucket extends ItemBaseMP
 	@Override
 	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player)
 	{
-		this.isFull = ItemFronosBucket.getLiquidFromMeta(itemStack.getItemDamage());
+		this.isFull = this.getLiquidFromMeta(itemStack.getItemDamage());
 		boolean flag = this.isFull == Blocks.air;
+		MovingObjectPosition moving = this.getMovingObjectPositionFromPlayer(world, player, flag);
 
-		if (itemStack.getItem() == Items.bucket)
+		if (moving == null)
 		{
-			MovingObjectPosition pos = this.getMovingObjectPositionFromPlayer(world, player, true);
-
-			if (pos == null)
+			return itemStack;
+		}
+		else
+		{
+			if (moving.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
-				return itemStack;
-			}
-			else
-			{
-				Block block = world.getBlock(pos.blockX, pos.blockY, pos.blockZ);
-				int meta = world.getBlockMetadata(pos.blockX, pos.blockY, pos.blockZ);
+				BlockPos pos = moving.getBlockPos();
 
-				if (block == FronosBlocks.coconut_milk && meta == 0)
+				if (!world.isBlockModifiable(player, pos))
 				{
-					if (player.capabilities.isCreativeMode)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemStack;
-					}
-					if (--itemStack.stackSize <= 0)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(FronosItems.fronos_bucket, 1, 0);
-					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(FronosItems.fronos_bucket, 1, 0)))
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(FronosItems.fronos_bucket, 1, 0), 1.0F);
-					}
 					return itemStack;
 				}
-				else if (block == FronosBlocks.mineral_water && meta == 0)
+
+				if (flag)
 				{
-					if (player.capabilities.isCreativeMode)
+					if (!player.canPlayerEdit(pos.offset(moving.sideHit), moving.sideHit, itemStack))
 					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
 						return itemStack;
 					}
-					if (--itemStack.stackSize <= 0)
+
+					IBlockState state = world.getBlockState(pos);
+					int meta = itemStack.getItemDamage();
+
+					if (meta == 0)
 					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(FronosItems.fronos_bucket, 1, 1);
+						if (state == FronosBlocks.coconut_milk.getDefaultState().withProperty(BlockFluidBase.LEVEL, 0))
+						{
+							world.setBlockToAir(pos);
+							return this.fillBucket(itemStack, player, new ItemStack(this, 1, 0));
+						}
 					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(FronosItems.fronos_bucket, 1, 1)))
+					else if (meta == 1)
 					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(FronosItems.fronos_bucket, 1, 1), 1.0F);
+						if (state == FronosBlocks.mineral_water.getDefaultState().withProperty(BlockFluidBase.LEVEL, 0))
+						{
+							world.setBlockToAir(pos);
+							return this.fillBucket(itemStack, player, new ItemStack(this, 1, 1));
+						}
 					}
-					return itemStack;
-				}
-				else if (block == FronosBlocks.ovantine && meta == 0)
-				{
-					if (player.capabilities.isCreativeMode)
+					else if (meta == 2)
 					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemStack;
+						if (state == FronosBlocks.ovantine.getDefaultState().withProperty(BlockFluidBase.LEVEL, 0))
+						{
+							world.setBlockToAir(pos);
+							return this.fillBucket(itemStack, player, new ItemStack(this, 1, 2));
+						}
 					}
-					if (--itemStack.stackSize <= 0)
+					else if (meta == 3)
 					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(FronosItems.fronos_bucket, 1, 2);
+						if (state == FronosBlocks.tea.getDefaultState().withProperty(BlockFluidBase.LEVEL, 0))
+						{
+							world.setBlockToAir(pos);
+							return this.fillBucket(itemStack, player, new ItemStack(this, 1, 3));
+						}
 					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(FronosItems.fronos_bucket, 1, 2)))
+					else if (meta == 4)
 					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(FronosItems.fronos_bucket, 1, 2), 1.0F);
+						if (state == FronosBlocks.caramel.getStateFromMeta(3))
+						{
+							world.setBlockToAir(pos);
+							return this.fillBucket(itemStack, player, new ItemStack(this, 1, 4));
+						}
 					}
-					return itemStack;
-				}
-				else if (block == FronosBlocks.tea && meta == 0)
-				{
-					if (player.capabilities.isCreativeMode)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemStack;
-					}
-					if (--itemStack.stackSize <= 0)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(FronosItems.fronos_bucket, 1, 3);
-					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(FronosItems.fronos_bucket, 1, 3)))
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(FronosItems.fronos_bucket, 1, 3), 1.0F);
-					}
-					return itemStack;
-				}
-				else if (block == FronosBlocks.caramel && meta == 3)
-				{
-					if (player.capabilities.isCreativeMode)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemStack;
-					}
-					if (--itemStack.stackSize <= 0)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(FronosItems.fronos_bucket, 1, 4);
-					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(FronosItems.fronos_bucket, 1, 4)))
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(FronosItems.fronos_bucket, 1, 4), 1.0F);
-					}
-					return itemStack;
 				}
 				else
 				{
-					return itemStack;
+					if (this.isFull == Blocks.air)
+					{
+						return new ItemStack(Items.bucket);
+					}
+					if (!player.canPlayerEdit(pos.offset(moving.sideHit), moving.sideHit, itemStack))
+					{
+						return itemStack;
+					}
+					if (this.tryPlaceContainedLiquid(world, pos.offset(moving.sideHit)) && !player.capabilities.isCreativeMode)
+					{
+						return new ItemStack(Items.bucket);
+					}
 				}
 			}
+			return itemStack;
 		}
-		else
-		{
-			MovingObjectPosition pos = this.getMovingObjectPositionFromPlayer(world, player, flag);
-
-			if (pos == null)
-			{
-				return itemStack;
-			}
-			else if (pos.typeOfHit == MovingObjectType.BLOCK)
-			{
-				int i = pos.blockX;
-				int j = pos.blockY;
-				int k = pos.blockZ;
-
-				if (!world.canMineBlock(player, i, j, k))
-				{
-					return itemStack;
-				}
-				if (this.isFull == Blocks.air)
-				{
-					return new ItemStack(Items.bucket, 1, 0);
-				}
-				if (pos.sideHit == 0)
-				{
-					--j;
-				}
-				if (pos.sideHit == 1)
-				{
-					++j;
-				}
-				if (pos.sideHit == 2)
-				{
-					--k;
-				}
-				if (pos.sideHit == 3)
-				{
-					++k;
-				}
-				if (pos.sideHit == 4)
-				{
-					--i;
-				}
-				if (pos.sideHit == 5)
-				{
-					++i;
-				}
-				if (!player.canPlayerEdit(i, j, k, pos.sideHit, itemStack))
-				{
-					return itemStack;
-				}
-				if (this.tryPlaceContainedLiquid(world, i, j, k, itemStack) && !player.capabilities.isCreativeMode)
-				{
-					return new ItemStack(Items.bucket, 1, 0);
-				}
-			}
-		}
-		return itemStack;
 	}
 
-	private boolean tryPlaceContainedLiquid(World world, int x, int y, int z, ItemStack itemStack)
+	private ItemStack fillBucket(ItemStack emptyBuckets, EntityPlayer player, ItemStack fullBucket)
 	{
-		Material material = world.getBlock(x, y, z).getMaterial();
-		boolean flag = !material.isSolid();
-
-		if (this.isFull == Blocks.air)
+		if (player.capabilities.isCreativeMode)
 		{
-			return false;
+			return emptyBuckets;
 		}
-		else if (!world.isAirBlock(x, y, z) && world.getBlock(x, y, z).getMaterial().isSolid())
+		else if (--emptyBuckets.stackSize <= 0)
 		{
-			return false;
-		}
-		if (world.provider.isHellWorld && this.isFull != Blocks.air)
-		{
-			world.playSoundEffect(x + 0.5F, y + 0.5F, z + 0.5F, "random.fizz", 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
-
-			for (int l = 0; l < 8; l++)
-			{
-				world.spawnParticle("largesmoke", x + Math.random(), y + Math.random(), z + Math.random(), 0.0D, 0.0D, 0.0D);
-			}
+			return fullBucket;
 		}
 		else
 		{
-			if (!world.isRemote && flag && !material.isLiquid())
+			if (!player.inventory.addItemStackToInventory(fullBucket))
 			{
-				world.func_147480_a(x, y, z, true);
+				player.dropPlayerItemWithRandomChoice(fullBucket, false);
 			}
-			if (itemStack.getItem() == this && itemStack.getItemDamage() != 4)
-			{
-				world.setBlock(x, y, z, this.isFull, 0, 3);
-			}
-			else
-			{
-				world.setBlock(x, y, z, this.isFull, 3, 3);
-			}
+			return emptyBuckets;
 		}
-		return true;
 	}
 
-	private static Block getLiquidFromMeta(int meta)
+	private Block getLiquidFromMeta(int meta)
 	{
 		switch (meta)
 		{
@@ -274,13 +171,52 @@ public class ItemFronosBucket extends ItemBaseMP
 		}
 	}
 
+	public boolean tryPlaceContainedLiquid(World world, BlockPos pos)
+	{
+		if (this.isFull == Blocks.air)
+		{
+			return false;
+		}
+		else
+		{
+			Material material = world.getBlockState(pos).getBlock().getMaterial();
+			boolean flag = !material.isSolid();
+
+			if (!world.isAirBlock(pos) && !flag)
+			{
+				return false;
+			}
+			else
+			{
+				if (world.provider.doesWaterVaporize() && this.isFull.getMaterial() == Material.water)
+				{
+					world.playSoundEffect(pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, "random.fizz", 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
+
+					for (int i = 0; i < 8; ++i)
+					{
+						world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, pos.getX() + Math.random(), pos.getY() + Math.random(), pos.getZ() + Math.random(), 0.0D, 0.0D, 0.0D, new int[0]);
+					}
+				}
+				else
+				{
+					if (!world.isRemote && flag && !material.isLiquid())
+					{
+						world.destroyBlock(pos, true);
+					}
+					world.setBlockState(pos, this.isFull.getDefaultState(), 3);
+				}
+				return true;
+			}
+		}
+	}
+
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubItems(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < this.getItemVariantsName().length; ++i)
 		{
-			par3List.add(new ItemStack(par1, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
@@ -288,11 +224,5 @@ public class ItemFronosBucket extends ItemBaseMP
 	public String[] getItemVariantsName()
 	{
 		return new String[] { "coconut_milk_bucket", "mineral_water_bucket", "ovantine_bucket", "tea_bucket", "caramel_bucket" };
-	}
-
-	@Override
-	public String getTexturesFolder()
-	{
-		return "fronos";
 	}
 }

@@ -7,54 +7,30 @@
 
 package stevekung.mods.moreplanets.planets.nibiru.entities;
 
-import micdoodle8.mods.galacticraft.api.entity.IEntityBreathable;
-import micdoodle8.mods.galacticraft.core.util.ConfigManagerCore;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.config.ConfigManagerMP;
-import stevekung.mods.moreplanets.core.entities.IEntityLivingPlanet;
+import stevekung.mods.moreplanets.common.entities.IBreathableInfectedGas;
 import stevekung.mods.moreplanets.core.init.MPItems;
 import stevekung.mods.moreplanets.core.init.MPPotions;
 
-public class EntityInfectedZombie extends EntityZombie implements IEntityBreathable, IEntityLivingPlanet
+public class EntityInfectedZombie extends EntityZombie implements /*IEntityBreathable,*/ IBreathableInfectedGas
 {
 	public EntityInfectedZombie(World world)
 	{
 		super(world);
 	}
 
-	@Override
-	public ItemStack getPickedResult(MovingObjectPosition target)
-	{
-		return new ItemStack(MPItems.spawn_egg_mp, 1, 1010);
-	}
-
-	@Override
+	/*@Override
 	public boolean canBreath()
 	{
 		return true;
-	}
-
-	@Override
-	public boolean attackEntityAsMob(Entity entity)
-	{
-		if (super.attackEntityAsMob(entity))
-		{
-			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MPPotions.infected_gas.id, 20, 0));
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+	}*/
 
 	@Override
 	public void setDead()
@@ -78,20 +54,33 @@ public class EntityInfectedZombie extends EntityZombie implements IEntityBreatha
 	}
 
 	@Override
-	protected void applyEntityAttributes()
+	public boolean attackEntityAsMob(Entity entity)
 	{
-		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(ConfigManagerCore.hardMode ? 5.0D : 3.0D);
+		if (super.attackEntityAsMob(entity))
+		{
+			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(MPPotions.infected_gas.id, 20, 0));
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Override
+	public ItemStack getPickedResult(MovingObjectPosition target)
+	{
+		return new ItemStack(MPItems.spawn_egg_mp, 1, 1010);
 	}
 
 	public IAttribute getReinforcementsAttribute()
 	{
-		return EntityZombie.field_110186_bp;
+		return EntityZombie.reinforcementChance;
 	}
 
 	@Override
-	public int canLivingInDimension()
+	public boolean canBreathInGas()
 	{
-		return ConfigManagerMP.idDimensionNibiru;
+		return true;
 	}
 }

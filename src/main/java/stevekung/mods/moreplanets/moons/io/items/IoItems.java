@@ -25,9 +25,9 @@ public class IoItems
 
 	public static void init()
 	{
-		initItems();
-		registerItems();
-		registerFluidContainer();
+		IoItems.initItems();
+		IoItems.registerItems();
+		IoItems.registerFluidContainer();
 	}
 
 	private static void initItems()
@@ -43,13 +43,13 @@ public class IoItems
 
 	private static void registerItems()
 	{
-		RegisterHelper.registerItem(titanium_bucket);
-		RegisterHelper.registerItem(io_lava_bucket);
-		RegisterHelper.registerItem(io_black_lava_bucket);
-		RegisterHelper.registerItem(liquid_red_sulfur_bucket);
-		RegisterHelper.registerItem(liquid_yellow_sulfur_bucket);
-		RegisterHelper.registerItem(liquid_orange_sulfur_bucket);
-		RegisterHelper.registerItem(liquid_brown_sulfur_bucket);
+		RegisterHelper.registerItem(IoItems.titanium_bucket);
+		RegisterHelper.registerItem(IoItems.io_lava_bucket);
+		RegisterHelper.registerItem(IoItems.io_black_lava_bucket);
+		RegisterHelper.registerItem(IoItems.liquid_red_sulfur_bucket);
+		RegisterHelper.registerItem(IoItems.liquid_yellow_sulfur_bucket);
+		RegisterHelper.registerItem(IoItems.liquid_orange_sulfur_bucket);
+		RegisterHelper.registerItem(IoItems.liquid_brown_sulfur_bucket);
 	}
 
 	private static void registerFluidContainer()

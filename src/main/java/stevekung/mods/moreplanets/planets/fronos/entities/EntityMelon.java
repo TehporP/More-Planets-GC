@@ -20,10 +20,9 @@ import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAITemptMP;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAITemptMP;
 import stevekung.mods.moreplanets.core.init.MPItems;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
@@ -37,7 +36,7 @@ public class EntityMelon extends EntityAnimal
 		this.tasks.addTask(0, new EntityAISwimming(this));
 		this.tasks.addTask(1, new EntityAIPanic(this, 1.4D));
 		this.tasks.addTask(2, new EntityAIMate(this, 1.0D));
-		this.tasks.addTask(3, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.fronos_food2, 1, 0), false));
+		this.tasks.addTask(3, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.candy_food, 1, 0), false));
 		this.tasks.addTask(4, new EntityAIFollowParent(this, 1.1D));
 		this.tasks.addTask(5, new EntityAIWander(this, 1.0D));
 		this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
@@ -45,12 +44,15 @@ public class EntityMelon extends EntityAnimal
 	}
 
 	@Override
+	public float getEyeHeight()
+	{
+		return this.height - 1.35F;
+	}
+
+	@Override
 	public boolean getCanSpawnHere()
 	{
-		int i = MathHelper.floor_double(this.posX);
-		int j = MathHelper.floor_double(this.boundingBox.minY);
-		int k = MathHelper.floor_double(this.posZ);
-		Block block = this.worldObj.getBlock(i, j - 1, k);
+		Block block = this.worldObj.getBlockState(this.getPosition().down()).getBlock();
 		return block == FronosBlocks.fronos_grass;
 	}
 
@@ -98,12 +100,6 @@ public class EntityMelon extends EntityAnimal
 	}
 
 	@Override
-	public boolean isAIEnabled()
-	{
-		return true;
-	}
-
-	@Override
 	protected void applyEntityAttributes()
 	{
 		super.applyEntityAttributes();
@@ -112,27 +108,21 @@ public class EntityMelon extends EntityAnimal
 	}
 
 	@Override
-	public void onLivingUpdate()
-	{
-		super.onLivingUpdate();
-	}
-
-	@Override
 	protected String getLivingSound()
 	{
-		return "fronos:mob.fronos.say";
+		return "moreplanets:mob.fronos.say";
 	}
 
 	@Override
 	protected String getHurtSound()
 	{
-		return "fronos:mob.fronos.hurt";
+		return "moreplanets:mob.fronos.hurt";
 	}
 
 	@Override
 	protected String getDeathSound()
 	{
-		return "fronos:mob.fronos.death";
+		return "moreplanets:mob.fronos.death";
 	}
 
 	@Override
@@ -142,20 +132,9 @@ public class EntityMelon extends EntityAnimal
 	}
 
 	@Override
-	public void onUpdate()
-	{
-		super.onUpdate();
-	}
-
-	@Override
-	protected int getExperiencePoints(EntityPlayer par1EntityPlayer)
+	protected int getExperiencePoints(EntityPlayer player)
 	{
 		return 1 + this.worldObj.rand.nextInt(6);
-	}
-
-	public EntityMelon spawnBabyAnimal(EntityAgeable par1EntityAgeable)
-	{
-		return new EntityMelon(this.worldObj);
 	}
 
 	@Override
@@ -163,21 +142,21 @@ public class EntityMelon extends EntityAnimal
 	{
 		int j = this.rand.nextInt(3) + 1 + this.rand.nextInt(1 + par2);
 
-		for (int k = 0; k < j; ++k)
+		for (int i = 0; i < j; ++i)
 		{
 			this.entityDropItem(new ItemStack(FronosItems.fronos_food, 1, 1), 0.0F);
 		}
 	}
 
 	@Override
-	public boolean isBreedingItem(ItemStack par1ItemStack)
+	public boolean isBreedingItem(ItemStack itemStack)
 	{
-		return par1ItemStack.getItem() == FronosItems.fronos_food2 && par1ItemStack.getItemDamage() == 1;
+		return itemStack != null && itemStack.getItem() == FronosItems.candy_food && itemStack.getItemDamage() == 1;
 	}
 
 	@Override
-	public EntityAgeable createChild(EntityAgeable par1EntityAgeable)
+	public EntityMelon createChild(EntityAgeable age)
 	{
-		return this.spawnBabyAnimal(par1EntityAgeable);
+		return new EntityMelon(this.worldObj);
 	}
 }

@@ -7,26 +7,28 @@
 
 package stevekung.mods.moreplanets.planets.fronos.items;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.BlockFence;
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Facing;
+import net.minecraft.tileentity.MobSpawnerBaseLogic;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.items.ItemMorePlanet;
+import stevekung.mods.moreplanets.common.items.ItemMorePlanets;
 import stevekung.mods.moreplanets.planets.fronos.entities.EntityBearry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemBearryEgg extends ItemMorePlanet
+public class ItemBearryEgg extends ItemMorePlanets
 {
 	public ItemBearryEgg(String name)
 	{
@@ -36,118 +38,125 @@ public class ItemBearryEgg extends ItemMorePlanet
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerIcons(IIconRegister iconRegister)
+	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		this.itemIcon = iconRegister.registerIcon("fronos:bearry_egg");
+		IBlockState state = world.getBlockState(pos);
+
+		if (world.isRemote)
+		{
+			return true;
+		}
+		if (!player.canPlayerEdit(pos.offset(side), side, itemStack))
+		{
+			return false;
+		}
+		if (player.capabilities.isCreativeMode)
+		{
+			if (state.getBlock() == Blocks.mob_spawner)
+			{
+				TileEntity localTileEntity = world.getTileEntity(pos);
+
+				if (localTileEntity instanceof TileEntityMobSpawner)
+				{
+					MobSpawnerBaseLogic mobSpawner = ((TileEntityMobSpawner)localTileEntity).getSpawnerBaseLogic();
+					mobSpawner.setEntityName("Bearry");
+					localTileEntity.markDirty();
+					world.markBlockForUpdate(pos);
+
+					if (!player.capabilities.isCreativeMode)
+					{
+						itemStack.stackSize -= 1;
+					}
+					return true;
+				}
+			}
+		}
+
+		pos = pos.offset(side);
+		double d = 0.0D;
+
+		if (side == EnumFacing.UP && state instanceof BlockFence)
+		{
+			d = 0.5D;
+		}
+
+		Entity localEntity = spawnCreature(world, pos.getX() + 0.5D, pos.getY() + d, pos.getZ() + 0.5D);
+
+		if (localEntity != null)
+		{
+			if (localEntity instanceof EntityLivingBase && itemStack.hasDisplayName())
+			{
+				localEntity.setCustomNameTag(itemStack.getDisplayName());
+			}
+			if (!player.capabilities.isCreativeMode)
+			{
+				itemStack.stackSize -= 1;
+			}
+		}
+		return true;
 	}
 
 	@Override
 	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player)
 	{
+		MovingObjectPosition moving = this.getMovingObjectPositionFromPlayer(world, player, true);
+
 		if (world.isRemote)
 		{
 			return itemStack;
 		}
-		else
+		if (moving == null)
 		{
-			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
+			return itemStack;
+		}
+		if (moving.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
+		{
+			BlockPos pos = moving.getBlockPos();
 
-			if (movingobjectposition == null)
+			if (!world.isBlockModifiable(player, pos))
 			{
 				return itemStack;
 			}
-			else
+			if (!player.canPlayerEdit(pos, moving.sideHit, itemStack))
 			{
-				if (movingobjectposition.typeOfHit == MovingObjectType.BLOCK)
-				{
-					int i = movingobjectposition.blockX;
-					int j = movingobjectposition.blockY;
-					int k = movingobjectposition.blockZ;
-
-					if (!world.canMineBlock(player, i, j, k))
-					{
-						return itemStack;
-					}
-					if (!player.canPlayerEdit(i, j, k, movingobjectposition.sideHit, itemStack))
-					{
-						return itemStack;
-					}
-					if (world.getBlock(i, j, k).getMaterial() == Material.water)
-					{
-						Entity entity = spawnCreature(world, i, j, k);
-
-						if (entity != null)
-						{
-							if (entity instanceof EntityLivingBase && itemStack.hasDisplayName())
-							{
-								((EntityLiving)entity).setCustomNameTag(itemStack.getDisplayName());
-							}
-							if (!player.capabilities.isCreativeMode)
-							{
-								--itemStack.stackSize;
-							}
-						}
-					}
-				}
 				return itemStack;
 			}
-		}
-	}
-
-	@Override
-	public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10)
-	{
-		if (par3World.isRemote)
-		{
-			return true;
-		}
-		else
-		{
-			Block block = par3World.getBlock(par4, par5, par6);
-			par4 += Facing.offsetsXForSide[par7];
-			par5 += Facing.offsetsYForSide[par7];
-			par6 += Facing.offsetsZForSide[par7];
-			double d0 = 0.0D;
-
-			if (par7 == 1 && block != null && block.getRenderType() == 11)
+			if (world.getBlockState(pos).getBlock() instanceof BlockLiquid)
 			{
-				d0 = 0.5D;
-			}
+				Entity localEntity = spawnCreature(world, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
 
-			Entity entity = spawnCreature(par3World, par4 + 0.5D, par5 + d0, par6 + 0.5D);
-
-			if (entity != null)
-			{
-				if (entity instanceof EntityLivingBase && par1ItemStack.hasDisplayName())
+				if (localEntity != null)
 				{
-					((EntityLiving)entity).setCustomNameTag(par1ItemStack.getDisplayName());
-				}
-				if (!par2EntityPlayer.capabilities.isCreativeMode)
-				{
-					--par1ItemStack.stackSize;
+					if (localEntity instanceof EntityLivingBase && itemStack.hasDisplayName())
+					{
+						((EntityLiving)localEntity).setCustomNameTag(itemStack.getDisplayName());
+					}
+					if (!player.capabilities.isCreativeMode)
+					{
+						itemStack.stackSize -= 1;
+					}
+					player.triggerAchievement(net.minecraft.stats.StatList.objectUseStats[Item.getIdFromItem(this)]);
 				}
 			}
-			return true;
 		}
+		return itemStack;
 	}
 
-	public static Entity spawnCreature(World world, double par2, double par4, double par6)
+	private static Entity spawnCreature(World world, double x, double y, double z)
 	{
 		EntityBearry entity = new EntityBearry(world);
 
 		for (int i = 0; i < 1; i++)
 		{
-			if (entity != null && entity instanceof EntityLivingBase)
+			if (entity instanceof EntityLivingBase)
 			{
-				EntityLiving entityliving = entity;
-				entity.setLocationAndAngles(par2, par4, par6, MathHelper.wrapAngleTo180_float(world.rand.nextFloat() * 360.0F), 0.0F);
-				entityliving.rotationYawHead = entityliving.rotationYaw;
-				entityliving.renderYawOffset = entityliving.rotationYaw;
+				entity.setLocationAndAngles(x, y, z, MathHelper.wrapAngleTo180_float(world.rand.nextFloat() * 360.0F), 0.0F);
+				entity.rotationYawHead = entity.rotationYaw;
+				entity.renderYawOffset = entity.rotationYaw;
+				entity.func_180482_a(world.getDifficultyForLocation(new BlockPos(entity)), null);
 				entity.setGrowingAge(-24000);
-				entityliving.onSpawnWithEgg((IEntityLivingData)null);
 				world.spawnEntityInWorld(entity);
-				entityliving.playLivingSound();
+				entity.playLivingSound();
 			}
 		}
 		return entity;

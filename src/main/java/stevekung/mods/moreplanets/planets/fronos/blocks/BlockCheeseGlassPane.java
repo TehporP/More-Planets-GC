@@ -7,28 +7,20 @@
 
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockPane;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.util.EnumWorldBlockLayer;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockCheeseGlassPane extends BlockPane
 {
 	public BlockCheeseGlassPane(String name)
 	{
-		super("fronos:cheese_glass", "fronos:cheese_glass_pane", Material.glass, false);
-		this.setStepSound(Block.soundTypeGlass);
-		this.setBlockName(name);
+		super(Material.glass, false);
+		this.setStepSound(soundTypeGlass);
+		this.setUnlocalizedName(name);
 		this.setHardness(0.3F);
-	}
-
-	@Override
-	public int getRenderType()
-	{
-		return 41;
 	}
 
 	@Override
@@ -38,9 +30,8 @@ public class BlockCheeseGlassPane extends BlockPane
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public int getRenderBlockPass()
+	public EnumWorldBlockLayer getBlockLayer()
 	{
-		return 1;
+		return EnumWorldBlockLayer.TRANSLUCENT;
 	}
 }

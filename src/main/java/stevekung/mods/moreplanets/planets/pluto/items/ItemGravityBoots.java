@@ -14,12 +14,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.input.Keyboard;
 
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 
 public class ItemGravityBoots extends ItemArmorMP
 {
@@ -54,12 +54,6 @@ public class ItemGravityBoots extends ItemArmorMP
 				list.add("Press LSHIFT for info");
 			}
 		}
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "pluto";
 	}
 
 	@Override

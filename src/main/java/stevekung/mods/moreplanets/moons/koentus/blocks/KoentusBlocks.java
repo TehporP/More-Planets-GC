@@ -8,15 +8,16 @@
 package stevekung.mods.moreplanets.moons.koentus.blocks;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
-import stevekung.mods.moreplanets.core.blocks.BlockDoorMP;
-import stevekung.mods.moreplanets.core.blocks.BlockDoorMP.DoorType;
-import stevekung.mods.moreplanets.core.blocks.BlockFenceGateMP;
-import stevekung.mods.moreplanets.core.blocks.BlockStairsMP;
-import stevekung.mods.moreplanets.core.blocks.BlockStairsMP.StairsCategory;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockDirtMP;
-import stevekung.mods.moreplanets.moons.koentus.blocks.BlockCrystalLeaves.KoentusLeafCategory;
-import stevekung.mods.moreplanets.moons.koentus.blocks.BlockCrystalLog.KoentusLogCategory;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
+import stevekung.mods.moreplanets.common.blocks.BlockDoorMP;
+import stevekung.mods.moreplanets.common.blocks.BlockDoorMP.DoorType;
+import stevekung.mods.moreplanets.common.blocks.BlockFenceGateMP;
+import stevekung.mods.moreplanets.common.blocks.BlockStairsMP;
+import stevekung.mods.moreplanets.common.blocks.BlockStairsMP.StairsCategory;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockDirtMP;
+import stevekung.mods.moreplanets.moons.koentus.itemblocks.ItemBlockCrystalLeaves;
 import stevekung.mods.moreplanets.moons.koentus.itemblocks.ItemBlockCrystalLog;
 import stevekung.mods.moreplanets.moons.koentus.itemblocks.ItemBlockGlowingIce;
 import stevekung.mods.moreplanets.moons.koentus.itemblocks.ItemBlockKoentus;
@@ -29,12 +30,12 @@ public class KoentusBlocks
 	public static Block koentus_ice;
 	public static Block koentus_cobblestone_stairs;
 	public static Block koentus_dungeon_brick_stairs;
-	public static Block koentus_treasure_chest;
+	//public static Block koentus_treasure_chest;
 	public static Block eledos_egg;
 	public static Block white_crystal_torch;
 	public static Block fallen_koentus_meteor;
 	public static Block koentus_ancient_stone_stairs;
-	public static Block koentus_ancient_brick_stairs;
+	public static Block koentus_ancient_stone_brick_stairs;
 	public static Block koentus_ancient_chest;
 	public static Block glowing_ice_stone;
 	public static Block crystal_segment;
@@ -59,29 +60,29 @@ public class KoentusBlocks
 
 	private static void initBlocks()
 	{
-		KoentusBlocks.koentus_block = new BlockBasicKoentus("koentus_block");
+		KoentusBlocks.koentus_block = new BlockKoentus("koentus_block");
 		KoentusBlocks.koentus_ice = new BlockKoentusIce("koentus_ice");
-		KoentusBlocks.koentus_cobblestone_stairs = new BlockStairsMP("koentus_cobblestone_stairs", 3.25F, StairsCategory.KOENTUS_COBBLESTONE, Blocks.stone);
-		KoentusBlocks.koentus_dungeon_brick_stairs = new BlockStairsMP("koentus_dungeon_brick_stairs", 4.0F, StairsCategory.KOENTUS_BRICK, Blocks.stone);
+		KoentusBlocks.koentus_cobblestone_stairs = new BlockStairsMP("koentus_cobblestone_stairs", 3.25F, StairsCategory.koentus_cobblestone, Blocks.stone.getDefaultState());
+		KoentusBlocks.koentus_dungeon_brick_stairs = new BlockStairsMP("koentus_dungeon_brick_stairs", 4.0F, StairsCategory.koentus_dungeon_brick, Blocks.stone.getDefaultState());
 		KoentusBlocks.fallen_koentus_meteor = new BlockFallenKoentusMeteor("fallen_koentus_meteor");
 		KoentusBlocks.eledos_egg = new BlockEledosEgg("eledos_egg");
 		KoentusBlocks.white_crystal_torch = new BlockWhiteCrystalTorch("white_crystal_torch");
-		KoentusBlocks.koentus_treasure_chest = new BlockT4KoentusTreasureChest("koentus_treasure_chest");
-		KoentusBlocks.koentus_ancient_stone_stairs = new BlockStairsMP("koentus_ancient_stone_stairs", 2.5F, StairsCategory.KOENTUS_ANCIENT_STONE, Blocks.stone);
-		KoentusBlocks.koentus_ancient_brick_stairs = new BlockStairsMP("koentus_ancient_brick_stairs", 2.5F, StairsCategory.KOENTUS_ANCIENT_BRICK, Blocks.stone);
+		//		KoentusBlocks.koentus_treasure_chest = new BlockT4KoentusTreasureChest("koentus_treasure_chest");
+		KoentusBlocks.koentus_ancient_stone_stairs = new BlockStairsMP("koentus_ancient_stone_stairs", 2.5F, StairsCategory.koentus_ancient_stone, Blocks.stone.getDefaultState());
+		KoentusBlocks.koentus_ancient_stone_brick_stairs = new BlockStairsMP("koentus_ancient_stone_brick_stairs", 2.5F, StairsCategory.koentus_ancient_stone_brick, Blocks.stone.getDefaultState());
 		KoentusBlocks.koentus_ancient_chest = new BlockKoentusAncientChest("koentus_ancient_chest");
 		KoentusBlocks.glowing_ice_stone = new BlockGlowingIceStone("glowing_ice_stone");
 		KoentusBlocks.crystal_segment = new BlockCrystalSegment("crystal_segment");
 		KoentusBlocks.crystal_dirt = new BlockCrystalDirt("crystal_dirt");
-		KoentusBlocks.crystal_wooden_planks = new BlockCrystalWoodenPlanks("crystal_planks");
-		KoentusBlocks.crystal_log = new BlockCrystalLog("crystal_log", KoentusLogCategory.CAT1);
+		KoentusBlocks.crystal_wooden_planks = new BlockBaseMP("crystal_planks", Material.wood).setHardness(2.0F).setResistance(5.0F).setStepSound(Block.soundTypeWood);
+		KoentusBlocks.crystal_log = new BlockCrystalLog("crystal_log");
 		KoentusBlocks.crystal_sapling = new BlockCrystalSapling("crystal_sapling");
-		KoentusBlocks.crystal_leaves = new BlockCrystalLeaves("crystal_leaves", KoentusLeafCategory.CAT1);
+		KoentusBlocks.crystal_leaves = new BlockCrystalLeaves("crystal_leaves");
 		KoentusBlocks.crystal_fence = new BlockCrystalFence("crystal_fence");
-		KoentusBlocks.crystal_fence_gate = new BlockFenceGateMP("crystal_fence_gate", "koentus:crystal_planks");
+		KoentusBlocks.crystal_fence_gate = new BlockFenceGateMP("crystal_fence_gate");
 		KoentusBlocks.crystal_farmland = new BlockCrystalFarmland("crystal_farmland");
-		KoentusBlocks.crystal_wood_stairs = new BlockStairsMP("crystal_wood_stairs", 2.0F, StairsCategory.CRYSTAL_WOOD, Blocks.log);
-		KoentusBlocks.crystal_door = new BlockDoorMP("crystal_door_block", "koentus:crystal", DoorType.CRYSTAL);
+		KoentusBlocks.crystal_wood_stairs = new BlockStairsMP("crystal_wood_stairs", 2.0F, StairsCategory.crystal_wood, Blocks.log.getDefaultState());
+		KoentusBlocks.crystal_door = new BlockDoorMP("crystal_door_block", DoorType.CRYSTAL);
 	}
 
 	private static void setHarvestLevels()
@@ -102,7 +103,7 @@ public class KoentusBlocks
 		KoentusBlocks.koentus_cobblestone_stairs.setHarvestLevel("pickaxe", 1);
 		KoentusBlocks.koentus_dungeon_brick_stairs.setHarvestLevel("pickaxe", 1);
 		KoentusBlocks.koentus_ancient_stone_stairs.setHarvestLevel("pickaxe", 1);
-		KoentusBlocks.koentus_ancient_brick_stairs.setHarvestLevel("pickaxe", 1);
+		KoentusBlocks.koentus_ancient_stone_brick_stairs.setHarvestLevel("pickaxe", 1);
 	}
 
 	private static void setFireBurn()
@@ -122,15 +123,15 @@ public class KoentusBlocks
 		RegisterHelper.registerBlock(KoentusBlocks.crystal_dirt, ItemBlockDirtMP.class);
 		RegisterHelper.registerBlock(KoentusBlocks.crystal_wooden_planks);
 		RegisterHelper.registerBlock(KoentusBlocks.crystal_log, ItemBlockCrystalLog.class);
-		RegisterHelper.registerBlock(KoentusBlocks.crystal_leaves);
+		RegisterHelper.registerBlock(KoentusBlocks.crystal_leaves, ItemBlockCrystalLeaves.class);
 		RegisterHelper.registerBlock(KoentusBlocks.koentus_ice, ItemBlockKoentusIce.class);
 		RegisterHelper.registerBlock(KoentusBlocks.glowing_ice_stone, ItemBlockGlowingIce.class);
 		RegisterHelper.registerBlock(KoentusBlocks.crystal_wood_stairs);
 		RegisterHelper.registerBlock(KoentusBlocks.koentus_cobblestone_stairs);
 		RegisterHelper.registerBlock(KoentusBlocks.koentus_dungeon_brick_stairs);
 		RegisterHelper.registerBlock(KoentusBlocks.koentus_ancient_stone_stairs);
-		RegisterHelper.registerBlock(KoentusBlocks.koentus_ancient_brick_stairs);
-		RegisterHelper.registerBlock(KoentusBlocks.koentus_treasure_chest);
+		RegisterHelper.registerBlock(KoentusBlocks.koentus_ancient_stone_brick_stairs);
+		//		RegisterHelper.registerBlock(KoentusBlocks.koentus_treasure_chest);
 		RegisterHelper.registerBlock(KoentusBlocks.koentus_ancient_chest);
 		RegisterHelper.registerBlock(KoentusBlocks.crystal_fence);
 		RegisterHelper.registerBlock(KoentusBlocks.crystal_fence_gate);

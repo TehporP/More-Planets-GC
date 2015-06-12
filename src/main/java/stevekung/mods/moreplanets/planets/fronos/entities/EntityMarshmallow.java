@@ -21,30 +21,37 @@ import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAIFronosBeg;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAITemptMP;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAIFronosBeg;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAITemptMP;
 import stevekung.mods.moreplanets.core.init.MPItems;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 
 public class EntityMarshmallow extends IFronosPet
 {
-	public EntityMarshmallow(World par1World)
+	public EntityMarshmallow(World world)
 	{
-		super(par1World);
+		super(world);
 		this.setSize(0.5F, 0.4F);
 		this.tasks.addTask(1, new EntityAISwimming(this));
 		this.tasks.addTask(1, new EntityAIPanic(this, 1.4D));
 		this.tasks.addTask(2, this.aiSit);
 		this.tasks.addTask(3, new EntityAILeapAtTarget(this, 0.4F));
 		this.tasks.addTask(4, new EntityAIFollowOwner(this, 1.0D, 10.0F, 2.0F));
-		this.tasks.addTask(5, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.fronos_food2, 1, 1), false));
+		this.tasks.addTask(5, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.candy_food, 1, 1), false));
 		this.tasks.addTask(6, new EntityAIMate(this, 1.0D));
 		this.tasks.addTask(7, new EntityAIWander(this, 1.0D));
 		this.tasks.addTask(8, new EntityAIFronosBeg(this, 8.0F));
 		this.tasks.addTask(9, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
 		this.tasks.addTask(9, new EntityAILookIdle(this));
 		this.setTamed(false);
+	}
+
+	@Override
+	public float getEyeHeight()
+	{
+		return this.height - 0.125F;
 	}
 
 	@Override
@@ -104,12 +111,6 @@ public class EntityMarshmallow extends IFronosPet
 	}
 
 	@Override
-	public boolean isAIEnabled()
-	{
-		return true;
-	}
-
-	@Override
 	protected void dropFewItems(boolean par1, int par2)
 	{
 		int j = this.rand.nextInt(1) + 1 + this.rand.nextInt(1 + par2);
@@ -129,7 +130,7 @@ public class EntityMarshmallow extends IFronosPet
 	}
 
 	@Override
-	public IEntityLivingData onSpawnWithEgg(IEntityLivingData par1EntityLivingData)
+	public IEntityLivingData func_180482_a(DifficultyInstance diff, IEntityLivingData data)
 	{
 		if (this.worldObj.rand.nextInt(10) == 0)
 		{
@@ -139,18 +140,18 @@ public class EntityMarshmallow extends IFronosPet
 			marshmallow.mountEntity(this);
 			marshmallow.setGrowingAge(-8000);
 		}
-		return par1EntityLivingData;
+		return data;
 	}
 
 	@Override
 	public EntityMarshmallow createChild(EntityAgeable entity)
 	{
 		EntityMarshmallow pet = new EntityMarshmallow(this.worldObj);
-		String owner = this.func_152113_b();
+		String owner = this.getOwnerId();
 
 		if (owner != null && owner.trim().length() > 0)
 		{
-			pet.func_152115_b(owner);
+			pet.setOwnerId(owner);
 			pet.setTamed(true);
 		}
 		return pet;

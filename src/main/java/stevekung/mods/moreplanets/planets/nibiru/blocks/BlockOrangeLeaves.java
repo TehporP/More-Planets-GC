@@ -12,279 +12,82 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLeavesBase;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.IShearable;
 import net.minecraftforge.common.util.FakePlayer;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockLeavesMP;
 import stevekung.mods.moreplanets.planets.nibiru.items.NibiruItems;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockOrangeLeaves extends BlockLeavesBase implements IShearable
+public class BlockOrangeLeaves extends BlockLeavesMP
 {
-	private static final String[] types = new String[] {
-		"state1",
-		"state2",
-		"state3",
-		"state4"
-	};
-
-	private IIcon[][] textures;
-	private int[] adjacentTreeBlocks;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockOrangeLeaves(String name)
 	{
-		super(Material.leaves, false);
-		this.setTickRandomly(true);
-		this.setHardness(0.2F);
-		this.setLightOpacity(1);
-		this.setStepSound(Block.soundTypeGrass);
-		this.setBlockName(name);
+		super();
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.orange_leaves_stage_1));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
+	@SideOnly(Side.CLIENT)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
-		this.textures = new IIcon[3][4];
-
 		for (int i = 0; i < 4; ++i)
-		{
-			this.textures[0][i] = iconRegister.registerIcon("nibiru:nibiru_orange" + i + "_fancy");
-			this.textures[1][i] = iconRegister.registerIcon("nibiru:nibiru_orange" + i + "_fast");
-		}
-	}
-
-	@Override
-	public int getDamageValue(World world, int x, int y, int z)
-	{
-		return world.getBlockMetadata(x, y, z);
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		return this.textures[!this.isOpaqueCube() ? 0 : 1][meta & 3];
-	}
-
-	@Override
-	public boolean isOpaqueCube()
-	{
-		return Blocks.leaves.isOpaqueCube();
-	}
-
-	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
-	{
-		for (int i = 0; i < BlockOrangeLeaves.types.length; ++i)
 		{
 			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void randomDisplayTick(World world, int x, int y, int z, Random random)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		if (world.canLightningStrikeAt(x, y + 1, z) && !World.doesBlockHaveSolidTopSurface(world, x, y - 1, z) && random.nextInt(15) == 1)
+		super.updateTick(world, pos, state, rand);
+
+		if (state == state.withProperty(VARIANT, BlockType.orange_leaves_stage_1) && rand.nextInt(25) == 0)
 		{
-			final double d0 = x + random.nextFloat();
-			final double d1 = y - 0.05D;
-			final double d2 = z + random.nextFloat();
-			world.spawnParticle("dripWater", d0, d1, d2, 0.0D, 0.0D, 0.0D);
+			world.setBlockState(pos, state.withProperty(VARIANT, BlockType.orange_leaves_stage_2), 3);
 		}
-		super.randomDisplayTick(world, x, y, z, random);
-	}
-
-	@Override
-	public void breakBlock(World world, int x, int y, int z, Block par5, int par6)
-	{
-		final byte radius = 1;
-		final int bounds = radius + 1;
-
-		if (world.checkChunksExist(x - bounds, y - bounds, z - bounds, x + bounds, y + bounds, z + bounds))
+		else if (state == state.withProperty(VARIANT, BlockType.orange_leaves_stage_2) && rand.nextInt(20) == 0)
 		{
-			for (int i = -radius; i <= radius; ++i)
-			{
-				for (int j = -radius; j <= radius; ++j)
-				{
-					for (int k = -radius; k <= radius; ++k)
-					{
-						final Block block = world.getBlock(x + i, y + j, z + k);
-
-						if (block != null)
-						{
-							block.beginLeavesDecay(world, x + i, y + j, z + k);
-						}
-					}
-				}
-			}
+			world.setBlockState(pos, state.withProperty(VARIANT, BlockType.orange_leaves_stage_3), 3);
+		}
+		else if (state == state.withProperty(VARIANT, BlockType.orange_leaves_stage_3) && rand.nextInt(16) == 0)
+		{
+			world.setBlockState(pos, state.withProperty(VARIANT, BlockType.orange_leaves_stage_4), 3);
 		}
 	}
 
 	@Override
-	public void updateTick(World world, int x, int y, int z, Random random)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float par7, float par8, float par9)
 	{
-		int meta = world.getBlockMetadata(x, y, z);
-
-		if (world.isRemote)
+		if (state == state.withProperty(VARIANT, BlockType.orange_leaves_stage_4))
 		{
-			return;
-		}
-
-		if (random.nextInt(25) == 0)
-		{
-			if (meta > 0)
-			{
-				if ((meta & 3) < 3)
-				{
-					world.setBlock(x, y, z, this, ++meta, 3);
-				}
-			}
-		}
-		if ((meta & 8) != 0)
-		{
-			final byte b0 = 4;
-			final int i1 = b0 + 1;
-			final byte b1 = 32;
-			final int j1 = b1 * b1;
-			final int k1 = b1 / 2;
-
-			if (this.adjacentTreeBlocks == null)
-			{
-				this.adjacentTreeBlocks = new int[b1 * b1 * b1];
-			}
-
-			int l1;
-
-			if (world.checkChunksExist(x - i1, y - i1, z - i1, x + i1, y + i1, z + i1))
-			{
-				int i2;
-				int j2;
-				int k2;
-
-				for (l1 = -b0; l1 <= b0; ++l1)
-				{
-					for (i2 = -b0; i2 <= b0; ++i2)
-					{
-						for (j2 = -b0; j2 <= b0; ++j2)
-						{
-							final Block block = world.getBlock(x + l1, y + i2, z + j2);
-
-							if (block != null && block.canSustainLeaves(world, x + l1, y + i2, z + j2))
-							{
-								this.adjacentTreeBlocks[(l1 + k1) * j1 + (i2 + k1) * b1 + j2 + k1] = 0;
-							}
-							else if (block != null && block.isLeaves(world, x + l1, y + i2, z + j2))
-							{
-								this.adjacentTreeBlocks[(l1 + k1) * j1 + (i2 + k1) * b1 + j2 + k1] = -2;
-							}
-							else
-							{
-								this.adjacentTreeBlocks[(l1 + k1) * j1 + (i2 + k1) * b1 + j2 + k1] = -1;
-							}
-						}
-					}
-				}
-
-				for (l1 = 1; l1 <= 4; ++l1)
-				{
-					for (i2 = -b0; i2 <= b0; ++i2)
-					{
-						for (j2 = -b0; j2 <= b0; ++j2)
-						{
-							for (k2 = -b0; k2 <= b0; ++k2)
-							{
-								if (this.adjacentTreeBlocks[(i2 + k1) * j1 + (j2 + k1) * b1 + k2 + k1] == l1 - 1)
-								{
-									if (this.adjacentTreeBlocks[(i2 + k1 - 1) * j1 + (j2 + k1) * b1 + k2 + k1] == -2)
-									{
-										this.adjacentTreeBlocks[(i2 + k1 - 1) * j1 + (j2 + k1) * b1 + k2 + k1] = l1;
-									}
-
-									if (this.adjacentTreeBlocks[(i2 + k1 + 1) * j1 + (j2 + k1) * b1 + k2 + k1] == -2)
-									{
-										this.adjacentTreeBlocks[(i2 + k1 + 1) * j1 + (j2 + k1) * b1 + k2 + k1] = l1;
-									}
-
-									if (this.adjacentTreeBlocks[(i2 + k1) * j1 + (j2 + k1 - 1) * b1 + k2 + k1] == -2)
-									{
-										this.adjacentTreeBlocks[(i2 + k1) * j1 + (j2 + k1 - 1) * b1 + k2 + k1] = l1;
-									}
-
-									if (this.adjacentTreeBlocks[(i2 + k1) * j1 + (j2 + k1 + 1) * b1 + k2 + k1] == -2)
-									{
-										this.adjacentTreeBlocks[(i2 + k1) * j1 + (j2 + k1 + 1) * b1 + k2 + k1] = l1;
-									}
-
-									if (this.adjacentTreeBlocks[(i2 + k1) * j1 + (j2 + k1) * b1 + k2 + k1 - 1] == -2)
-									{
-										this.adjacentTreeBlocks[(i2 + k1) * j1 + (j2 + k1) * b1 + k2 + k1 - 1] = l1;
-									}
-
-									if (this.adjacentTreeBlocks[(i2 + k1) * j1 + (j2 + k1) * b1 + k2 + k1 + 1] == -2)
-									{
-										this.adjacentTreeBlocks[(i2 + k1) * j1 + (j2 + k1) * b1 + k2 + k1 + 1] = l1;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-
-			l1 = this.adjacentTreeBlocks[k1 * j1 + k1 * b1 + k1];
-
-			if (l1 >= 0)
-			{
-				world.setBlockMetadataWithNotify(x, y, z, meta & -9, 4);
-			}
-			else
-			{
-				this.removeLeaves(world, x, y, z);
-			}
-		}
-	}
-
-	private void removeLeaves(World world, int x, int y, int z)
-	{
-		this.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
-		world.setBlockToAir(x, y, z);
-	}
-
-	@Override
-	public boolean onBlockActivated (World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9)
-	{
-		final int meta = world.getBlockMetadata(x, y, z);
-		if ((meta & 3) == 3)
-		{
-			world.setBlock(x, y, z, this, meta - 3, 3);
-			final EntityItem entityitem = new EntityItem(world, x, y, z, new ItemStack(NibiruItems.space_fruits, 1, 1));
+			world.setBlockState(pos, state.withProperty(VARIANT, BlockType.orange_leaves_stage_1).withProperty(CHECK_DECAY, false).withProperty(DECAYABLE, false), 3);
+			EntityItem item = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(NibiruItems.space_fruits, 1, 1));
 
 			if (!world.isRemote)
 			{
-				world.spawnEntityInWorld(entityitem);
+				world.spawnEntityInWorld(item);
 
 				if (!(player instanceof FakePlayer))
 				{
-					entityitem.onCollideWithPlayer(player);
+					item.onCollideWithPlayer(player);
 				}
 			}
 			return true;
@@ -296,90 +99,146 @@ public class BlockOrangeLeaves extends BlockLeavesBase implements IShearable
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return Item.getItemFromBlock(NibiruBlocks.nibiru_sapling);
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
 		return 1;
 	}
 
 	@Override
-	public int quantityDropped(Random random)
-	{
-		return random.nextInt(20) == 0 ? 1 : 0;
-	}
-
-	@Override
-	public void dropBlockAsItemWithChance(World world, int x, int y, int z, int meta, float chance, int par7)
+	public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float chance, int fortune)
 	{
 		if (world.isRemote)
 		{
 			return;
 		}
-
 		if (world.rand.nextInt(20) == 0)
 		{
-			final Item var9 = this.getItemDropped(meta, world.rand, par7);
-			this.dropBlockAsItem(world, x, y, z, new ItemStack(var9, 1, this.damageDropped(meta)));
+			Item item = this.getItemDropped(state, world.rand, fortune);
+			Block.spawnAsEntity(world, pos, new ItemStack(item, 1, 1));
 		}
-
-		if ((meta & 3) == 3)
+		if (state == state.withProperty(VARIANT, BlockType.orange_leaves_stage_4))
 		{
-			this.dropBlockAsItem(world, x, y, z, new ItemStack(NibiruItems.space_fruits, 1, 1));
+			Block.spawnAsEntity(world, pos, new ItemStack(NibiruItems.space_fruits, 1, 1));
 		}
-		else if ((meta & 3) == 2 && world.rand.nextInt(16) == 0)
+		else if (state == state.withProperty(VARIANT, BlockType.orange_leaves_stage_3) && world.rand.nextInt(16) == 0)
 		{
-			this.dropBlockAsItem(world, x, y, z, new ItemStack(NibiruItems.space_fruits, 1, 1));
+			Block.spawnAsEntity(world, pos, new ItemStack(NibiruItems.space_fruits, 1, 1));
 		}
-		else if ((meta & 3) == 1 && world.rand.nextInt(48) == 0)
+		else if (state == state.withProperty(VARIANT, BlockType.orange_leaves_stage_2) && world.rand.nextInt(48) == 0)
 		{
-			this.dropBlockAsItem(world, x, y, z, new ItemStack(NibiruItems.space_fruits, 1, 1));
+			Block.spawnAsEntity(world, pos, new ItemStack(NibiruItems.space_fruits, 1, 1));
 		}
-		else if ((meta & 3) == 0 && world.rand.nextInt(80) == 0)
+		else if (state == state.withProperty(VARIANT, BlockType.orange_leaves_stage_1) && world.rand.nextInt(80) == 0)
 		{
-			this.dropBlockAsItem(world, x, y, z, new ItemStack(NibiruItems.space_fruits, 1, 1));
+			Block.spawnAsEntity(world, pos, new ItemStack(NibiruItems.space_fruits, 1, 1));
 		}
 	}
 
 	@Override
-	public boolean isShearable(ItemStack item, IBlockAccess world, int x, int y, int z)
+	protected BlockState createBlockState()
 	{
-		return true;
+		return new BlockState(this, new IProperty[] { VARIANT, DECAYABLE, CHECK_DECAY });
 	}
 
 	@Override
-	public ArrayList<ItemStack> onSheared(ItemStack item, IBlockAccess world, int x, int y, int z, int fortune)
+	public IBlockState getStateFromMeta(int meta)
 	{
-		final ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-		ret.add(new ItemStack(this, 1, 0));
+		return this.getDefaultState().withProperty(VARIANT, this.getWoodType(meta)).withProperty(DECAYABLE, Boolean.valueOf((meta & 4) == 0)).withProperty(CHECK_DECAY, Boolean.valueOf((meta & 8) > 0));
+	}
+
+	public BlockType getWoodType(int meta)
+	{
+		return BlockType.byMetadata((meta & 3) % 4);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		byte b0 = 0;
+		int i = b0 | ((BlockType)state.getValue(VARIANT)).ordinal();
+
+		if (!((Boolean)state.getValue(DECAYABLE)).booleanValue())
+		{
+			i |= 4;
+		}
+		if (((Boolean)state.getValue(CHECK_DECAY)).booleanValue())
+		{
+			i |= 8;
+		}
+		return i;
+	}
+
+	@Override
+	public ItemStack getPickBlock(MovingObjectPosition moving, World world, BlockPos pos)
+	{
+		return new ItemStack(this, 1, this.getMetaFromState(world.getBlockState(pos)) & 3);
+	}
+
+	@Override
+	public ArrayList<ItemStack> onSheared(ItemStack itemStack, IBlockAccess world, BlockPos pos, int fortune)
+	{
+		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+		ret.add(new ItemStack(this, 1, ((BlockType)world.getBlockState(pos).getValue(VARIANT)).getMetadata()));
 		return ret;
 	}
 
-	@SideOnly(Side.CLIENT)
-	public void setGraphicsLevel(boolean par1)
+	public static enum BlockType implements IStringSerializable
 	{
-		this.field_150121_P = par1;
-	}
+		orange_leaves_stage_1(0),
+		orange_leaves_stage_2(1),
+		orange_leaves_stage_3(2),
+		orange_leaves_stage_4(3);
 
-	@Override
-	public boolean shouldSideBeRendered(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
-	{
-		return true;
-	}
+		private int meta;
+		private static BlockType[] META_LOOKUP = new BlockType[values().length];
 
-	@Override
-	public void beginLeavesDecay(World world, int x, int y, int z)
-	{
-		world.setBlockMetadataWithNotify(x, y, z, world.getBlockMetadata(x, y, z) | 8, 4);
-	}
+		private BlockType(int meta)
+		{
+			this.meta = meta;
+		}
 
-	@Override
-	public boolean isLeaves(IBlockAccess world, int x, int y, int z)
-	{
-		return true;
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
+
+		public int getMetadata()
+		{
+			return this.meta;
+		}
+
+		public static BlockType byMetadata(int meta)
+		{
+			if (meta < 0 || meta >= META_LOOKUP.length)
+			{
+				meta = 0;
+			}
+			return META_LOOKUP[meta];
+		}
+
+		static
+		{
+			BlockType[] var0 = values();
+			int var1 = var0.length;
+
+			for (int var2 = 0; var2 < var1; ++var2)
+			{
+				BlockType var3 = var0[var2];
+				META_LOOKUP[var3.getMetadata()] = var3;
+			}
+		}
 	}
 }

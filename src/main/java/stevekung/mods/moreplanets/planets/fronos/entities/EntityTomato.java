@@ -20,10 +20,9 @@ import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAITemptMP;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAITemptMP;
 import stevekung.mods.moreplanets.core.init.MPItems;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
@@ -35,12 +34,12 @@ public class EntityTomato extends EntityAnimal
 	public EntityTomato(World par1World)
 	{
 		super(par1World);
-		this.setSize(1.0F, 1.2F);
+		this.setSize(1.0F, 1.5F);
 		this.timeUntilToDropTomato = this.rand.nextInt(2000) + 2000;
 		this.tasks.addTask(0, new EntityAISwimming(this));
 		this.tasks.addTask(1, new EntityAIPanic(this, 1.4D));
 		this.tasks.addTask(2, new EntityAIMate(this, 1.0D));
-		this.tasks.addTask(3, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.fronos_food2, 1, 0), false));
+		this.tasks.addTask(3, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.candy_food, 1, 0), false));
 		this.tasks.addTask(4, new EntityAIFollowParent(this, 1.1D));
 		this.tasks.addTask(5, new EntityAIWander(this, 1.0D));
 		this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
@@ -48,13 +47,24 @@ public class EntityTomato extends EntityAnimal
 	}
 
 	@Override
+	public float getEyeHeight()
+	{
+		return this.height - 0.7F;
+	}
+
+	@Override
 	public boolean getCanSpawnHere()
 	{
-		int i = MathHelper.floor_double(this.posX);
-		int j = MathHelper.floor_double(this.boundingBox.minY);
-		int k = MathHelper.floor_double(this.posZ);
-		Block block = this.worldObj.getBlock(i, j - 1, k);
+		Block block = this.worldObj.getBlockState(this.getPosition().down()).getBlock();
 		return block == FronosBlocks.fronos_grass;
+	}
+
+	@Override
+	protected void applyEntityAttributes()
+	{
+		super.applyEntityAttributes();
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(10.0D);
+		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.15D);
 	}
 
 	@Override
@@ -101,41 +111,21 @@ public class EntityTomato extends EntityAnimal
 	}
 
 	@Override
-	public boolean isAIEnabled()
-	{
-		return true;
-	}
-
-	@Override
-	protected void applyEntityAttributes()
-	{
-		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(10.0D);
-		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.15D);
-	}
-
-	@Override
-	public void onLivingUpdate()
-	{
-		super.onLivingUpdate();
-	}
-
-	@Override
 	protected String getLivingSound()
 	{
-		return "fronos:mob.fronos.say";
+		return "moreplanets:mob.fronos.say";
 	}
 
 	@Override
 	protected String getHurtSound()
 	{
-		return "fronos:mob.fronos.hurt";
+		return "moreplanets:mob.fronos.hurt";
 	}
 
 	@Override
 	protected String getDeathSound()
 	{
-		return "fronos:mob.fronos.death";
+		return "moreplanets:mob.fronos.death";
 	}
 
 	@Override
@@ -158,14 +148,9 @@ public class EntityTomato extends EntityAnimal
 	}
 
 	@Override
-	protected int getExperiencePoints(EntityPlayer par1EntityPlayer)
+	protected int getExperiencePoints(EntityPlayer player)
 	{
 		return 1 + this.worldObj.rand.nextInt(6);
-	}
-
-	public EntityTomato spawnBabyAnimal(EntityAgeable par1EntityAgeable)
-	{
-		return new EntityTomato(this.worldObj);
 	}
 
 	@Override
@@ -180,15 +165,14 @@ public class EntityTomato extends EntityAnimal
 	}
 
 	@Override
-	public boolean isBreedingItem(ItemStack par1ItemStack)
+	public boolean isBreedingItem(ItemStack itemStack)
 	{
-		int meta = par1ItemStack.getItemDamage();
-		return par1ItemStack.getItem() == FronosItems.fronos_food2 && meta == 1;
+		return itemStack != null && itemStack.getItem() == FronosItems.candy_food && itemStack.getItemDamage() == 1;
 	}
 
 	@Override
-	public EntityAgeable createChild(EntityAgeable par1EntityAgeable)
+	public EntityAgeable createChild(EntityAgeable age)
 	{
-		return this.spawnBabyAnimal(par1EntityAgeable);
+		return new EntityTomato(this.worldObj);
 	}
 }

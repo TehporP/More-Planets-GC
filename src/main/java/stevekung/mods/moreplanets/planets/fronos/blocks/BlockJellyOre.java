@@ -10,62 +10,45 @@ package stevekung.mods.moreplanets.planets.fronos.blocks;
 import java.util.List;
 import java.util.Random;
 
-import micdoodle8.mods.galacticraft.api.block.IDetectableResource;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockJellyOre extends BlockBaseMP implements IDetectableResource
+public class BlockJellyOre extends BlockBaseMP /*implements IDetectableResource*/
 {
-	private IIcon[] fronosBlockIcon;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockJellyOre(String name)
 	{
 		super(Material.rock);
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.grape_jelly_ore));
 		this.setHardness(3.0F);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos)
 	{
-		this.fronosBlockIcon = new IIcon[8];
-		this.fronosBlockIcon[0] = par1IconRegister.registerIcon("fronos:grape_jelly_ore");
-		this.fronosBlockIcon[1] = par1IconRegister.registerIcon("fronos:raspberry_jelly_ore");
-		this.fronosBlockIcon[2] = par1IconRegister.registerIcon("fronos:strawberry_jelly_ore");
-		this.fronosBlockIcon[3] = par1IconRegister.registerIcon("fronos:berry_jelly_ore");
-		this.fronosBlockIcon[4] = par1IconRegister.registerIcon("fronos:lime_jelly_ore");
-		this.fronosBlockIcon[5] = par1IconRegister.registerIcon("fronos:orange_jelly_ore");
-		this.fronosBlockIcon[6] = par1IconRegister.registerIcon("fronos:green_jelly_ore");
-		this.fronosBlockIcon[7] = par1IconRegister.registerIcon("fronos:lemon_jelly_ore");
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		return this.fronosBlockIcon[meta];
-	}
-
-	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
-	{
-		int meta = world.getBlockMetadata(x, y, z);
-		return new ItemStack(this, 1, meta);
+		return new ItemStack(this, 1, this.getMetaFromState(world.getBlockState(pos)));
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < 8; ++i)
 		{
@@ -74,21 +57,21 @@ public class BlockJellyOre extends BlockBaseMP implements IDetectableResource
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random par2Random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return FronosItems.jelly;
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
-		return meta;
+		return this.getMetaFromState(state);
 	}
 
 	@Override
-	public int quantityDropped(int meta, int fortune, Random random)
+	public int quantityDropped(IBlockState state, int fortune, Random random)
 	{
-		if (fortune > 0 && Item.getItemFromBlock(this) != this.getItemDropped(meta, random, fortune))
+		if (fortune > 0 && Item.getItemFromBlock(this) != this.getItemDropped(state, random, fortune))
 		{
 			int j = random.nextInt(fortune + 2) - 1;
 
@@ -104,21 +87,63 @@ public class BlockJellyOre extends BlockBaseMP implements IDetectableResource
 		}
 	}
 
-	@Override
-	public boolean isValueable(int metadata)
+	/*@Override
+	public boolean isValueable(IBlockState state)
 	{
 		return true;
+	}*/
+
+	@Override
+	public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float par6, int par7)
+	{
+		super.dropBlockAsItemWithChance(world, pos, state, par6, par7);
+
+		if (this.getItemDropped(state, world.rand, par7) != Item.getItemFromBlock(this))
+		{
+			int var8 = MathHelper.getRandomIntegerInRange(world.rand, 3, 5);
+			this.dropXpOnBlockBreak(world, pos, var8);
+		}
 	}
 
 	@Override
-	public void dropBlockAsItemWithChance(World world, int par2, int par3, int par4, int par5, float par6, int par7)
+	protected BlockState createBlockState()
 	{
-		super.dropBlockAsItemWithChance(world, par2, par3, par4, par5, par6, par7);
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
 
-		if (this.getItemDropped(par5, world.rand, par7) != Item.getItemFromBlock(this))
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		grape_jelly_ore,
+		raspberry_jelly_ore,
+		strawberry_jelly_ore,
+		berry_jelly_ore,
+		lime_jelly_ore,
+		orange_jelly_ore,
+		green_jelly_ore,
+		lemon_jelly_ore;
+
+		@Override
+		public String toString()
 		{
-			int var8 = MathHelper.getRandomIntegerInRange(world.rand, 3, 5);
-			this.dropXpOnBlockBreak(world, par2, par3, par4, var8);
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
 		}
 	}
 }

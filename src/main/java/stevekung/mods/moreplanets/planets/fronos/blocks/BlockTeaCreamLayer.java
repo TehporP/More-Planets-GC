@@ -15,13 +15,7 @@ public class BlockTeaCreamLayer extends BlockCreamLayer
 	public BlockTeaCreamLayer(String name)
 	{
 		super();
-		this.setBlockName(name);
-	}
-
-	@Override
-	public String getCreamTexture()
-	{
-		return "fronos:tea_cream";
+		this.setUnlocalizedName(name);
 	}
 
 	@Override

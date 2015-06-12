@@ -22,7 +22,7 @@ public class MercuryItems
 
 	private static void initItems()
 	{
-		MercuryItems.mercury_item = new ItemBasicMercury("mercury_item");
+		MercuryItems.mercury_item = new ItemMercury("mercury_item");
 	}
 
 	private static void registerItems()

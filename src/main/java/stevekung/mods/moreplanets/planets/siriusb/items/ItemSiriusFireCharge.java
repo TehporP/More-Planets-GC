@@ -9,65 +9,49 @@ package stevekung.mods.moreplanets.planets.siriusb.items;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.items.ItemMorePlanet;
+import stevekung.mods.moreplanets.common.items.ItemMorePlanets;
 import stevekung.mods.moreplanets.planets.siriusb.blocks.SiriusBBlocks;
 
-public class ItemSiriusFireCharge extends ItemMorePlanet
+public class ItemSiriusFireCharge extends ItemMorePlanets
 {
 	public ItemSiriusFireCharge(String name)
 	{
 		super();
 		this.setUnlocalizedName(name);
-		this.setTextureName("siriusb:sirius_fire_charge");
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float p_onItemUse_8_, float p_onItemUse_9_, float p_onItemUse_10_)
+	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if (world.isRemote)
 		{
 			return true;
 		}
-		if (side == 0)
+		else
 		{
-			y--;
+			pos = pos.offset(side);
+
+			if (!player.canPlayerEdit(pos, side, itemStack))
+			{
+				return false;
+			}
+			else
+			{
+				if (world.getBlockState(pos).getBlock().getMaterial() == Material.air)
+				{
+					world.playSoundEffect(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, "fire.ignite", 1.0F, (itemRand.nextFloat() - itemRand.nextFloat()) * 0.2F + 1.0F);
+					world.setBlockState(pos, SiriusBBlocks.sirius_fire.getDefaultState());
+				}
+				if (!player.capabilities.isCreativeMode)
+				{
+					--itemStack.stackSize;
+				}
+				return true;
+			}
 		}
-		if (side == 1)
-		{
-			y++;
-		}
-		if (side == 2)
-		{
-			z--;
-		}
-		if (side == 3)
-		{
-			z++;
-		}
-		if (side == 4)
-		{
-			x--;
-		}
-		if (side == 5)
-		{
-			x++;
-		}
-		if (!player.canPlayerEdit(x, y, z, side, itemStack))
-		{
-			return false;
-		}
-		if (world.getBlock(x, y, z).getMaterial() == Material.air)
-		{
-			world.playSoundEffect(x + 0.5D, y + 0.5D, z + 0.5D, "fire.ignite", 1.0F, Item.itemRand.nextFloat() * 0.4F + 0.8F);
-			world.setBlock(x, y, z, SiriusBBlocks.sirius_fire);
-		}
-		if (!player.capabilities.isCreativeMode)
-		{
-			itemStack.stackSize -= 1;
-		}
-		return true;
 	}
 }

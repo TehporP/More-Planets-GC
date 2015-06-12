@@ -22,12 +22,12 @@ public class DionaArmorItems
 	public static Item fronisium_chestplate;
 	public static Item fronisium_leggings;
 	public static Item fronisium_boots;
-	public static Item breathable_quontonium_helmet;
-	public static Item breathable_fronisium_helmet;
+	//	public static Item breathable_quontonium_helmet;
+	//	public static Item breathable_fronisium_helmet;
 
 	// Name,Durability,ReductionAmounts[Helm,Chest,Leg,Boot],Enchantability
-	public static ArmorMaterial quontonium = EnumHelper.addArmorMaterial("quontonium", 32, new int[] { 8, 12, 11, 6 }, 16);
-	public static ArmorMaterial fronisium = EnumHelper.addArmorMaterial("fronisium", 32, new int[] { 9, 13, 10, 7 }, 16);
+	public static ArmorMaterial quontonium = EnumHelper.addArmorMaterial("quontonium", "quontonium", 32, new int[] { 8, 12, 11, 6 }, 16);
+	public static ArmorMaterial fronisium = EnumHelper.addArmorMaterial("fronisium", "fronisium", 32, new int[] { 9, 13, 10, 7 }, 16);
 
 	public static void init()
 	{
@@ -45,8 +45,8 @@ public class DionaArmorItems
 		DionaArmorItems.fronisium_chestplate = new ItemArmorFronisium("fronisium_chestplate", DionaArmorItems.fronisium, 7, 1);
 		DionaArmorItems.fronisium_leggings = new ItemArmorFronisium("fronisium_leggings", DionaArmorItems.fronisium, 7, 2);
 		DionaArmorItems.fronisium_boots = new ItemArmorFronisium("fronisium_boots", DionaArmorItems.fronisium, 7, 3);
-		DionaArmorItems.breathable_quontonium_helmet = new ItemBreathableQuontonium("breathable_quontonium_helmet", DionaArmorItems.quontonium, 7, 0);
-		DionaArmorItems.breathable_fronisium_helmet = new ItemBreathableFronisium("breathable_fronisium_helmet", DionaArmorItems.fronisium, 7, 0);
+		//		DionaArmorItems.breathable_quontonium_helmet = new ItemBreathableQuontonium("breathable_quontonium_helmet", DionaArmorItems.quontonium, 7, 0);
+		//		DionaArmorItems.breathable_fronisium_helmet = new ItemBreathableFronisium("breathable_fronisium_helmet", DionaArmorItems.fronisium, 7, 0);
 	}
 
 	private static void registerItems()
@@ -59,7 +59,7 @@ public class DionaArmorItems
 		RegisterHelper.registerItem(DionaArmorItems.fronisium_chestplate);
 		RegisterHelper.registerItem(DionaArmorItems.fronisium_leggings);
 		RegisterHelper.registerItem(DionaArmorItems.fronisium_boots);
-		RegisterHelper.registerItem(DionaArmorItems.breathable_quontonium_helmet);
-		RegisterHelper.registerItem(DionaArmorItems.breathable_fronisium_helmet);
+		//		RegisterHelper.registerItem(DionaArmorItems.breathable_quontonium_helmet);
+		//		RegisterHelper.registerItem(DionaArmorItems.breathable_fronisium_helmet);
 	}
 }

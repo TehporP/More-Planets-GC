@@ -15,6 +15,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 
 public class EntityVanillaCreamBall extends EntityThrowable
 {
@@ -44,7 +45,7 @@ public class EntityVanillaCreamBall extends EntityThrowable
 
 		for (int i = 0; i < 8; ++i)
 		{
-			MorePlanetsCore.proxy.spawnParticle("vanillaBall", this.posX, this.posY, this.posZ);
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.VANILLA_CREAM_BALL, this.posX, this.posY, this.posZ);
 		}
 
 		if (!this.worldObj.isRemote)

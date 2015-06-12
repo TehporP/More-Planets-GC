@@ -15,9 +15,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
-import stevekung.mods.moreplanets.core.items.ItemBaseMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.ItemBaseMP;
 
 public class ItemTier8RocketModule extends ItemBaseMP
 {
@@ -29,36 +29,30 @@ public class ItemTier8RocketModule extends ItemBaseMP
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
+	public void addInformation(ItemStack itemStack, EntityPlayer player, List list, boolean par4)
 	{
-		if (par2EntityPlayer.worldObj.isRemote)
+		if (player.worldObj.isRemote)
 		{
-			if (par1ItemStack.getItemDamage() == 2)
+			if (itemStack.getItemDamage() == 2)
 			{
-				par3List.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("desc.tier8.name"));
+				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("desc.tier8.name"));
 			}
 		}
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubItems(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < this.getItemVariantsName().length; i++)
 		{
-			par3List.add(new ItemStack(par1, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
 	public String[] getItemVariantsName()
 	{
-		return new String[] { "tier8_rocket_engine", "tier8_booster", "tier8_heavy_duty_plate" };
-	}
-
-	@Override
-	public String getTexturesFolder()
-	{
-		return "fronos";
+		return new String[] { "tier_8_rocket_engine", "tier_8_booster", "tier_8_heavy_duty_plate" };
 	}
 }

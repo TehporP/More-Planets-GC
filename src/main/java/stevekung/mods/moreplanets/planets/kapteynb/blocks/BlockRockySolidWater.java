@@ -7,21 +7,21 @@
 
 package stevekung.mods.moreplanets.planets.kapteynb.blocks;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.stats.StatList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.event.ForgeEventFactory;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 
 public class BlockRockySolidWater extends BlockBaseMP
 {
@@ -29,60 +29,74 @@ public class BlockRockySolidWater extends BlockBaseMP
 	{
 		super(Material.rock);
 		this.setHardness(0.6F);
-		this.setBlockName(name);
+		this.setResistance(2.0F);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void harvestBlock(World par1World, EntityPlayer par2EntityPlayer, int par3, int par4, int par5, int par6)
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity tile)
 	{
-		par2EntityPlayer.addStat(StatList.mineBlockStatArray[Block.getIdFromBlock(this)], 1);
-		par2EntityPlayer.addExhaustion(0.025F);
+		player.addExhaustion(0.025F);
 
-		if (this.canSilkHarvest() && EnchantmentHelper.getSilkTouchModifier(par2EntityPlayer))
+		if (this.canSilkHarvest(world, pos, world.getBlockState(pos), player) && EnchantmentHelper.getSilkTouchModifier(player))
 		{
-			ItemStack itemstack = this.createStackedBlock(par6);
+			List<ItemStack> items = new ArrayList<ItemStack>();
+			ItemStack itemstack = this.createStackedBlock(state);
 
 			if (itemstack != null)
 			{
-				this.dropBlockAsItem(par1World, par3, par4, par5, itemstack);
+				items.add(itemstack);
+			}
+
+			ForgeEventFactory.fireBlockHarvesting(items, world, pos, world.getBlockState(pos), 0, 1.0f, true, player);
+
+			for (ItemStack is : items)
+			{
+				spawnAsEntity(world, pos, is);
 			}
 		}
 		else
 		{
-			int i1 = EnchantmentHelper.getFortuneModifier(par2EntityPlayer);
-			this.dropBlockAsItem(par1World, par3, par4, par5, par6, i1);
-			Material material = par1World.getBlock(par3, par4 - 1, par5).getMaterial();
+			if (world.provider.doesWaterVaporize())
+			{
+				world.setBlockToAir(pos);
+				return;
+			}
+			/*else if (world.provider instanceof WorldProviderMercury && world.isDaytime() && world.canBlockSeeSky(pos))
+			{
+				world.setBlockToAir(pos);
+				return;
+			}*/
+
+			int i = EnchantmentHelper.getFortuneModifier(player);
+			this.harvesters.set(player);
+			this.dropBlockAsItem(world, pos, state, i);
+			this.harvesters.set(null);
+			Material material = world.getBlockState(pos.down()).getBlock().getMaterial();
 
 			if (material.blocksMovement() || material.isLiquid())
 			{
-				if (par1World.rand.nextInt(10) == 0)
+				if (world.rand.nextInt(10) == 0)
 				{
-					par1World.setBlock(par3, par4, par5, KapteynBBlocks.frozen_water, 0, 3);
+					world.setBlockState(pos, Blocks.water.getDefaultState());
 				}
 				else
 				{
-					par1World.setBlock(par3, par4, par5, Blocks.water, 0, 3);
+					world.setBlockState(pos, KapteynBBlocks.frozen_water.getDefaultState());
 				}
 			}
 		}
 	}
 
 	@Override
-	public boolean canHarvestBlock(EntityPlayer player, int meta)
+	public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
 	{
 		return true;
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random random, int par3)
+	public int quantityDropped(Random rand)
 	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.blockIcon = par1IconRegister.registerIcon("kapteynb:rocky_solid_water");
+		return 0;
 	}
 }

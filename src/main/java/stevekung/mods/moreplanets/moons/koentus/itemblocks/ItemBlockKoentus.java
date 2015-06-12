@@ -8,7 +8,7 @@
 package stevekung.mods.moreplanets.moons.koentus.itemblocks;
 
 import net.minecraft.block.Block;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
 public class ItemBlockKoentus extends ItemBlockBaseMP
 {
@@ -20,6 +20,6 @@ public class ItemBlockKoentus extends ItemBlockBaseMP
 	@Override
 	public String[] getBlockVariantsName()
 	{
-		return new String[] { "surface_stone", "sub_surface_stone", "stone", "cobblestone", "tin_ore", "copper_ore", "white_crystal_ore", "emp_crystal_ore", "bacterial_fossil_ore", "white_crystal_block", "emp_crystal_block", "dungeon_brick", "ancient_stone", "ancient_brick", "dungeon_spawner", "solid_meteoric_iron" };
+		return new String[] { "surface_rock", "sub_surface_rock", "rock", "cobblestone", "tin_ore", "copper_ore", "white_crystal_ore", "emp_crystal_ore", "bacterial_fossil_ore", "white_crystal_block", "emp_crystal_block", "solid_meteoric_iron", "ancient_stone", "ancient_stone_brick", "dungeon_brick" };
 	}
 }

@@ -10,8 +10,9 @@ package stevekung.mods.moreplanets.planets.fronos.items;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.blocks.BlockDoorMP.DoorType;
-import stevekung.mods.moreplanets.core.items.ItemDoorMP;
+import stevekung.mods.moreplanets.common.blocks.BlockDoorMP.DoorType;
+import stevekung.mods.moreplanets.common.items.ItemDoorMP;
+import stevekung.mods.moreplanets.common.items.ItemMorePlanets;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
 import stevekung.mods.stevecore.RegisterHelper;
 
@@ -26,8 +27,8 @@ public class FronosItems
 	public static Item candy_cane;
 	public static Item fronos_bucket;
 	public static Item jelly;
-	public static Item fronos_food2;
-	public static Item fruits;
+	public static Item candy_food;
+	public static Item fronos_fruits;
 	public static Item candy_bow;
 	public static Item poison_arrow;
 	public static Item golden_seeds;
@@ -35,12 +36,12 @@ public class FronosItems
 	public static Item cup;
 	public static Item cream_golem;
 	public static Item fronos_item;
-	public static Item tier7_rocket;
+	//public static Item tier7_rocket;
 	public static Item coconut_door;
 	public static Item maple_door;
-	public static Item tier7_rocket_schematic;
+	public static Item tier_7_rocket_schematic;
 	public static Item fruits_juice;
-	public static Item tier8_rocket_module;
+	public static Item tier_8_rocket_module;
 
 	public static void init()
 	{
@@ -60,29 +61,29 @@ public class FronosItems
 		FronosItems.candy_cane = new ItemCandyCane("candy_cane");
 		FronosItems.fronos_bucket = new ItemFronosBucket("fronos_bucket");
 		FronosItems.jelly = new ItemJelly("jelly");
-		FronosItems.fronos_food2 = new ItemCandyFood("fronos_food2");
-		FronosItems.fruits = new ItemFruits("fruits");
+		FronosItems.candy_food = new ItemCandyFood("candy_food");
+		FronosItems.fronos_fruits = new ItemFruits("fronos_fruits");
 		FronosItems.candy_bow = new ItemCandyBow("candy_bow");
-		FronosItems.poison_arrow = new ItemPoisonArrow("poison_arrow");
+		FronosItems.poison_arrow = new ItemMorePlanets("poison_arrow");
 		FronosItems.golden_seeds = new ItemGoldenSeeds("golden_seeds");
 		FronosItems.glass_gem_corn = new ItemGlassGemCorn("glass_gem_corn_item");
 		FronosItems.cup = new ItemCup("cup");
 		FronosItems.cream_golem = new ItemCreamGolem("cream_golem");
-		FronosItems.fronos_item = new ItemFronosBasic("fronos_item");
-		FronosItems.tier7_rocket = new ItemTier7Rocket("tier_7_rocket");
-		FronosItems.tier7_rocket_schematic = new ItemTier7Schematic("tier_7_rocket_schematic");
+		FronosItems.fronos_item = new ItemFronos("fronos_item");
+		//FronosItems.tier7_rocket = new ItemTier7Rocket("tier_7_rocket");
+		FronosItems.tier_7_rocket_schematic = new ItemTier7RocketSchematic("tier_7_rocket_schematic");
 		FronosItems.coconut_door = new ItemDoorMP("coconut_door", DoorType.COCONUT);
-		FronosItems.maple_door = new ItemDoorMP("red_maple_door", DoorType.MAPLE);
+		FronosItems.maple_door = new ItemDoorMP("maple_door", DoorType.MAPLE);
 		FronosItems.fruits_juice = new ItemFruitsJuice("fruits_juice");
-		FronosItems.tier8_rocket_module = new ItemTier8RocketModule("tier_8_rocket_module");
+		FronosItems.tier_8_rocket_module = new ItemTier8RocketModule("tier_8_rocket_module");
 	}
 
 	private static void registerItems()
 	{
 		RegisterHelper.registerItem(FronosItems.fronos_food);
-		RegisterHelper.registerItem(FronosItems.fronos_food2);
+		RegisterHelper.registerItem(FronosItems.candy_food);
 		RegisterHelper.registerItem(FronosItems.candy_cane);
-		RegisterHelper.registerItem(FronosItems.fruits);
+		RegisterHelper.registerItem(FronosItems.fronos_fruits);
 		RegisterHelper.registerItem(FronosItems.glass_gem_corn);
 		RegisterHelper.registerItem(FronosItems.jelly);
 		RegisterHelper.registerItem(FronosItems.fruits_juice);
@@ -94,14 +95,14 @@ public class FronosItems
 		RegisterHelper.registerItem(FronosItems.bearry_egg);
 		RegisterHelper.registerItem(FronosItems.cream_golem);
 		RegisterHelper.registerItem(FronosItems.fronos_item);
-		RegisterHelper.registerItem(FronosItems.tier8_rocket_module);
+		RegisterHelper.registerItem(FronosItems.tier_7_rocket_schematic);
+		RegisterHelper.registerItem(FronosItems.tier_8_rocket_module);
 		RegisterHelper.registerItem(FronosItems.candy_bow);
 		RegisterHelper.registerItem(FronosItems.fronos_bucket);
 		RegisterHelper.registerItem(FronosItems.coconut_door);
 		RegisterHelper.registerItem(FronosItems.maple_door);
 		RegisterHelper.registerItem(FronosItems.cup);
-		RegisterHelper.registerItem(FronosItems.tier7_rocket);
-		RegisterHelper.registerItem(FronosItems.tier7_rocket_schematic);
+		//RegisterHelper.registerItem(FronosItems.tier7_rocket);
 		RegisterHelper.registerItem(FronosItems.fronos_dungeon_key);
 	}
 

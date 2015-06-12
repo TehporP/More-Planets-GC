@@ -8,83 +8,52 @@
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.List;
-import java.util.Random;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBreakableMP;
 
-public class BlockFronosCloud extends BlockBreakable
+public class BlockFronosCloud extends BlockBreakableMP
 {
-	private IIcon[] cloudIcon;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockFronosCloud(String name)
 	{
-		super("", Material.cloth, false);
-		this.setStepSound(Block.soundTypeCloth);
+		super(Material.cloth);
+		this.setStepSound(soundTypeCloth);
 		this.setHardness(0.55F);
-		this.setBlockName(name);
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.cloudIcon = new IIcon[2];
-		this.cloudIcon[0] = par1IconRegister.registerIcon("fronos:strawberry_cloud");
-		this.cloudIcon[1] = par1IconRegister.registerIcon("fronos:rainbow_cloud");
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		return this.cloudIcon[meta];
-	}
-
-	@Override
-	public int getDamageValue(World world, int x, int y, int z)
-	{
-		return world.getBlockMetadata(x, y, z);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.rainbow_cloud));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < 2; ++i)
 		{
-			list.add(new ItemStack(block, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random par2Random, int par3)
+	public int damageDropped(IBlockState state)
 	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public int damageDropped(int meta)
-	{
-		return meta;
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
+		return this.getMetaFromState(state);
 	}
 
 	@Override
@@ -94,43 +63,68 @@ public class BlockFronosCloud extends BlockBreakable
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public int getRenderBlockPass()
+	public EnumWorldBlockLayer getBlockLayer()
 	{
-		return 1;
+		return EnumWorldBlockLayer.TRANSLUCENT;
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
+	public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state)
 	{
 		float f = 0.999F;
-		return AxisAlignedBB.getBoundingBox(x, y, z, x + 1, y + 1 - f, z + 1);
+		return AxisAlignedBB.fromBounds(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1 - f, pos.getZ() + 1);
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
-		if (entity instanceof EntityPlayer)
+		if (entity.motionY < 0)
 		{
-			if (entity.motionY < 0)
-			{
-				entity.motionY *= 0.0005D;
-				entity.fallDistance = 0.0F;
-				return;
-			}
+			entity.motionY *= 0.0005D;
+			entity.fallDistance = 0.0F;
+			return;
 		}
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int side)
+	protected BlockState createBlockState()
 	{
-		return super.shouldSideBeRendered(world, x, y, z, 1 - side);
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		strawberry_cloud,
+		rainbow_cloud;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

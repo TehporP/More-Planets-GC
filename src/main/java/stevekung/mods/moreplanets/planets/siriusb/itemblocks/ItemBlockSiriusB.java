@@ -8,7 +8,7 @@
 package stevekung.mods.moreplanets.planets.siriusb.itemblocks;
 
 import net.minecraft.block.Block;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
 public class ItemBlockSiriusB extends ItemBlockBaseMP
 {

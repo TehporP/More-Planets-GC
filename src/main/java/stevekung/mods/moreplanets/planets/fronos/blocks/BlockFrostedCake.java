@@ -10,181 +10,57 @@ package stevekung.mods.moreplanets.planets.fronos.blocks;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 
-public class BlockFrostedCake extends Block
+public class BlockFrostedCake extends BlockBaseMP
 {
-	private static final String[] types = new String[] {
-		"cakeBread",//0
-		"whiteCakeBread",//1
-		"chocolateCakeBread",//2
-		"whiteCake",//3
-		"pinkCake",//4
-		"whiteCake2",//5
-		"chocolateCake"//6
-	};
-
-	private IIcon[] cakeIcon;
-	private IIcon[] pinkCakeIcon;
-	private IIcon[] chocolateCakeIcon;
-	private IIcon[] whiteCakeIcon;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockFrostedCake(String name)
 	{
 		super(Material.cake);
-		this.setStepSound(Block.soundTypeCloth);
+		this.setStepSound(soundTypeCloth);
 		this.setHardness(0.55F);
 		this.setResistance(0.55F);
-		this.setBlockName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.cake_bread_block));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
+	@SideOnly(Side.CLIENT)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
-		this.cakeIcon = new IIcon[3];
-		this.cakeIcon[0] = par1IconRegister.registerIcon("fronos:cake_bread");
-		this.cakeIcon[1] = par1IconRegister.registerIcon("fronos:white_cake_side");
-		this.cakeIcon[2] = par1IconRegister.registerIcon("fronos:frosted_white_cake_top");
-
-		this.chocolateCakeIcon = new IIcon[2];
-		this.chocolateCakeIcon[0] = par1IconRegister.registerIcon("fronos:chocolate_cake_bread");
-		this.chocolateCakeIcon[1] = par1IconRegister.registerIcon("fronos:frosted_chocolate_cake_side");
-
-		this.pinkCakeIcon = new IIcon[2];
-		this.pinkCakeIcon[0] = par1IconRegister.registerIcon("fronos:pink_cake_top");
-		this.pinkCakeIcon[1] = par1IconRegister.registerIcon("fronos:pink_cake_side");
-
-		this.whiteCakeIcon = new IIcon[3];
-		this.whiteCakeIcon[0] = par1IconRegister.registerIcon("fronos:white_cake_bread");
-		this.whiteCakeIcon[1] = par1IconRegister.registerIcon("fronos:frosted_white_cake_side");
-		this.whiteCakeIcon[2] = par1IconRegister.registerIcon("fronos:white_cake_top2");
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		switch (meta)
+		for (int i = 0; i < 7; ++i)
 		{
-		case 0:
-			return this.cakeIcon[0];
-		case 1:
-			return this.whiteCakeIcon[0];
-		case 2:
-			return this.chocolateCakeIcon[0];
-		case 3:
-			switch (side)
-			{
-			case 0:
-				return this.cakeIcon[0]; //BOTTOM
-			case 1:
-				return this.cakeIcon[2]; //TOP
-			case 2:
-				return this.cakeIcon[1]; //Z-
-			case 3:
-				return this.cakeIcon[1]; //Z+
-			case 4:
-				return this.cakeIcon[1]; //X-
-			case 5:
-				return this.cakeIcon[1]; //X+
-			default:
-				return this.cakeIcon[0];
-			}
-		case 4:
-			switch (side)
-			{
-			case 0:
-				return this.cakeIcon[0]; //BOTTOM
-			case 1:
-				return this.pinkCakeIcon[0]; //TOP
-			case 2:
-				return this.pinkCakeIcon[1]; //Z-
-			case 3:
-				return this.pinkCakeIcon[1]; //Z+
-			case 4:
-				return this.pinkCakeIcon[1]; //X-
-			case 5:
-				return this.pinkCakeIcon[1]; //X+
-			default:
-				return this.pinkCakeIcon[0];
-			}
-		case 5:
-			switch (side)
-			{
-			case 0:
-				return this.whiteCakeIcon[0]; //BOTTOM
-			case 1:
-				return this.whiteCakeIcon[2]; //TOP
-			case 2:
-				return this.whiteCakeIcon[1]; //Z-
-			case 3:
-				return this.whiteCakeIcon[1]; //Z+
-			case 4:
-				return this.whiteCakeIcon[1]; //X-
-			case 5:
-				return this.whiteCakeIcon[1]; //X+
-			default:
-				return this.whiteCakeIcon[0];
-			}
-		case 6:
-			switch (side)
-			{
-			case 0:
-				return this.chocolateCakeIcon[0]; //BOTTOM
-			case 1:
-				return this.cakeIcon[2]; //TOP
-			case 2:
-				return this.chocolateCakeIcon[1]; //Z-
-			case 3:
-				return this.chocolateCakeIcon[1]; //Z+
-			case 4:
-				return this.chocolateCakeIcon[1]; //X-
-			case 5:
-				return this.chocolateCakeIcon[1]; //X+
-			default:
-				return this.chocolateCakeIcon[0];
-			}
-		}
-		return this.blockIcon;
-	}
-
-	@Override
-	public int getDamageValue(World world, int x, int y, int z)
-	{
-		return world.getBlockMetadata(x, y, z);
-	}
-
-	@Override
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
-	{
-		for (int i = 0; i < BlockFrostedCake.types.length; ++i)
-		{
-			list.add(new ItemStack(block, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random par2Random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return Item.getItemFromBlock(this);
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
+		int meta = this.getMetaFromState(state);
+
 		if (meta == 3 || meta == 4)
 		{
 			return 0;
@@ -198,5 +74,52 @@ public class BlockFrostedCake extends Block
 			return 2;
 		}
 		return meta;
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	@Override
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos)
+	{
+		return new ItemStack(this, 1, this.getMetaFromState(world.getBlockState(pos)));
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		cake_bread_block,
+		white_cake_bread_block,
+		chocolate_cake_bread_block,
+		frosted_white_cake_block,
+		frosted_pink_cake_block,
+		frosted_white_cake_block2,
+		frosted_chocolate_cake_block;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

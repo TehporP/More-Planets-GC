@@ -16,9 +16,9 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.items.ItemFoodMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.ItemFoodMP;
 
 public class ItemFronosFood extends ItemFoodMP
 {
@@ -56,7 +56,7 @@ public class ItemFronosFood extends ItemFoodMP
 		0.4F,//12
 		0.6F,//13
 		0.55F,//14
-		0.45F//15
+		0.45F,//15
 	};
 
 	public ItemFronosFood(String name)
@@ -69,16 +69,16 @@ public class ItemFronosFood extends ItemFoodMP
 	@Override
 	public EnumAction getItemUseAction(ItemStack itemStack)
 	{
-		return EnumAction.eat;
+		return EnumAction.EAT;
 	}
 
 	@Override
-	public ItemStack onEaten(ItemStack itemStack, World world, EntityPlayer player)
+	public ItemStack onItemUseFinish(ItemStack itemStack, World world, EntityPlayer player)
 	{
 		int meta = itemStack.getItemDamage();
 		--itemStack.stackSize;
 
-		player.getFoodStats().func_151686_a(this, itemStack);
+		player.getFoodStats().addStats(this, itemStack);
 		world.playSoundAtEntity(player, "random.burp", 0.5F, world.rand.nextFloat() * 0.1F + 0.9F);
 		this.onFoodEaten(itemStack, world, player);
 
@@ -108,18 +108,18 @@ public class ItemFronosFood extends ItemFoodMP
 	{
 		for (int i = 0; i < this.getItemVariantsName().length; i++)
 		{
-			list.add(new ItemStack(item, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public int getFoodAmount(ItemStack itemStack)
+	public int getHealAmount(ItemStack itemStack)
 	{
 		return foodHunger[itemStack.getItemDamage()];
 	}
 
 	@Override
-	public float getFoodSaturation(ItemStack itemStack)
+	public float getSaturationModifier(ItemStack itemStack)
 	{
 		return foodSaturation[itemStack.getItemDamage()];
 	}
@@ -128,11 +128,5 @@ public class ItemFronosFood extends ItemFoodMP
 	public String[] getItemVariantsName()
 	{
 		return new String[] { "strawberry", "berry", "marshmallow", "cooked_marshmallow", "vanilla_ice_cream", "chocolate_ice_cream", "strawberry_ice_cream", "strawberry_cloud_ice_cream", "orange_ice_cream", "golden_bread", "little_sun_flower_seeds", "tea_ice_cream", "berry_salad", "sky_mushroom_stew", "rainbow_cloud_ice_cream", "lemon_ice_cream" };
-	}
-
-	@Override
-	public String getResourceLocation()
-	{
-		return "fronos";
 	}
 }
