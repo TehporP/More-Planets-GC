@@ -11,17 +11,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.items.ItemMorePlanet;
+import stevekung.mods.moreplanets.common.items.ItemMorePlanets;
 import stevekung.mods.moreplanets.planets.polongnius.entities.EntityPolongniusMeteorChunk;
 
-public class ItemPolongniusMeteorChunk extends ItemMorePlanet
+public class ItemPolongniusMeteorChunk extends ItemMorePlanets
 {
 	public ItemPolongniusMeteorChunk(String name)
 	{
 		super();
 		this.setMaxStackSize(16);
 		this.setUnlocalizedName(name);
-		this.setTextureName("mpcore:blank");
 	}
 
 	@Override

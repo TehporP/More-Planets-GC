@@ -7,22 +7,20 @@
 
 package stevekung.mods.moreplanets.moons.io.items;
 
-import micdoodle8.mods.galacticraft.core.proxy.ClientProxyCore;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.EnumRarity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
 import stevekung.mods.moreplanets.moons.io.blocks.IoBlocks;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemTitaniumBucket extends ItemBucket
 {
@@ -33,231 +31,135 @@ public class ItemTitaniumBucket extends ItemBucket
 		super(block);
 		this.isFull = block;
 		this.setMaxStackSize(1);
-		this.setTextureName("io:" + name);
 		this.setUnlocalizedName(name);
 		this.setContainerItem(IoItems.titanium_bucket);
 	}
 
 	@Override
-	public ItemStack onItemRightClick(ItemStack itemstack, World world, EntityPlayer player)
+	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player)
 	{
 		boolean flag = this.isFull == Blocks.air;
+		MovingObjectPosition moving = this.getMovingObjectPositionFromPlayer(world, player, flag);
 
-		if (itemstack.getItem() == IoItems.titanium_bucket)
+		if (moving == null)
 		{
-			MovingObjectPosition pos = this.getMovingObjectPositionFromPlayer(world, player, true);
-
-			if (pos == null)
-			{
-				return itemstack;
-			}
-			else
-			{
-				Block block = world.getBlock(pos.blockX, pos.blockY, pos.blockZ);
-				int meta = world.getBlockMetadata(pos.blockX, pos.blockY, pos.blockZ);
-
-				if (block == IoBlocks.io_lava && meta == 0)
-				{
-					if (player.capabilities.isCreativeMode)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemstack;
-					}
-					if (--itemstack.stackSize <= 0)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(IoItems.io_lava_bucket);
-					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(IoItems.io_lava_bucket)))
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(IoItems.io_lava_bucket), 1.0F);
-					}
-					return itemstack;
-				}
-				else if (block == IoBlocks.liquid_red_sulfur && meta == 0)
-				{
-					if (player.capabilities.isCreativeMode)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemstack;
-					}
-					if (--itemstack.stackSize <= 0)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(IoItems.liquid_red_sulfur_bucket);
-					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(IoItems.liquid_red_sulfur_bucket)))
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(IoItems.liquid_red_sulfur_bucket), 1.0F);
-					}
-					return itemstack;
-				}
-				else if (block == IoBlocks.liquid_yellow_sulfur && meta == 0)
-				{
-					if (player.capabilities.isCreativeMode)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemstack;
-					}
-					if (--itemstack.stackSize <= 0)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(IoItems.liquid_yellow_sulfur_bucket);
-					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(IoItems.liquid_yellow_sulfur_bucket)))
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(IoItems.liquid_yellow_sulfur_bucket), 1.0F);
-					}
-					return itemstack;
-				}
-				else if (block == IoBlocks.liquid_orange_sulfur && meta == 0)
-				{
-					if (player.capabilities.isCreativeMode)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemstack;
-					}
-					if (--itemstack.stackSize <= 0)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(IoItems.liquid_orange_sulfur_bucket);
-					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(IoItems.liquid_orange_sulfur_bucket)))
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(IoItems.liquid_orange_sulfur_bucket), 1.0F);
-					}
-					return itemstack;
-				}
-				else if (block == IoBlocks.liquid_brown_sulfur && meta == 0)
-				{
-					if (player.capabilities.isCreativeMode)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemstack;
-					}
-					if (--itemstack.stackSize <= 0)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(IoItems.liquid_brown_sulfur_bucket);
-					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(IoItems.liquid_brown_sulfur_bucket)))
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(IoItems.liquid_brown_sulfur_bucket), 1.0F);
-					}
-					return itemstack;
-				}
-				else if (block == IoBlocks.io_black_lava && meta == 0)
-				{
-					if (player.capabilities.isCreativeMode)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return itemstack;
-					}
-					if (--itemstack.stackSize <= 0)
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						return new ItemStack(IoItems.io_black_lava_bucket);
-					}
-					if (!player.inventory.addItemStackToInventory(new ItemStack(IoItems.io_black_lava_bucket)))
-					{
-						world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.air);
-						player.entityDropItem(new ItemStack(IoItems.io_black_lava_bucket), 1.0F);
-					}
-					return itemstack;
-				}
-				else
-				{
-					return itemstack;
-				}
-			}
+			return itemStack;
 		}
 		else
 		{
-			MovingObjectPosition pos = this.getMovingObjectPositionFromPlayer(world, player, flag);
-
-			if (pos == null)
+			if (moving.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
-				return itemstack;
-			}
-			else if (pos.typeOfHit == MovingObjectType.BLOCK)
-			{
-				int i = pos.blockX;
-				int j = pos.blockY;
-				int k = pos.blockZ;
+				BlockPos pos = moving.getBlockPos();
 
-				if (!world.canMineBlock(player, i, j, k))
+				if (!world.isBlockModifiable(player, pos))
 				{
-					return itemstack;
+					return itemStack;
 				}
-				if (this.isFull == Blocks.air)
+
+				if (flag)
 				{
-					return new ItemStack(IoItems.titanium_bucket);
+					if (!player.canPlayerEdit(pos.offset(moving.sideHit), moving.sideHit, itemStack))
+					{
+						return itemStack;
+					}
+
+					IBlockState state = world.getBlockState(pos);
+
+					if (state == IoBlocks.io_lava.getDefaultState())
+					{
+						world.setBlockToAir(pos);
+						return this.fillBucket(itemStack, player, IoItems.io_lava_bucket);
+					}
+					else if (state == IoBlocks.liquid_red_sulfur.getDefaultState())
+					{
+						world.setBlockToAir(pos);
+						return this.fillBucket(itemStack, player, IoItems.liquid_red_sulfur_bucket);
+					}
+					else if (state == IoBlocks.liquid_yellow_sulfur.getDefaultState())
+					{
+						world.setBlockToAir(pos);
+						return this.fillBucket(itemStack, player, IoItems.liquid_yellow_sulfur_bucket);
+					}
+					else if (state == IoBlocks.liquid_orange_sulfur.getDefaultState())
+					{
+						world.setBlockToAir(pos);
+						return this.fillBucket(itemStack, player, IoItems.liquid_orange_sulfur_bucket);
+					}
+					else if (state == IoBlocks.liquid_brown_sulfur.getDefaultState())
+					{
+						world.setBlockToAir(pos);
+						return this.fillBucket(itemStack, player, IoItems.liquid_brown_sulfur_bucket);
+					}
 				}
-				if (pos.sideHit == 0)
+				else
 				{
-					--j;
-				}
-				if (pos.sideHit == 1)
-				{
-					++j;
-				}
-				if (pos.sideHit == 2)
-				{
-					--k;
-				}
-				if (pos.sideHit == 3)
-				{
-					++k;
-				}
-				if (pos.sideHit == 4)
-				{
-					--i;
-				}
-				if (pos.sideHit == 5)
-				{
-					++i;
-				}
-				if (!player.canPlayerEdit(i, j, k, pos.sideHit, itemstack))
-				{
-					return itemstack;
-				}
-				if (this.tryPlaceContainedLiquid(world, i, j, k) && !player.capabilities.isCreativeMode)
-				{
-					return new ItemStack(IoItems.titanium_bucket);
+					if (this.isFull == Blocks.air)
+					{
+						return new ItemStack(IoItems.titanium_bucket);
+					}
+
+					BlockPos blockpos1 = pos.offset(moving.sideHit);
+
+					if (!player.canPlayerEdit(blockpos1, moving.sideHit, itemStack))
+					{
+						return itemStack;
+					}
+					if (this.tryPlaceContainedLiquid(world, blockpos1) && !player.capabilities.isCreativeMode)
+					{
+						return new ItemStack(IoItems.titanium_bucket);
+					}
 				}
 			}
+			return itemStack;
 		}
-		return itemstack;
+	}
+
+	private ItemStack fillBucket(ItemStack emptyBuckets, EntityPlayer player, Item fullBucket)
+	{
+		if (player.capabilities.isCreativeMode)
+		{
+			return emptyBuckets;
+		}
+		else if (--emptyBuckets.stackSize <= 0)
+		{
+			return new ItemStack(fullBucket);
+		}
+		else
+		{
+			if (!player.inventory.addItemStackToInventory(new ItemStack(fullBucket)))
+			{
+				player.dropPlayerItemWithRandomChoice(new ItemStack(fullBucket, 1, 0), false);
+			}
+			return emptyBuckets;
+		}
 	}
 
 	@Override
-	public boolean tryPlaceContainedLiquid(World par1World, int x, int y, int z)
+	public boolean tryPlaceContainedLiquid(World world, BlockPos pos)
 	{
-		Material material = par1World.getBlock(x, y, z).getMaterial();
-		boolean flag = !material.isSolid();
-
 		if (this.isFull == Blocks.air)
 		{
 			return false;
 		}
-		else if (!par1World.isAirBlock(x, y, z) && par1World.getBlock(x, y, z).getMaterial().isSolid())
-		{
-			return false;
-		}
 		else
 		{
-			if (!par1World.isRemote && flag && !material.isLiquid())
+			Material material = world.getBlockState(pos).getBlock().getMaterial();
+			boolean flag = !material.isSolid();
+
+			if (!world.isAirBlock(pos) && !flag)
 			{
-				par1World.func_147480_a(x, y, z, true);
+				return false;
 			}
-			par1World.setBlock(x, y, z, this.isFull, 0, 3);
+			else
+			{
+				if (!world.isRemote && flag && !material.isLiquid())
+				{
+					world.destroyBlock(pos, true);
+				}
+				world.setBlockState(pos, this.isFull.getDefaultState(), 3);
+				return true;
+			}
 		}
-		return true;
 	}
 
 	@Override
@@ -266,10 +168,10 @@ public class ItemTitaniumBucket extends ItemBucket
 		return MorePlanetsCore.mpItemsTab;
 	}
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public EnumRarity getRarity(ItemStack itemStack)
-	{
-		return ClientProxyCore.galacticraftItem;
-	}
+	//	@Override
+	//	@SideOnly(Side.CLIENT)
+	//	public EnumRarity getRarity(ItemStack itemStack)
+	//	{
+	//		return ClientProxyCore.galacticraftItem;
+	//	}
 }

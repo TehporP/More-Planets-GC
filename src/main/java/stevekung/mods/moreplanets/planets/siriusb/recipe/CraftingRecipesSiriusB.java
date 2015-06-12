@@ -7,16 +7,15 @@
 
 package stevekung.mods.moreplanets.planets.siriusb.recipe;
 
-import micdoodle8.mods.galacticraft.core.items.GCItems;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import stevekung.mods.moreplanets.core.init.MPBlocks;
 import stevekung.mods.moreplanets.planets.siriusb.blocks.SiriusBBlocks;
 import stevekung.mods.moreplanets.planets.siriusb.items.SiriusBItems;
 import stevekung.mods.moreplanets.planets.siriusb.items.armor.SiriusBArmorItems;
 import stevekung.mods.moreplanets.planets.siriusb.items.tools.SiriusBToolsItems;
-import cpw.mods.fml.common.registry.GameRegistry;
 
 public class CraftingRecipesSiriusB
 {
@@ -40,16 +39,16 @@ public class CraftingRecipesSiriusB
 		GameRegistry.addRecipe(new ItemStack(MPBlocks.dungeon_brick_wall, 6, 6), new Object[] { "CCC", "CCC", 'C', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 9) });
 
 		// Slabs
-		GameRegistry.addRecipe(new ItemStack(MPBlocks.stone_slab_half2, 6, 4), new Object[] { "CCC", 'C', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 3) });
-		GameRegistry.addRecipe(new ItemStack(MPBlocks.dungeon_brick_slab_half, 6, 6), new Object[] { "CCC", 'C', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 9) });
+		GameRegistry.addRecipe(new ItemStack(MPBlocks.half_stone_slab_2, 6, 4), new Object[] { "CCC", 'C', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 3) });
+		GameRegistry.addRecipe(new ItemStack(MPBlocks.half_dungeon_brick_slab_1, 6, 6), new Object[] { "CCC", 'C', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 9) });
 
 		// Sirius B Cobblestone Stairs
-		GameRegistry.addRecipe(new ItemStack(SiriusBBlocks.sirius_cobblestone_stairs, 4), new Object[] { "  X", " XX", "XXX", 'X', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 3) });
-		GameRegistry.addRecipe(new ItemStack(SiriusBBlocks.sirius_cobblestone_stairs, 4), new Object[] { "X  ", "XX ", "XXX", 'X', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 3) });
+		GameRegistry.addRecipe(new ItemStack(SiriusBBlocks.sirius_b_carbon_cobblestone_stairs, 4), new Object[] { "  X", " XX", "XXX", 'X', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 3) });
+		GameRegistry.addRecipe(new ItemStack(SiriusBBlocks.sirius_b_carbon_cobblestone_stairs, 4), new Object[] { "X  ", "XX ", "XXX", 'X', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 3) });
 
 		// Sirius B Dungeon Brick Stairs
-		GameRegistry.addRecipe(new ItemStack(SiriusBBlocks.sirius_dungeon_brick_stairs, 4), new Object[] { "  X", " XX", "XXX", 'X', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 9) });
-		GameRegistry.addRecipe(new ItemStack(SiriusBBlocks.sirius_dungeon_brick_stairs, 4), new Object[] { "X  ", "XX ", "XXX", 'X', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 9) });
+		GameRegistry.addRecipe(new ItemStack(SiriusBBlocks.sirius_b_dungeon_brick_stairs, 4), new Object[] { "  X", " XX", "XXX", 'X', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 9) });
+		GameRegistry.addRecipe(new ItemStack(SiriusBBlocks.sirius_b_dungeon_brick_stairs, 4), new Object[] { "X  ", "XX ", "XXX", 'X', new ItemStack(SiriusBBlocks.sirius_b_block, 1, 9) });
 	}
 
 	private static void addItemRecipes()
@@ -66,7 +65,7 @@ public class CraftingRecipesSiriusB
 		GameRegistry.addRecipe(new ItemStack(SiriusBArmorItems.sulfur_chestplate, 1, 0), new Object[] { "X X", "XXX", "XXX", 'X', new ItemStack(SiriusBItems.sirius_b_item, 1, 4) });
 		GameRegistry.addRecipe(new ItemStack(SiriusBArmorItems.sulfur_leggings, 1, 0), new Object[] { "XXX", "X X", "X X", 'X', new ItemStack(SiriusBItems.sirius_b_item, 1, 4) });
 		GameRegistry.addRecipe(new ItemStack(SiriusBArmorItems.sulfur_boots, 1, 0), new Object[] { "X X", "X X", 'X', new ItemStack(SiriusBItems.sirius_b_item, 1, 4) });
-		GameRegistry.addRecipe(new ItemStack(SiriusBArmorItems.breathable_sulfur_helmet), new Object[] { "PPP", "POP", 'O', new ItemStack(GCItems.oxMask), 'P', new ItemStack(SiriusBItems.sirius_b_item, 1, 4) });
+		//		GameRegistry.addRecipe(new ItemStack(SiriusBArmorItems.breathable_sulfur_helmet), new Object[] { "PPP", "POP", 'O', new ItemStack(GCItems.oxMask), 'P', new ItemStack(SiriusBItems.sirius_b_item, 1, 4) });
 
 		// Tools
 		GameRegistry.addRecipe(new ItemStack(SiriusBToolsItems.sulfur_hoe), new Object[] { "XX", " Y", " Y", 'X', new ItemStack(SiriusBItems.sirius_b_item, 1, 4), 'Y', new ItemStack(SiriusBItems.sirius_b_item, 1, 5) });
@@ -80,14 +79,14 @@ public class CraftingRecipesSiriusB
 
 	private static void addBlockSmelting()
 	{
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(SiriusBBlocks.sirius_b_block, 1, 3), new ItemStack(SiriusBBlocks.sirius_b_block, 1, 2), 0.5F);
+		FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(SiriusBBlocks.sirius_b_block, 1, 3), new ItemStack(SiriusBBlocks.sirius_b_block, 1, 2), 0.5F);
 	}
 
 	private static void addItemSmelting()
 	{
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(SiriusBItems.sirius_b_item, 1, 2), new ItemStack(SiriusBItems.sirius_b_item, 1, 3), 0.7F);
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(SiriusBBlocks.sirius_b_block, 1, 4), new ItemStack(SiriusBItems.sirius_b_item, 1, 3), 0.7F);
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(SiriusBBlocks.sirius_b_block, 1, 5), new ItemStack(Items.diamond), 0.7F);
-		FurnaceRecipes.smelting().func_151394_a(new ItemStack(SiriusBBlocks.sirius_b_block, 1, 6), new ItemStack(SiriusBItems.sirius_glowstone_dust), 0.8F);
+		FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(SiriusBItems.sirius_b_item, 1, 2), new ItemStack(SiriusBItems.sirius_b_item, 1, 3), 0.7F);
+		FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(SiriusBBlocks.sirius_b_block, 1, 4), new ItemStack(SiriusBItems.sirius_b_item, 1, 3), 0.7F);
+		FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(SiriusBBlocks.sirius_b_block, 1, 5), new ItemStack(Items.diamond), 0.7F);
+		FurnaceRecipes.instance().addSmeltingRecipe(new ItemStack(SiriusBBlocks.sirius_b_block, 1, 6), new ItemStack(SiriusBItems.sirius_glowstone_dust), 0.8F);
 	}
 }

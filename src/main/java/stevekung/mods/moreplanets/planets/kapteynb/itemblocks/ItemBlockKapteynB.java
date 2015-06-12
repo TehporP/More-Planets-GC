@@ -8,7 +8,7 @@
 package stevekung.mods.moreplanets.planets.kapteynb.itemblocks;
 
 import net.minecraft.block.Block;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
 public class ItemBlockKapteynB extends ItemBlockBaseMP
 {
@@ -20,6 +20,6 @@ public class ItemBlockKapteynB extends ItemBlockBaseMP
 	@Override
 	public String[] getBlockVariantsName()
 	{
-		return new String[] { "surface_ice","sub_surface_ice", "stone", "cobblestone", "namerium_ore", "frozen_iron_ore", "uranium_ore", "tin_ore", "copper_ore", "redstone_ore", "redstone_ore", "namerium_block", "frozen_iron_block", "uranium_block", "dungeon_brick" };
+		return new String[] { "surface_ice", "sub_surface_ice", "hardened", "cracked", "namerium_ore", "frozen_iron_ore", "uranium_ore", "tin_ore", "copper_ore", "namerium_block", "frozen_iron_block", "uranium_block", "dungeon_brick" };
 	}
 }

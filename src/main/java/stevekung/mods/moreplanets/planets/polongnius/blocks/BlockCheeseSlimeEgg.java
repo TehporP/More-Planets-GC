@@ -7,133 +7,79 @@
 
 package stevekung.mods.moreplanets.planets.polongnius.blocks;
 
-import java.util.Random;
-
-import micdoodle8.mods.galacticraft.planets.mars.items.MarsItems;
-import net.minecraft.block.BlockDragonEgg;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.Explosion;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.common.blocks.BlockEggMP;
 import stevekung.mods.moreplanets.planets.polongnius.entities.EntityCheeseSlime;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockCheeseSlimeEgg extends BlockDragonEgg
+public class BlockCheeseSlimeEgg extends BlockEggMP
 {
 	public BlockCheeseSlimeEgg(String name)
 	{
 		super();
-		this.setStepSound(MorePlanetsCore.soundTypeSlime);
-		this.setResistance(0.0F);
-		this.setHardness(-1.0F);
-		this.setBlockName(name);
+		this.setStepSound(SLIME_SOUND);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerBlockIcons(IIconRegister iconRegister)
+	public void onBlockExploded(World world, BlockPos pos, Explosion explosion)
 	{
-		this.blockIcon = iconRegister.registerIcon("polongnius:cheese_slime");
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public int getRenderBlockPass()
-	{
-		return 1;
-	}
-
-	@Override
-	public boolean shouldSideBeRendered(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
-	{
-		return super.shouldSideBeRendered(par1IBlockAccess, par2, par3, par4, par5 - 1);
-	}
-
-	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
-	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public boolean isOpaqueCube()
-	{
-		return false;
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
-	{
-		return false;
-	}
-
-	@Override
-	public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
-	{
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public Item getItem(World par1World, int par2, int par3, int par4)
-	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public boolean canHarvestBlock(EntityPlayer player, int metadata)
-	{
-		ItemStack stack = player.inventory.getCurrentItem();
-
-		if (stack == null)
+		if (!world.isRemote)
 		{
-			return player.canHarvestBlock(this);
+			EntityCheeseSlime slime = new EntityCheeseSlime(world);
+			slime.setPosition(pos.getX() + 0.5D, pos.getY() + 1.0D, pos.getZ() + 0.5D);
+			slime.setSlimeSize(world.rand.nextInt(4));
+			world.spawnEntityInWorld(slime);
 		}
-		return stack.getItem() == MarsItems.deshPickSlime;
+		world.playSoundEffect(pos.getX(), pos.getY(), pos.getZ(), "mob.slime.big", 5.0F, 1.0F);
+		world.setBlockToAir(pos);
+		this.onBlockDestroyedByExplosion(world, pos, explosion);
 	}
 
 	@Override
-	public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z)
+	public EnumWorldBlockLayer getBlockLayer()
 	{
-		ItemStack stack = player.inventory.getCurrentItem();
-
-		if (stack != null && stack.getItem() == MarsItems.deshPickSlime)
-		{
-			return 0.2F;
-		}
-		return ForgeHooks.blockStrength(this, player, world, x, y, z);
+		return EnumWorldBlockLayer.TRANSLUCENT;
 	}
 
 	@Override
-	public void onBlockExploded(World par1World, int par2, int par3, int par4, Explosion explosion)
+	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance)
 	{
-		if (!par1World.isRemote)
+		if (entity.isSneaking())
 		{
-			EntityCheeseSlime slime = new EntityCheeseSlime(par1World);
-			slime.setPosition(par2 + 0.5, par3 + 1, par4 + 0.5);
-			par1World.spawnEntityInWorld(slime);
-			slime.setSlimeSize(par1World.rand.nextInt(4));
+			super.onFallenUpon(world, pos, entity, fallDistance);
 		}
-		par1World.setBlockToAir(par2, par3, par4);
-		par1World.playSoundEffect(par2, par3, par4, "mob.slime.big", 1.0F, 1.0F);
-		this.onBlockDestroyedByExplosion(par1World, par2, par3, par4, explosion);
+		else
+		{
+			entity.fall(fallDistance, 0.0F);
+		}
+	}
+
+	@Override
+	public void onLanded(World world, Entity entity)
+	{
+		if (entity.isSneaking())
+		{
+			super.onLanded(world, entity);
+		}
+		else if (entity.motionY < 0.0D)
+		{
+			entity.motionY = -entity.motionY;
+		}
+	}
+
+	@Override
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity)
+	{
+		if (Math.abs(entity.motionY) < 0.1D && !entity.isSneaking())
+		{
+			double d = 0.4D + Math.abs(entity.motionY) * 0.2D;
+			entity.motionX *= d;
+			entity.motionZ *= d;
+		}
+		super.onEntityCollidedWithBlock(world, pos, entity);
 	}
 }

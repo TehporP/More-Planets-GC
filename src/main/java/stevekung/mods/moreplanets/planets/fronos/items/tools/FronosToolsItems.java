@@ -10,11 +10,11 @@ package stevekung.mods.moreplanets.planets.fronos.items.tools;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraftforge.common.util.EnumHelper;
-import stevekung.mods.moreplanets.core.items.tools.ItemAxeMP;
-import stevekung.mods.moreplanets.core.items.tools.ItemHoeMP;
-import stevekung.mods.moreplanets.core.items.tools.ItemPickaxeMP;
-import stevekung.mods.moreplanets.core.items.tools.ItemShovelMP;
-import stevekung.mods.moreplanets.core.items.tools.ItemSwordMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemAxeMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemHoeMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemPickaxeMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemShovelMP;
+import stevekung.mods.moreplanets.common.items.tools.ItemSwordMP;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 import stevekung.mods.stevecore.RegisterHelper;
@@ -59,28 +59,28 @@ public class FronosToolsItems
 	{
 		for (int i = 0; i < 8; ++i)
 		{
-			FronosToolsItems.candy_pickaxe = new ItemPickaxeMP("candy_pickaxe", FronosToolsItems.candy, FronosItems.candy_cane, i, "fronos:candy_pickaxe");
-			FronosToolsItems.candy_axe = new ItemAxeMP("candy_axe", FronosToolsItems.candy, FronosItems.candy_cane, i, "fronos:candy_axe");
-			FronosToolsItems.candy_hoe = new ItemHoeMP("candy_hoe", FronosToolsItems.candy, FronosItems.candy_cane, i, "fronos:candy_hoe");
-			FronosToolsItems.candy_shovel = new ItemShovelMP("candy_spade", FronosToolsItems.candy, FronosItems.candy_cane, i, "fronos:candy_shovel");
-			FronosToolsItems.candy_sword = new ItemSwordMP("candy_sword", FronosToolsItems.candy, FronosItems.candy_cane, i, "fronos:candy_sword");
+			FronosToolsItems.candy_pickaxe = new ItemPickaxeMP("candy_pickaxe", FronosToolsItems.candy, FronosItems.candy_cane, i);
+			FronosToolsItems.candy_axe = new ItemAxeMP("candy_axe", FronosToolsItems.candy, FronosItems.candy_cane, i);
+			FronosToolsItems.candy_hoe = new ItemHoeMP("candy_hoe", FronosToolsItems.candy, FronosItems.candy_cane, i);
+			FronosToolsItems.candy_shovel = new ItemShovelMP("candy_shovel", FronosToolsItems.candy, FronosItems.candy_cane, i);
+			FronosToolsItems.candy_sword = new ItemSwordMP("candy_sword", FronosToolsItems.candy, FronosItems.candy_cane, i);
 		}
 
-		FronosToolsItems.black_diamond_pickaxe = new ItemPickaxeMP("black_diamond_pickaxe", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4, "fronos:black_diamond_pickaxe");
-		FronosToolsItems.black_diamond_axe = new ItemAxeMP("black_diamond_axe", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4, "fronos:black_diamond_axe");
-		FronosToolsItems.black_diamond_hoe = new ItemHoeMP("black_diamond_hoe", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4, "fronos:black_diamond_hoe");
-		FronosToolsItems.black_diamond_shovel = new ItemShovelMP("black_diamond_spade", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4, "fronos:black_diamond_shovel");
-		FronosToolsItems.black_diamond_sword = new ItemSwordMP("black_diamond_sword", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4, "fronos:black_diamond_sword");
-		FronosToolsItems.iridium_pickaxe = new ItemPickaxeMP("iridium_pickaxe", FronosToolsItems.iridium, FronosItems.fronos_item, 5, "fronos:iridium_pickaxe");
-		FronosToolsItems.iridium_axe = new ItemAxeMP("iridium_axe", FronosToolsItems.iridium, FronosItems.fronos_item, 5, "fronos:iridium_axe");
-		FronosToolsItems.iridium_hoe = new ItemHoeMP("iridium_hoe", FronosToolsItems.iridium, FronosItems.fronos_item, 5, "fronos:iridium_hoe");
-		FronosToolsItems.iridium_shovel = new ItemShovelMP("iridium_spade", FronosToolsItems.iridium, FronosItems.fronos_item, 5, "fronos:iridium_shovel");
-		FronosToolsItems.iridium_sword = new ItemSwordMP("iridium_sword", FronosToolsItems.iridium, FronosItems.fronos_item, 5, "fronos:iridium_sword");
-		FronosToolsItems.fronos_rock_pickaxe = new ItemPickaxeMP("fronos_rock_pickaxe", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1, "fronos:fronos_rock_pickaxe");
-		FronosToolsItems.fronos_rock_axe = new ItemAxeMP("fronos_rock_axe", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1, "fronos:fronos_rock_axe");
-		FronosToolsItems.fronos_rock_hoe = new ItemHoeMP("fronos_rock_hoe", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1, "fronos:fronos_rock_hoe");
-		FronosToolsItems.fronos_rock_shovel = new ItemShovelMP("fronos_rock_shovel", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1, "fronos:fronos_rock_shovel");
-		FronosToolsItems.fronos_rock_sword = new ItemSwordMP("fronos_rock_sword", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1, "fronos:fronos_rock_sword");
+		FronosToolsItems.black_diamond_pickaxe = new ItemPickaxeMP("black_diamond_pickaxe", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4);
+		FronosToolsItems.black_diamond_axe = new ItemAxeMP("black_diamond_axe", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4);
+		FronosToolsItems.black_diamond_hoe = new ItemHoeMP("black_diamond_hoe", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4);
+		FronosToolsItems.black_diamond_shovel = new ItemShovelMP("black_diamond_shovel", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4);
+		FronosToolsItems.black_diamond_sword = new ItemSwordMP("black_diamond_sword", FronosToolsItems.black_diamond, FronosItems.fronos_item, 4);
+		FronosToolsItems.iridium_pickaxe = new ItemPickaxeMP("iridium_pickaxe", FronosToolsItems.iridium, FronosItems.fronos_item, 5);
+		FronosToolsItems.iridium_axe = new ItemAxeMP("iridium_axe", FronosToolsItems.iridium, FronosItems.fronos_item, 5);
+		FronosToolsItems.iridium_hoe = new ItemHoeMP("iridium_hoe", FronosToolsItems.iridium, FronosItems.fronos_item, 5);
+		FronosToolsItems.iridium_shovel = new ItemShovelMP("iridium_shovel", FronosToolsItems.iridium, FronosItems.fronos_item, 5);
+		FronosToolsItems.iridium_sword = new ItemSwordMP("iridium_sword", FronosToolsItems.iridium, FronosItems.fronos_item, 5);
+		FronosToolsItems.fronos_rock_pickaxe = new ItemPickaxeMP("fronos_rock_pickaxe", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1);
+		FronosToolsItems.fronos_rock_axe = new ItemAxeMP("fronos_rock_axe", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1);
+		FronosToolsItems.fronos_rock_hoe = new ItemHoeMP("fronos_rock_hoe", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1);
+		FronosToolsItems.fronos_rock_shovel = new ItemShovelMP("fronos_rock_shovel", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1);
+		FronosToolsItems.fronos_rock_sword = new ItemSwordMP("fronos_rock_sword", FronosToolsItems.fronos_rock, Item.getItemFromBlock(FronosBlocks.fronos_block), 1);
 	}
 
 	private static void registerHarvestLevels()
@@ -101,21 +101,21 @@ public class FronosToolsItems
 
 	private static void registerItems()
 	{
+		RegisterHelper.registerItem(FronosToolsItems.candy_sword);
+		RegisterHelper.registerItem(FronosToolsItems.candy_shovel);
 		RegisterHelper.registerItem(FronosToolsItems.candy_pickaxe);
 		RegisterHelper.registerItem(FronosToolsItems.candy_axe);
 		RegisterHelper.registerItem(FronosToolsItems.candy_hoe);
-		RegisterHelper.registerItem(FronosToolsItems.candy_shovel);
-		RegisterHelper.registerItem(FronosToolsItems.candy_sword);
+		RegisterHelper.registerItem(FronosToolsItems.black_diamond_sword);
+		RegisterHelper.registerItem(FronosToolsItems.black_diamond_shovel);
 		RegisterHelper.registerItem(FronosToolsItems.black_diamond_pickaxe);
 		RegisterHelper.registerItem(FronosToolsItems.black_diamond_axe);
 		RegisterHelper.registerItem(FronosToolsItems.black_diamond_hoe);
-		RegisterHelper.registerItem(FronosToolsItems.black_diamond_shovel);
-		RegisterHelper.registerItem(FronosToolsItems.black_diamond_sword);
+		RegisterHelper.registerItem(FronosToolsItems.iridium_sword);
+		RegisterHelper.registerItem(FronosToolsItems.iridium_shovel);
 		RegisterHelper.registerItem(FronosToolsItems.iridium_pickaxe);
 		RegisterHelper.registerItem(FronosToolsItems.iridium_axe);
 		RegisterHelper.registerItem(FronosToolsItems.iridium_hoe);
-		RegisterHelper.registerItem(FronosToolsItems.iridium_shovel);
-		RegisterHelper.registerItem(FronosToolsItems.iridium_sword);
 		RegisterHelper.registerItem(FronosToolsItems.fronos_rock_sword);
 		RegisterHelper.registerItem(FronosToolsItems.fronos_rock_shovel);
 		RegisterHelper.registerItem(FronosToolsItems.fronos_rock_pickaxe);

@@ -15,11 +15,11 @@ import stevekung.mods.stevecore.RegisterHelper;
 public class VenusItems
 {
 	public static Item venus_item;
-	public static Item sulfur_battery;
+	//public static Item sulfur_battery;
 	public static Item jetpack;
-	public static Item venus_dungeon_key;
+	//public static Item venus_dungeon_key;
 
-	public static ArmorMaterial jetpackArmor = EnumHelper.addArmorMaterial("jetpack", 0, new int[] { 0, 0, 0, 0 }, 0);
+	public static ArmorMaterial jetpackArmor = EnumHelper.addArmorMaterial("jetpack", "jetpack", 16, new int[] { 0, 8, 0, 0 }, 8);
 
 	public static void init()
 	{
@@ -29,17 +29,17 @@ public class VenusItems
 
 	private static void initItems()
 	{
-		VenusItems.venus_item = new ItemBasicVenus("venus_item");
-		VenusItems.sulfur_battery = new ItemSulfurBattery("sulfur_battery");
+		VenusItems.venus_item = new ItemVenus("venus_item");
+		//VenusItems.sulfur_battery = new ItemSulfurBattery("sulfur_battery");
 		VenusItems.jetpack = new ItemJetpack("jetpack", VenusItems.jetpackArmor, 7, 1);
-		VenusItems.venus_dungeon_key = new ItemVenusDungeonKey("venus_dungeon_key");
+		//VenusItems.venus_dungeon_key = new ItemVenusDungeonKey("venus_dungeon_key");
 	}
 
 	private static void registerItems()
 	{
 		RegisterHelper.registerItem(VenusItems.venus_item);
-		RegisterHelper.registerItem(VenusItems.sulfur_battery);
+		//RegisterHelper.registerItem(VenusItems.sulfur_battery);
 		RegisterHelper.registerItem(VenusItems.jetpack);
-		RegisterHelper.registerItem(VenusItems.venus_dungeon_key);
+		//RegisterHelper.registerItem(VenusItems.venus_dungeon_key);
 	}
 }

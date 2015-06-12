@@ -9,16 +9,20 @@ package stevekung.mods.moreplanets.planets.polongnius.fluids;
 
 import java.util.Random;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockFluidBaseMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.BlockFluidBaseMP;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.planets.polongnius.blocks.PolongniusBlocks;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockFluidCheeseOfMilk extends BlockFluidBaseMP
 {
@@ -26,56 +30,44 @@ public class BlockFluidCheeseOfMilk extends BlockFluidBaseMP
 	{
 		super(PolongniusBlocks.cheese_of_milk_fluid);
 		this.setQuantaPerBlock(6);
-		this.setRenderPass(1);
-		this.needsRandomTick = true;
-		this.setBlockName(name);
+		this.setRenderLayer(EnumWorldBlockLayer.TRANSLUCENT);
+		this.setTickRandomly(true);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void randomDisplayTick(World par1World, int par2, int par3, int par4, Random rand)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		super.randomDisplayTick(par1World, par2, par3, par4, rand);
-		int meta = par1World.getBlockMetadata(par2, par3, par4);
+		super.randomDisplayTick(world, pos, state, rand);
+		int meta = (Integer)state.getValue(LEVEL);
 
 		if (rand.nextInt(1) == 0)
 		{
-			MorePlanetsCore.proxy.spawnParticle("cheeseBubble", par2 + rand.nextFloat(), par3 + 1.0F, par4 + rand.nextFloat());
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.CHEESE_OF_MILK_BUBBLE, pos.getX() + rand.nextFloat(), pos.getY() + 1.0F, pos.getZ() + rand.nextFloat());
 		}
 		if (rand.nextInt(64) == 0)
 		{
 			if (meta > 0 && meta < 8)
 			{
-				par1World.playSound(par2 + 0.5F, par3 + 0.5F, par4 + 0.5F, "liquid.water", rand.nextFloat() * 0.25F + 0.75F, rand.nextFloat() * 1.0F + 0.5F, false);
+				world.playSound(pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, "liquid.water", rand.nextFloat() * 0.25F + 0.75F, rand.nextFloat() * 1.0F + 0.5F, false);
 			}
 		}
-		if (rand.nextInt(10) == 0 && World.doesBlockHaveSolidTopSurface(par1World, par2, par3 - 1, par4) && !par1World.getBlock(par2, par3 - 2, par4).getMaterial().blocksMovement())
+		if (rand.nextInt(10) == 0 && World.doesBlockHaveSolidTopSurface(world, pos.down()) && !world.getBlockState(pos.down(2)).getBlock().getMaterial().blocksMovement())
 		{
-			double d5 = par2 + rand.nextFloat();
-			double d6 = par3 - 1.05D;
-			double d7 = par4 + rand.nextFloat();
-			MorePlanetsCore.proxy.spawnParticle("cheeseOfMilkDrip", d5, d6, d7);
+			double d5 = pos.getX() + rand.nextFloat();
+			double d6 = pos.getY() - 1.05D;
+			double d7 = pos.getZ() + rand.nextFloat();
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.CHEESE_OF_MILK_DRIP, d5, d6, d7);
 		}
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity)
 	{
 		if (entity instanceof EntityLivingBase)
 		{
-			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(Potion.field_76443_y.id, 50));
+			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(Potion.saturation.id, 50));
 		}
-	}
-
-	@Override
-	public String getStillTextures()
-	{
-		return "polongnius:cheese_of_milk_still";
-	}
-
-	@Override
-	public String getFlowingTextures()
-	{
-		return "polongnius:cheese_of_milk_flowing";
 	}
 }

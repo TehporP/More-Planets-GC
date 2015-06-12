@@ -12,11 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
-import stevekung.mods.moreplanets.planets.nibiru.items.NibiruItems;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.api.API;
 import codechicken.nei.api.IConfigureNEI;
@@ -34,13 +30,13 @@ public class NEIFronosConfig implements IConfigureNEI
 		API.registerUsageHandler(new CandyExtractorRecipeHandler());
 		API.registerRecipeHandler(new Tier7RocketRecipeHandlerMP());
 		API.registerUsageHandler(new Tier7RocketRecipeHandlerMP());
-		this.addRocketRecipes();
+		//this.addRocketRecipes();
 	}
 
 	@Override
 	public String getName()
 	{
-		return "More Planet's : Fronos NEI Plugin";
+		return "More Planets : Fronos NEI Plugin";
 	}
 
 	@Override
@@ -59,7 +55,7 @@ public class NEIFronosConfig implements IConfigureNEI
 		return NEIFronosConfig.rocketBenchRecipes.entrySet();
 	}
 
-	public void addRocketRecipes()
+	/*public void addRocketRecipes()
 	{
 		final int changeY = 15;
 		final ArrayList<PositionedStack> input1 = new ArrayList<PositionedStack>();
@@ -116,5 +112,5 @@ public class NEIFronosConfig implements IConfigureNEI
 		input2.add(new PositionedStack(new ItemStack(Blocks.chest), 90 + 26, -15 + changeY));
 		input2.add(new PositionedStack(new ItemStack(Blocks.chest), 90 + 52, -15 + changeY));
 		this.registerRocketBenchRecipe(input2, new PositionedStack(new ItemStack(FronosItems.tier7_rocket, 1, 3), 139, 87 + changeY));
-	}
+	}*/
 }

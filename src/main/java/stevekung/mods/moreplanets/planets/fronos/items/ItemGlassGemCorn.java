@@ -7,117 +7,93 @@
 
 package stevekung.mods.moreplanets.planets.fronos.items;
 
-import micdoodle8.mods.galacticraft.core.proxy.ClientProxyCore;
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumRarity;
-import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.common.util.ForgeDirection;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.common.items.ItemFoodMP;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemGlassGemCorn extends ItemFood implements IPlantable
+public class ItemGlassGemCorn extends ItemFoodMP implements IPlantable
 {
 	public ItemGlassGemCorn(String name)
 	{
-		super(0, false);
+		super();
 		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public CreativeTabs getCreativeTab()
-	{
-		return MorePlanetsCore.mpItemsTab;
-	}
-
-	@Override
-	public int func_150905_g(ItemStack itemStack)
+	public int getHealAmount(ItemStack itemStack)
 	{
 		return 4;
 	}
 
 	@Override
-	public float func_150906_h(ItemStack itemStack)
+	public float getSaturationModifier(ItemStack itemStack)
 	{
 		return 0.25F;
 	}
 
 	@Override
-	public ItemStack onEaten(ItemStack itemStack, World world, EntityPlayer player)
+	public ItemStack onItemUseFinish(ItemStack itemStack, World world, EntityPlayer player)
 	{
 		--itemStack.stackSize;
 		world.playSoundAtEntity(player, "random.burp", 0.5F, world.rand.nextFloat() * 0.1F + 0.9F);
 		this.onFoodEaten(itemStack, world, player);
-		player.getFoodStats().func_151686_a(this, itemStack);
+		player.getFoodStats().addStats(this, itemStack);
 		return itemStack;
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerIcons(IIconRegister iconRegister)
+	public IBlockState getPlant(IBlockAccess world, BlockPos pos)
 	{
-		this.itemIcon = iconRegister.registerIcon("fronos:glass_gem_corn");
+		return FronosBlocks.glass_gem_corn.getDefaultState();
 	}
 
-	@Override
-	public Block getPlant(IBlockAccess world, int x, int y, int z)
-	{
-		return FronosBlocks.glass_gem_corn1;
-	}
+	//	@Override
+	//	@SideOnly(Side.CLIENT)
+	//	public EnumRarity getRarity(ItemStack itemStack)
+	//	{
+	//		return ClientProxyCore.galacticraftItem;
+	//	}
 
 	@Override
-	public int getPlantMetadata(IBlockAccess world, int x, int y, int z)
-	{
-		return 0;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public EnumRarity getRarity(ItemStack itemStack)
-	{
-		return ClientProxyCore.galacticraftItem;
-	}
-
-	@Override
-	public EnumPlantType getPlantType(IBlockAccess world, int x, int y, int z)
+	public EnumPlantType getPlantType(IBlockAccess world, BlockPos pos)
 	{
 		return EnumPlantType.Crop;
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, int par4, int par5, int par6, int par7, float par8, float par9, float par10)
+	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		if (par7 != 1)
+		if (side != EnumFacing.UP)
 		{
 			return false;
 		}
-		else if (player.canPlayerEdit(par4, par5, par6, par7, itemStack) && player.canPlayerEdit(par4, par5 + 1, par6, par7, itemStack))
+		else if (!player.canPlayerEdit(pos.offset(side), side, itemStack))
 		{
-			Block soil = world.getBlock(par4, par5, par6);
-
-			if (soil != null && soil.canSustainPlant(world, par4, par5, par6, ForgeDirection.UP, this) && world.isAirBlock(par4, par5 + 1, par6))
-			{
-				world.setBlock(par4, par5 + 1, par6, FronosBlocks.glass_gem_corn1, 0, 3);
-				--itemStack.stackSize;
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return false;
+		}
+		else if (world.getBlockState(pos).getBlock().canSustainPlant(world, pos, EnumFacing.UP, this) && world.isAirBlock(pos.up()))
+		{
+			world.setBlockState(pos.up(), FronosBlocks.glass_gem_corn.getDefaultState());
+			--itemStack.stackSize;
+			return true;
 		}
 		else
 		{
 			return false;
 		}
+	}
+
+	@Override
+	public String[] getItemVariantsName()
+	{
+		return null;
 	}
 }

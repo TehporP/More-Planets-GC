@@ -17,14 +17,14 @@ public class DeimosBlocks
 
 	public static void init()
 	{
-		initBlocks();
-		setHarvestLevels();
-		registerBlocks();
+		DeimosBlocks.initBlocks();
+		DeimosBlocks.setHarvestLevels();
+		DeimosBlocks.registerBlocks();
 	}
 
 	private static void initBlocks()
 	{
-		DeimosBlocks.deimos_block = new BlockBasicDeimos("deimos_block");
+		DeimosBlocks.deimos_block = new BlockDeimos("deimos_block");
 	}
 
 	private static void setHarvestLevels()

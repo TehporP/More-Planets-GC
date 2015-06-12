@@ -9,11 +9,11 @@ package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 
 public class BlockCookie extends BlockBaseMP
 {
@@ -21,13 +21,12 @@ public class BlockCookie extends BlockBaseMP
 	{
 		super(Material.clay);
 		this.setHardness(1.0F);
-		this.setStepSound(Block.soundTypeGravel);
-		this.setBlockName(name);
-		this.setBlockTextureName("fronos:cookie_block");
+		this.setStepSound(soundTypeGravel);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return Items.cookie;
 	}

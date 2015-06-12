@@ -11,44 +11,43 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockContainerMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.base.BlockContainerMP;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.planets.fronos.tileentities.TileEntityCandyExtractor;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockCandyExtractor extends BlockContainerMP
 {
-	private Random extractorRand = new Random();
 	private boolean isActive;
 	private static boolean keepExtractorInventory;
-
-	private IIcon extractorSide;
-	private IIcon extractorFace;
-	private IIcon extractorTop;
-	private IIcon extractorBottom;
+	public static PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
 
 	public BlockCandyExtractor(String name, boolean active)
 	{
 		super(Material.rock);
 		this.isActive = active;
 		this.setHardness(4.0F);
-		this.setBlockName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(FACING, EnumFacing.NORTH));
+		this.setUnlocalizedName(name);
 
 		if (this.isActive)
 		{
@@ -57,7 +56,7 @@ public class BlockCandyExtractor extends BlockContainerMP
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return Item.getItemFromBlock(FronosBlocks.candy_extractor_idle);
 	}
@@ -73,53 +72,49 @@ public class BlockCandyExtractor extends BlockContainerMP
 	}
 
 	@Override
-	public void onBlockAdded(World world, int par2, int par3, int par4)
+	public int getRenderType()
 	{
-		super.onBlockAdded(world, par2, par3, par4);
-		this.setDefaultDirection(world, par2, par3, par4);
+		return 3;
 	}
 
-	private void setDefaultDirection(World world, int par2, int par3, int par4)
+	@Override
+	public void onBlockAdded(World world, BlockPos pos, IBlockState state)
+	{
+		this.setDefaultFacing(world, pos, state);
+	}
+
+	private void setDefaultFacing(World world, BlockPos pos, IBlockState state)
 	{
 		if (!world.isRemote)
 		{
-			Block l = world.getBlock(par2, par3, par4 - 1);
-			Block i1 = world.getBlock(par2, par3, par4 + 1);
-			Block j1 = world.getBlock(par2 - 1, par3, par4);
-			Block k1 = world.getBlock(par2 + 1, par3, par4);
-			byte b0 = 3;
+			Block block = world.getBlockState(pos.north()).getBlock();
+			Block block1 = world.getBlockState(pos.south()).getBlock();
+			Block block2 = world.getBlockState(pos.west()).getBlock();
+			Block block3 = world.getBlockState(pos.east()).getBlock();
+			EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
 
-			if (l.func_149730_j() && !i1.func_149730_j())
+			if (enumfacing == EnumFacing.NORTH && block.isFullBlock() && !block1.isFullBlock())
 			{
-				b0 = 3;
+				enumfacing = EnumFacing.SOUTH;
 			}
-			if (i1.func_149730_j() && !l.func_149730_j())
+			else if (enumfacing == EnumFacing.SOUTH && block1.isFullBlock() && !block.isFullBlock())
 			{
-				b0 = 2;
+				enumfacing = EnumFacing.NORTH;
 			}
-			if (j1.func_149730_j() && !k1.func_149730_j())
+			else if (enumfacing == EnumFacing.WEST && block2.isFullBlock() && !block3.isFullBlock())
 			{
-				b0 = 5;
+				enumfacing = EnumFacing.EAST;
 			}
-			if (k1.func_149730_j() && !j1.func_149730_j())
+			else if (enumfacing == EnumFacing.EAST && block3.isFullBlock() && !block2.isFullBlock())
 			{
-				b0 = 4;
+				enumfacing = EnumFacing.WEST;
 			}
-			world.setBlockMetadataWithNotify(par2, par3, par4, b0, 2);
+			world.setBlockState(pos, state.withProperty(FACING, enumfacing), 2);
 		}
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
-	{
-		this.extractorBottom = iconRegister.registerIcon("fronos:extractor_bottom");
-		this.extractorTop = iconRegister.registerIcon("fronos:extractor_top");
-		this.extractorSide = iconRegister.registerIcon("fronos:extractor_side");
-		this.extractorFace = iconRegister.registerIcon(this.isActive ? "fronos:extractor_front_on" : "fronos:extractor_front_off");
-	}
-
-	@Override
-	public boolean onBlockActivated(World world, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if (world.isRemote)
 		{
@@ -127,73 +122,72 @@ public class BlockCandyExtractor extends BlockContainerMP
 		}
 		else
 		{
-			TileEntityCandyExtractor tileentityfurnace = (TileEntityCandyExtractor)world.getTileEntity(par2, par3, par4);
+			TileEntity tileentity = world.getTileEntity(pos);
 
-			if (tileentityfurnace != null)
+			if (tileentity instanceof TileEntityCandyExtractor)
 			{
-				par5EntityPlayer.openGui(MorePlanetsCore.instance, -1, world, par2, par3, par4);
+				player.openGui(MorePlanetsCore.instance, -1, world, pos.getX(), pos.getY(), pos.getZ());
 			}
 			return true;
 		}
 	}
 
-	public static void updateExtractorBlockState(boolean par0, World world, int par2, int par3, int par4)
+	public static void setState(boolean active, World world, BlockPos pos)
 	{
-		int l = world.getBlockMetadata(par2, par3, par4);
-		TileEntity tileentity = world.getTileEntity(par2, par3, par4);
-		BlockCandyExtractor.keepExtractorInventory = true;
+		IBlockState state = world.getBlockState(pos);
+		TileEntity tile = world.getTileEntity(pos);
+		keepExtractorInventory = true;
 
-		if (par0)
+		if (active)
 		{
-			world.setBlock(par2, par3, par4, FronosBlocks.candy_extractor_active);
+			world.setBlockState(pos, FronosBlocks.candy_extractor_active.getDefaultState().withProperty(FACING, state.getValue(FACING)), 3);
+			world.setBlockState(pos, FronosBlocks.candy_extractor_active.getDefaultState().withProperty(FACING, state.getValue(FACING)), 3);
 		}
 		else
 		{
-			world.setBlock(par2, par3, par4, FronosBlocks.candy_extractor_idle);
+			world.setBlockState(pos, FronosBlocks.candy_extractor_idle.getDefaultState().withProperty(FACING, state.getValue(FACING)), 3);
+			world.setBlockState(pos, FronosBlocks.candy_extractor_idle.getDefaultState().withProperty(FACING, state.getValue(FACING)), 3);
 		}
 
-		BlockCandyExtractor.keepExtractorInventory = false;
-		world.setBlockMetadataWithNotify(par2, par3, par4, l, 2);
+		keepExtractorInventory = false;
 
-		if (tileentity != null)
+		if (tile != null)
 		{
-			tileentity.validate();
-			world.setTileEntity(par2, par3, par4, tileentity);
+			tile.validate();
+			world.setTileEntity(pos, tile);
 		}
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void randomDisplayTick(World world, int par2, int par3, int par4, Random rand)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
 		if (this.isActive)
 		{
-			int l = world.getBlockMetadata(par2, par3, par4);
-			float f = par2 + 0.5F;
-			float f1 = par3 + 0.0F + rand.nextFloat() * 6.0F / 16.0F;
-			float f2 = par4 + 0.5F;
-			float f3 = 0.52F;
-			float f4 = rand.nextFloat() * 0.6F - 0.3F;
+			EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
+			double d0 = pos.getX() + 0.5D;
+			double d1 = pos.getY() + rand.nextDouble() * 6.0D / 16.0D;
+			double d2 = pos.getZ() + 0.5D;
+			double d3 = 0.52D;
+			double d4 = rand.nextDouble() * 0.6D - 0.3D;
 
-			if (l == 4)
+			switch (SwitchEnumFacing.FACING_LOOKUP[enumfacing.ordinal()])
 			{
-				world.spawnParticle("smoke", f - f3, f1, f2 + f4, 0.0D, 0.0D, 0.0D);
-				MorePlanetsCore.proxy.spawnParticle("blueFlame", f - f3, f1, f2 + f4);
-			}
-			else if (l == 5)
-			{
-				world.spawnParticle("smoke", f + f3, f1, f2 + f4, 0.0D, 0.0D, 0.0D);
-				MorePlanetsCore.proxy.spawnParticle("blueFlame", f + f3, f1, f2 + f4);
-			}
-			else if (l == 2)
-			{
-				world.spawnParticle("smoke", f + f4, f1, f2 - f3, 0.0D, 0.0D, 0.0D);
-				MorePlanetsCore.proxy.spawnParticle("blueFlame", f + f4, f1, f2 - f3);
-			}
-			else if (l == 3)
-			{
-				world.spawnParticle("smoke", f + f4, f1, f2 + f3, 0.0D, 0.0D, 0.0D);
-				MorePlanetsCore.proxy.spawnParticle("blueFlame", f + f4, f1, f2 + f3);
+			case 1:
+				world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d0 - d3, d1, d2 + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.BLUE_FLAME, d0 - d3, d1, d2 + d4);
+				break;
+			case 2:
+				world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d0 + d3, d1, d2 + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.BLUE_FLAME, d0 + d3, d1, d2 + d4);
+				break;
+			case 3:
+				world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d0 + d4, d1, d2 - d3, 0.0D, 0.0D, 0.0D, new int[0]);
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.BLUE_FLAME, d0 + d4, d1, d2 - d3);
+				break;
+			case 4:
+				world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d0 + d4, d1, d2 + d3, 0.0D, 0.0D, 0.0D, new int[0]);
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.BLUE_FLAME, d0 + d4, d1, d2 + d3);
 			}
 		}
 	}
@@ -205,80 +199,31 @@ public class BlockCandyExtractor extends BlockContainerMP
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, int par2, int par3, int par4, EntityLivingBase par5EntityLivingBase, ItemStack par6ItemStack)
+	public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
-		int l = MathHelper.floor_double(par5EntityLivingBase.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
-
-		if (l == 0)
-		{
-			world.setBlockMetadataWithNotify(par2, par3, par4, 2, 2);
-		}
-		if (l == 1)
-		{
-			world.setBlockMetadataWithNotify(par2, par3, par4, 5, 2);
-		}
-		if (l == 2)
-		{
-			world.setBlockMetadataWithNotify(par2, par3, par4, 3, 2);
-		}
-		if (l == 3)
-		{
-			world.setBlockMetadataWithNotify(par2, par3, par4, 4, 2);
-		}
-		if (par6ItemStack.hasDisplayName())
-		{
-			((TileEntityCandyExtractor)world.getTileEntity(par2, par3, par4)).setGuiDisplayName(par6ItemStack.getDisplayName());
-		}
+		return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
 
 	@Override
-	public void breakBlock(World world, int par2, int par3, int par4, Block par5, int par6)
+	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
 	{
-		if (!BlockCandyExtractor.keepExtractorInventory)
+		world.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite()), 2);
+	}
+
+	@Override
+	public void breakBlock(World world, BlockPos pos, IBlockState state)
+	{
+		if (!keepExtractorInventory)
 		{
-			TileEntityCandyExtractor tileentityfurnace = (TileEntityCandyExtractor)world.getTileEntity(par2, par3, par4);
+			TileEntity tileentity = world.getTileEntity(pos);
 
-			if (tileentityfurnace != null)
+			if (tileentity instanceof TileEntityCandyExtractor)
 			{
-				for (int j1 = 0; j1 < tileentityfurnace.getSizeInventory(); ++j1)
-				{
-					ItemStack itemstack = tileentityfurnace.getStackInSlot(j1);
-
-					if (itemstack != null)
-					{
-						float f = this.extractorRand.nextFloat() * 0.8F + 0.1F;
-						float f1 = this.extractorRand.nextFloat() * 0.8F + 0.1F;
-						float f2 = this.extractorRand.nextFloat() * 0.8F + 0.1F;
-
-						while (itemstack.stackSize > 0)
-						{
-							int k1 = this.extractorRand.nextInt(21) + 10;
-
-							if (k1 > itemstack.stackSize)
-							{
-								k1 = itemstack.stackSize;
-							}
-
-							itemstack.stackSize -= k1;
-							EntityItem entityitem = new EntityItem(world, par2 + f, par3 + f1, par4 + f2, new ItemStack(itemstack.getItem(), k1, itemstack.getItemDamage()));
-
-							if (itemstack.hasTagCompound())
-							{
-								entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
-							}
-
-							float f3 = 0.05F;
-							entityitem.motionX = (float)this.extractorRand.nextGaussian() * f3;
-							entityitem.motionY = (float)this.extractorRand.nextGaussian() * f3 + 0.2F;
-							entityitem.motionZ = (float)this.extractorRand.nextGaussian() * f3;
-							world.spawnEntityInWorld(entityitem);
-						}
-					}
-				}
-				world.func_147453_f(par2, par3, par4, par5);
+				InventoryHelper.dropInventoryItems(world, pos, (TileEntityCandyExtractor)tileentity);
+				world.updateComparatorOutputLevel(pos, this);
 			}
 		}
-		super.breakBlock(world, par2, par3, par4, par5, par6);
+		super.breakBlock(world, pos, state);
 	}
 
 	@Override
@@ -288,33 +233,86 @@ public class BlockCandyExtractor extends BlockContainerMP
 	}
 
 	@Override
-	public int getComparatorInputOverride(World world, int par2, int par3, int par4, int par5)
+	public int getComparatorInputOverride(World world, BlockPos pos)
 	{
-		return Container.calcRedstoneFromInventory((IInventory)world.getTileEntity(par2, par3, par4));
+		return Container.calcRedstone(world.getTileEntity(pos));
 	}
 
-	@SideOnly(Side.CLIENT)
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition mov, World world, int par2, int par3, int par4)
+	public ItemStack getPickBlock(MovingObjectPosition mov, World world, BlockPos pos)
 	{
 		return new ItemStack(FronosBlocks.candy_extractor_idle, 1, 0);
 	}
 
 	@Override
-	public IIcon getIcon(int side, int metadata)
+	@SideOnly(Side.CLIENT)
+	public IBlockState getStateForEntityRender(IBlockState state)
 	{
-		if (side == 0)
+		return this.getDefaultState().withProperty(FACING, EnumFacing.SOUTH);
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		EnumFacing enumfacing = EnumFacing.getFront(meta);
+
+		if (enumfacing.getAxis() == EnumFacing.Axis.Y)
 		{
-			return this.extractorBottom;
+			enumfacing = EnumFacing.NORTH;
 		}
-		if (side == 1)
+		return this.getDefaultState().withProperty(FACING, enumfacing);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((EnumFacing)state.getValue(FACING)).getIndex();
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] {FACING});
+	}
+
+	@SideOnly(Side.CLIENT)
+	static class SwitchEnumFacing
+	{
+		static int[] FACING_LOOKUP = new int[EnumFacing.values().length];
+
+		static
 		{
-			return this.extractorTop;
+			try
+			{
+				FACING_LOOKUP[EnumFacing.WEST.ordinal()] = 1;
+			}
+			catch (NoSuchFieldError var4)
+			{
+			}
+
+			try
+			{
+				FACING_LOOKUP[EnumFacing.EAST.ordinal()] = 2;
+			}
+			catch (NoSuchFieldError var3)
+			{
+			}
+
+			try
+			{
+				FACING_LOOKUP[EnumFacing.NORTH.ordinal()] = 3;
+			}
+			catch (NoSuchFieldError var2)
+			{
+			}
+
+			try
+			{
+				FACING_LOOKUP[EnumFacing.SOUTH.ordinal()] = 4;
+			}
+			catch (NoSuchFieldError var1)
+			{
+			}
 		}
-		if (metadata == 2 && side == 2 || metadata == 3 && side == 3 || metadata == 4 && side == 4 || metadata == 5 && side == 5 || metadata == 0 && side == 4)
-		{
-			return this.extractorFace;
-		}
-		return this.extractorSide;
 	}
 }

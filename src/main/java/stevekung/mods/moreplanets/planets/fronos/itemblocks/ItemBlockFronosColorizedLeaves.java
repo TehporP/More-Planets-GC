@@ -9,10 +9,12 @@ package stevekung.mods.moreplanets.planets.fronos.itemblocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockMorePlanet;
-import stevekung.mods.moreplanets.planets.fronos.blocks.BlockColorizedLeaves;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockMorePlanets;
+import stevekung.mods.moreplanets.planets.fronos.blocks.BlockFronosColorizedLeaves;
 
-public class ItemBlockFronosColorizedLeaves extends ItemBlockMorePlanet
+public class ItemBlockFronosColorizedLeaves extends ItemBlockMorePlanets
 {
 	public ItemBlockFronosColorizedLeaves(Block block)
 	{
@@ -26,9 +28,9 @@ public class ItemBlockFronosColorizedLeaves extends ItemBlockMorePlanet
 	}
 
 	@Override
-	public String getUnlocalizedName(ItemStack itemStack)
+	@SideOnly(Side.CLIENT)
+	public int getColorFromItemStack(ItemStack itemStack, int renderPass)
 	{
-		BlockColorizedLeaves block = (BlockColorizedLeaves)this.field_150939_a;
-		return super.getUnlocalizedName() + "." + block.getLeafType(itemStack.getItemDamage());
+		return BlockFronosColorizedLeaves.getLeavesColor();
 	}
 }

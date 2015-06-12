@@ -9,12 +9,15 @@ package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.Random;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
@@ -25,34 +28,34 @@ public class BlockCheeseOfMilkCup extends BlockFilledCup
 	public BlockCheeseOfMilkCup(String name)
 	{
 		super();
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float par7, float par8, float par9)
 	{
-		if (player.isPotionActive(Potion.field_76443_y.id))
+		if (player.isPotionActive(Potion.saturation.id))
 		{
 			return false;
 		}
 		else
 		{
 			player.getFoodStats().addStats(6, 0.6F);
-			player.addPotionEffect(new PotionEffect(Potion.field_76443_y.id, 120, 3));
-			world.setBlock(x, y, z, FronosBlocks.cup, world.getBlockMetadata(x, y, z), 3);
-			world.playSoundEffect(x, y, z, "random.drink", 0.5F, world.rand.nextFloat() * 0.1F + 1.2F);
+			player.addPotionEffect(new PotionEffect(Potion.saturation.id, 120, 3));
+			world.setBlockState(pos, FronosBlocks.cup.getDefaultState().withProperty(FACING, EnumFacing.getFront(this.getMetaFromState(state))), 3);
+			world.playSoundEffect(pos.getX(), pos.getY(), pos.getZ(), "random.drink", 0.5F, world.rand.nextFloat() * 0.1F + 1.2F);
 			return true;
 		}
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return FronosItems.cup;
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
 		return 4;
 	}
@@ -64,7 +67,7 @@ public class BlockCheeseOfMilkCup extends BlockFilledCup
 	}
 
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos)
 	{
 		return new ItemStack(FronosItems.cup, 1, 4);
 	}

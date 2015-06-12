@@ -9,12 +9,16 @@ package stevekung.mods.moreplanets.moons.koentus.blocks;
 
 import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockTorch;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 
 public class BlockWhiteCrystalTorch extends BlockTorch
 {
@@ -23,14 +27,8 @@ public class BlockWhiteCrystalTorch extends BlockTorch
 		super();
 		this.setTickRandomly(true);
 		this.setLightLevel(0.85F);
-		this.setStepSound(Block.soundTypeWood);
-		this.setBlockName(name);
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.blockIcon = par1IconRegister.registerIcon("koentus:white_crystal_torch");
+		this.setStepSound(soundTypeWood);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
@@ -40,34 +38,24 @@ public class BlockWhiteCrystalTorch extends BlockTorch
 	}
 
 	@Override
-	public void randomDisplayTick(World par1World, int par2, int par3, int par4, Random par5Random)
+	@SideOnly(Side.CLIENT)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		int l = par1World.getBlockMetadata(par2, par3, par4);
-		double d0 = par2 + 0.5F;
-		double d1 = par3 + 0.7F;
-		double d2 = par4 + 0.5F;
-		double d3 = 0.2199999988079071D;
-		double d4 = 0.27000001072883606D;
+		EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
+		double d0 = pos.getX() + 0.5D;
+		double d1 = pos.getY() + 0.7D;
+		double d2 = pos.getZ() + 0.5D;
+		double d3 = 0.22D;
+		double d4 = 0.27D;
 
-		if (l == 1)
+		if (enumfacing.getAxis().isHorizontal())
 		{
-			MorePlanetsCore.proxy.spawnParticle("crystalSmoke", d0 - d4, d1 + d3, d2);
-		}
-		else if (l == 2)
-		{
-			MorePlanetsCore.proxy.spawnParticle("crystalSmoke", d0 + d4, d1 + d3, d2);
-		}
-		else if (l == 3)
-		{
-			MorePlanetsCore.proxy.spawnParticle("crystalSmoke", d0, d1 + d3, d2 - d4);
-		}
-		else if (l == 4)
-		{
-			MorePlanetsCore.proxy.spawnParticle("crystalSmoke", d0, d1 + d3, d2 + d4);
+			EnumFacing enumfacing1 = enumfacing.getOpposite();
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.WHITE_CRYSTAL_SMOKE, d0 + d4 * enumfacing1.getFrontOffsetX(), d1 + d3, d2 + d4 * enumfacing1.getFrontOffsetZ());
 		}
 		else
 		{
-			MorePlanetsCore.proxy.spawnParticle("crystalSmoke", d0, d1, d2);
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.WHITE_CRYSTAL_SMOKE, d0, d1, d2);
 		}
 	}
 }

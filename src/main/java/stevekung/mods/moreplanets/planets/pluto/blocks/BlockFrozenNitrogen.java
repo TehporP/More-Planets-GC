@@ -7,66 +7,32 @@
 
 package stevekung.mods.moreplanets.planets.pluto.blocks;
 
-import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockIceMP;
 
-public class BlockFrozenNitrogen extends BlockBreakable
+public class BlockFrozenNitrogen extends BlockIceMP
 {
 	public BlockFrozenNitrogen(String name)
 	{
-		super("pluto:frozen_nitrogen_block", Material.ice, false);
+		super(Material.ice);
 		this.slipperiness = 1.1F;
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 		this.setHardness(4.0F);
 		this.setResistance(8.0F);
 		this.setStepSound(soundTypeGlass);
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public int getRenderBlockPass()
-	{
-		return 1;
-	}
-
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return false;
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int side)
-	{
-		return super.shouldSideBeRendered(world, x, y, z, 1 - side);
-	}
-
-	@Override
-	public int getMobilityFlag()
-	{
-		return 0;
-	}
-
-	@Override
-	public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta)
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity tile)
 	{
 		ItemStack itemStack = player.getCurrentEquippedItem();
 		player.addExhaustion(0.025F);
@@ -78,12 +44,12 @@ public class BlockFrozenNitrogen extends BlockBreakable
 
 			if (world.rand.nextInt(10) == 0)
 			{
-				world.setBlock(x, y, z, PlutoBlocks.liquid_nitrogen);
+				world.setBlockState(pos, PlutoBlocks.liquid_nitrogen.getDefaultState());
 			}
 		}
 		if (itemStack != null && itemStack.getItem() instanceof ItemPickaxe)
 		{
-			this.dropBlockAsItem(world, x, y, z, meta, 0);
+			this.dropBlockAsItem(world, pos, state, 0);
 		}
 	}
 }

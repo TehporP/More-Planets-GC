@@ -10,89 +10,55 @@ package stevekung.mods.moreplanets.planets.fronos.blocks;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.BlockGrassMP;
+import stevekung.mods.moreplanets.common.blocks.BlockGrassMP;
+import stevekung.mods.moreplanets.common.blocks.IFronosGrass;
 
 public class BlockFronosGrass extends BlockGrassMP implements IFronosGrass
 {
-	private IIcon[] fronosGrassIcon;
+	public static PropertyBool HAS_VANILLA_CREAM = PropertyBool.create("vanilla");
 
 	public BlockFronosGrass(String name)
 	{
 		super();
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(HAS_VANILLA_CREAM, false));
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
+	public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
-		this.fronosGrassIcon = new IIcon[7];
-		this.fronosGrassIcon[0] = par1IconRegister.registerIcon("fronos:fronos_dirt");
-		this.fronosGrassIcon[1] = par1IconRegister.registerIcon("fronos:fronos_grass_top");
-		this.fronosGrassIcon[2] = par1IconRegister.registerIcon("fronos:fronos_grass_side");
-		this.fronosGrassIcon[3] = par1IconRegister.registerIcon("fronos:fronos_grass_side");
-		this.fronosGrassIcon[4] = par1IconRegister.registerIcon("fronos:fronos_grass_side");
-		this.fronosGrassIcon[5] = par1IconRegister.registerIcon("fronos:fronos_grass_side");
-		this.fronosGrassIcon[6] = par1IconRegister.registerIcon("fronos:fronos_grass_side_cream");
+		Block block = world.getBlockState(pos.up()).getBlock();
+		return state.withProperty(HAS_VANILLA_CREAM, Boolean.valueOf(block == FronosBlocks.vanilla_cream_layer));
 	}
 
 	@Override
-	public IIcon getIcon(int par1, int par2)
-	{
-		if (par1 < 0 || par1 >= this.fronosGrassIcon.length)
-		{
-			par1 = 1;
-		}
-		return this.fronosGrassIcon[par1];
-	}
-
-	@Override
-	public IIcon getIcon(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
-	{
-		Block block = par1IBlockAccess.getBlock(par2, par3 + 1, par4);
-
-		if (par5 == 1)
-		{
-			return this.fronosGrassIcon[1];
-		}
-		else if (par5 == 0)
-		{
-			return FronosBlocks.fronos_dirt.getBlockTextureFromSide(par5);
-		}
-		else if (par5 == 2 || par5 == 3 || par5 == 4 || par5 == 5)
-		{
-			return block != FronosBlocks.vanilla_cream_layer ? this.fronosGrassIcon[2] : this.fronosGrassIcon[6];
-		}
-		return this.blockIcon;
-	}
-
-	@Override
-	public void updateTick(World world, int par2, int par3, int par4, Random par5Random)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
 		if (!world.isRemote)
 		{
-			if (world.getBlockLightValue(par2, par3 + 1, par4) < 4 && world.getBlockLightOpacity(par2, par3 + 1, par4) > 2)
+			if (world.getLightFromNeighbors(pos.up()) < 4 && world.getBlockLightOpacity(pos.up()) > 2)
 			{
-				world.setBlock(par2, par3, par4, FronosBlocks.fronos_dirt);
+				world.setBlockState(pos, FronosBlocks.fronos_dirt.getDefaultState());
 			}
-			else if (world.getBlockLightValue(par2, par3 + 1, par4) >= 9)
+			else if (world.getLightFromNeighbors(pos.up()) >= 9)
 			{
-				for (int var6 = 0; var6 < 4; ++var6)
+				for (int i = 0; i < 4; ++i)
 				{
-					int var7 = par2 + par5Random.nextInt(3) - 1;
-					int var8 = par3 + par5Random.nextInt(5) - 3;
-					int var9 = par4 + par5Random.nextInt(3) - 1;
-					Block var10 = world.getBlock(var7, var8 + 1, var9);
+					BlockPos pos1 = pos.add(rand.nextInt(3) - 1, rand.nextInt(5) - 3, rand.nextInt(3) - 1);
 
-					if (world.getBlock(var7, var8, var9) == FronosBlocks.fronos_dirt && world.getBlockMetadata(var7, var8, var9) == 0)
+					if (world.getBlockState(pos1) == FronosBlocks.fronos_dirt.getDefaultState())
 					{
-						if (world.getBlockLightValue(var7, var8 + 1, var9) >= 4 && var10.getLightOpacity() <= 2)
+						if (world.getLightFromNeighbors(pos1.up()) >= 4 && world.getBlockState(pos1.up()).getBlock().getLightOpacity() <= 2)
 						{
-							world.setBlock(var7, var8, var9, FronosBlocks.fronos_grass);
+							world.setBlockState(pos1, FronosBlocks.fronos_grass.getDefaultState());
 						}
 					}
 				}
@@ -101,7 +67,7 @@ public class BlockFronosGrass extends BlockGrassMP implements IFronosGrass
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return Item.getItemFromBlock(FronosBlocks.fronos_dirt);
 	}
@@ -110,5 +76,17 @@ public class BlockFronosGrass extends BlockGrassMP implements IFronosGrass
 	public Block getFarmlandBlock()
 	{
 		return FronosBlocks.fronos_farmland;
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] { HAS_VANILLA_CREAM });
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return 0;
 	}
 }

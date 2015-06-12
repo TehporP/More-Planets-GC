@@ -7,188 +7,140 @@
 
 package stevekung.mods.moreplanets.moons.koentus.blocks;
 
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import net.minecraft.util.IStringSerializable;
+import stevekung.mods.moreplanets.common.blocks.BlockLogMP;
 
-public class BlockCrystalLog extends Block
+public class BlockCrystalLog extends BlockLogMP
 {
-	public static enum KoentusLogCategory
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
+
+	public BlockCrystalLog(String name)
 	{
-		CAT1, CAT2, CAT3, CAT4;
-	}
-
-	private static String[] types = new String[] {
-		"crystal",
-	};
-
-	private IIcon[] textures;
-	private IIcon[] logHearts;
-
-	private KoentusLogCategory category;
-
-	public BlockCrystalLog(String name, KoentusLogCategory cat)
-	{
-		super(Material.wood);
-		this.category = cat;
-		this.setHardness(2.0F);
-		this.setResistance(5.0F);
-		this.setStepSound(Block.soundTypeWood);
-		this.setBlockName(name);
+		super();
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.crystal_wood).withProperty(AXIS, EnumAxis.Y));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
+	public IBlockState getStateFromMeta(int meta)
 	{
-		this.textures = new IIcon[BlockCrystalLog.types.length];
-		this.logHearts = new IIcon[BlockCrystalLog.types.length];
+		IBlockState state = this.getDefaultState().withProperty(VARIANT, BlockType.byMetadata(meta & 3));
 
-		for (int i = 0; i < BlockCrystalLog.types.length; ++i)
-		{
-			this.textures[i] = iconRegister.registerIcon("koentus:log_" + BlockCrystalLog.types[i] + "_side");
-			this.logHearts[i] = iconRegister.registerIcon("koentus:log_" + BlockCrystalLog.types[i] + "_top");
-		}
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		int pos = meta & 12;
-
-		if (pos == 0 && (side == 1 || side == 0) || pos == 4 && (side == 5 || side == 4) || pos == 8 && (side == 2 || side == 3))
-		{
-			return this.logHearts[BlockCrystalLog.getTypeFromMeta(meta) + this.category.ordinal() * 4];
-		}
-		else
-		{
-			return this.textures[BlockCrystalLog.getTypeFromMeta(meta) + this.category.ordinal() * 4];
-		}
-	}
-
-	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
-	{
-		if (this.category != KoentusLogCategory.CAT4)
-		{
-			for (int i = 0; i < 1; ++i)
-			{
-				list.add(new ItemStack(this, 1, i));
-			}
-		}
-		else
-		{
-			for (int i = 0; i < 1; ++i)
-			{
-				list.add(new ItemStack(this, 1, i));
-			}
-		}
-	}
-
-	@Override
-	public void breakBlock(World world, int x, int y, int z, Block par5, int par6)
-	{
-		byte radius = 4;
-		int bounds = radius + 1;
-
-		if (world.checkChunksExist(x - bounds, y - bounds, z - bounds, x + bounds, y + bounds, z + bounds))
-		{
-			for (int i = -radius; i <= radius; ++i)
-			{
-				for (int j = -radius; j <= radius; ++j)
-				{
-					for (int k = -radius; k <= radius; ++k)
-					{
-						Block block = world.getBlock(x + i, y + j, z + k);
-
-						if (block != null)
-						{
-							block.beginLeavesDecay(world, x + i, y + j, z + k);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int meta)
-	{
-		int type = BlockCrystalLog.getTypeFromMeta(meta);
-		byte orientation = 0;
-
-		switch (side)
+		switch (meta & 12)
 		{
 		case 0:
-		case 1:
-			orientation = 0;
+			state = state.withProperty(AXIS, EnumAxis.Y);
 			break;
-
-		case 2:
-		case 3:
-			orientation = 8;
-			break;
-
 		case 4:
-		case 5:
-			orientation = 4;
+			state = state.withProperty(AXIS, EnumAxis.X);
 			break;
+		case 8:
+			state = state.withProperty(AXIS, EnumAxis.Z);
+			break;
+		default:
+			state = state.withProperty(AXIS, EnumAxis.NONE);
 		}
-		return type | orientation;
+		return state;
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int getMetaFromState(IBlockState state)
 	{
-		return BlockCrystalLog.getTypeFromMeta(meta);
+		byte b = 0;
+		int i = b | ((BlockType)state.getValue(VARIANT)).getMetadata();
+
+		switch (SwitchEnumAxis.AXIS_LOOKUP[((EnumAxis)state.getValue(AXIS)).ordinal()])
+		{
+		case 1:
+			i |= 4;
+			break;
+		case 2:
+			i |= 8;
+			break;
+		case 3:
+			i |= 12;
+		}
+		return i;
 	}
 
 	@Override
-	protected ItemStack createStackedBlock(int meta)
+	protected BlockState createBlockState()
 	{
-		return new ItemStack(this, 1, BlockCrystalLog.getTypeFromMeta(meta));
+		return new BlockState(this, new IProperty[] { VARIANT, AXIS });
 	}
 
 	@Override
-	public int getRenderType()
+	protected ItemStack createStackedBlock(IBlockState state)
 	{
-		return 31;
+		return new ItemStack(this, 1, ((BlockType)state.getValue(VARIANT)).getMetadata());
 	}
 
 	@Override
-	public boolean canSustainLeaves(IBlockAccess world, int x, int y, int z)
+	public int damageDropped(IBlockState state)
 	{
-		return true;
+		return ((BlockType)state.getValue(VARIANT)).getMetadata();
 	}
 
-	@Override
-	public boolean isWood(IBlockAccess world, int x, int y, int z)
+	public static enum BlockType implements IStringSerializable
 	{
-		return true;
-	}
+		crystal_wood(0, "crystal_wood");
 
-	public String getWoodType(int meta)
-	{
-		return BlockCrystalLog.types[BlockCrystalLog.getTypeFromMeta(meta) & 0];
-	}
+		int meta;
+		private String unlocalizedName;
+		private static BlockType[] META_LOOKUP = new BlockType[values().length];
 
-	private static int getTypeFromMeta(int meta)
-	{
-		return meta & 0;
+		private BlockType(int meta, String unlocalizedName)
+		{
+			this.meta = meta;
+			this.unlocalizedName = unlocalizedName;
+		}
+
+		public int getMetadata()
+		{
+			return this.meta;
+		}
+
+		public String getUnlocalizedName()
+		{
+			return this.unlocalizedName;
+		}
+
+		public static BlockType byMetadata(int meta)
+		{
+			if (meta < 0 || meta >= META_LOOKUP.length)
+			{
+				meta = 0;
+			}
+			return META_LOOKUP[meta];
+		}
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
+
+		static
+		{
+			BlockType[] var0 = values();
+			int var1 = var0.length;
+
+			for (int var2 = 0; var2 < var1; ++var2)
+			{
+				BlockType var3 = var0[var2];
+				META_LOOKUP[var3.getMetadata()] = var3;
+			}
+		}
 	}
 }

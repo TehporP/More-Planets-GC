@@ -9,10 +9,10 @@ package stevekung.mods.moreplanets.planets.nibiru.itemblocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockMorePlanet;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockMorePlanets;
 import stevekung.mods.moreplanets.planets.nibiru.blocks.BlockNibiruLog;
 
-public class ItemBlockNibiruLog extends ItemBlockMorePlanet
+public class ItemBlockNibiruLog extends ItemBlockMorePlanets
 {
 	public ItemBlockNibiruLog(Block block)
 	{
@@ -29,7 +29,6 @@ public class ItemBlockNibiruLog extends ItemBlockMorePlanet
 	@Override
 	public String getUnlocalizedName(ItemStack itemStack)
 	{
-		BlockNibiruLog block = (BlockNibiruLog)this.field_150939_a;
-		return super.getUnlocalizedName() + "." + block.getWoodType(itemStack.getItemDamage()) + "_wood";
+		return super.getUnlocalizedName() + "." + BlockNibiruLog.BlockType.byMetadata(itemStack.getMetadata()).getUnlocalizedName();
 	}
 }

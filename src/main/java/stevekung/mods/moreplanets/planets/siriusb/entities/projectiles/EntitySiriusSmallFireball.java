@@ -8,9 +8,11 @@
 package stevekung.mods.moreplanets.planets.siriusb.entities.projectiles;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -45,51 +47,47 @@ public class EntitySiriusSmallFireball extends EntityFireball
 	}
 
 	@Override
-	protected void onImpact(MovingObjectPosition moving)
+	protected void onImpact(MovingObjectPosition movingObject)
 	{
 		if (!this.worldObj.isRemote)
 		{
-			if (moving.entityHit != null)
+			boolean flag;
+
+			if (movingObject.entityHit != null)
 			{
-				if (!moving.entityHit.isImmuneToFire() && moving.entityHit.attackEntityFrom(DamageSource.causeFireballDamage(this, this.shootingEntity), this.getCanExplode() ? 6.0F : 5.0F))
+				flag = movingObject.entityHit.attackEntityFrom(DamageSource.causeFireballDamage(this, this.shootingEntity), this.getCanExplode() ? 6.0F : 5.0F);
+
+				if (flag)
 				{
-					moving.entityHit.setFire(5);
+					this.func_174815_a(this.shootingEntity, movingObject.entityHit);
+
+					if (!movingObject.entityHit.isImmuneToFire())
+					{
+						movingObject.entityHit.setFire(5);
+					}
 				}
 			}
 			else
 			{
-				int i = moving.blockX;
-				int j = moving.blockY;
-				int k = moving.blockZ;
+				flag = true;
 
-				switch (moving.sideHit)
+				if (this.shootingEntity != null && this.shootingEntity instanceof EntityLiving)
 				{
-				case 0:
-					--j;
-					break;
-				case 1:
-					++j;
-					break;
-				case 2:
-					--k;
-					break;
-				case 3:
-					++k;
-					break;
-				case 4:
-					--i;
-					break;
-				case 5:
-					++i;
+					flag = this.worldObj.getGameRules().getGameRuleBooleanValue("mobGriefing");
 				}
 
-				if (this.worldObj.isAirBlock(i, j, k))
+				if (flag)
 				{
-					this.worldObj.setBlock(i, j, k, SiriusBBlocks.sirius_fire);
-				}
-				if (this.getCanExplode())
-				{
-					this.worldObj.createExplosion((Entity)null, this.posX, this.posY, this.posZ, 4, true);
+					BlockPos blockpos = movingObject.getBlockPos().offset(movingObject.sideHit);
+
+					if (this.worldObj.isAirBlock(blockpos))
+					{
+						this.worldObj.setBlockState(blockpos, SiriusBBlocks.sirius_fire.getDefaultState());
+					}
+					if (this.getCanExplode())
+					{
+						this.worldObj.createExplosion((Entity)null, this.posX, this.posY, this.posZ, 4, true);
+					}
 				}
 			}
 			this.setDead();
@@ -103,9 +101,9 @@ public class EntitySiriusSmallFireball extends EntityFireball
 	}
 
 	@Override
-	public boolean attackEntityFrom(DamageSource p_70097_1_, float p_70097_2_)
+	public boolean attackEntityFrom(DamageSource source, float amount)
 	{
-		if (this.isEntityInvulnerable())
+		if (this.isEntityInvulnerable(source))
 		{
 			return false;
 		}
@@ -115,9 +113,9 @@ public class EntitySiriusSmallFireball extends EntityFireball
 			{
 				this.setBeenAttacked();
 
-				if (p_70097_1_.getEntity() != null)
+				if (source.getEntity() != null)
 				{
-					Vec3 vec3 = p_70097_1_.getEntity().getLookVec();
+					Vec3 vec3 = source.getEntity().getLookVec();
 
 					if (vec3 != null)
 					{
@@ -128,10 +126,9 @@ public class EntitySiriusSmallFireball extends EntityFireball
 						this.accelerationY = this.motionY * 0.1D;
 						this.accelerationZ = this.motionZ * 0.1D;
 					}
-
-					if (p_70097_1_.getEntity() instanceof EntityLivingBase)
+					if (source.getEntity() instanceof EntityLivingBase)
 					{
-						this.shootingEntity = (EntityLivingBase)p_70097_1_.getEntity();
+						this.shootingEntity = (EntityLivingBase)source.getEntity();
 					}
 				}
 				return true;

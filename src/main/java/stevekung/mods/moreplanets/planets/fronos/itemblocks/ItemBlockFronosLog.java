@@ -9,10 +9,10 @@ package stevekung.mods.moreplanets.planets.fronos.itemblocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockMorePlanet;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockMorePlanets;
 import stevekung.mods.moreplanets.planets.fronos.blocks.BlockFronosLog;
 
-public class ItemBlockFronosLog extends ItemBlockMorePlanet
+public class ItemBlockFronosLog extends ItemBlockMorePlanets
 {
 	public ItemBlockFronosLog(Block block)
 	{
@@ -23,13 +23,12 @@ public class ItemBlockFronosLog extends ItemBlockMorePlanet
 	@Override
 	public int getMetadata(int meta)
 	{
-		return meta;
+		return meta & 3;
 	}
 
 	@Override
 	public String getUnlocalizedName(ItemStack itemStack)
 	{
-		BlockFronosLog block = (BlockFronosLog)this.field_150939_a;
-		return super.getUnlocalizedName() + "." + block.getWoodType(itemStack.getItemDamage()) + "_wood";
+		return super.getUnlocalizedName() + "." + BlockFronosLog.BlockType.byMetadata(itemStack.getMetadata()).getUnlocalizedName();
 	}
 }

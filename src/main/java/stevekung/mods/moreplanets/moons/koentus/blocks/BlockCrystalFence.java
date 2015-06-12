@@ -11,22 +11,24 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockCrystalFence extends BlockFence
 {
 	public BlockCrystalFence(String name)
 	{
-		super(name, Material.wood);
+		super(Material.wood);
 		this.setHardness(2.0F);
-		this.setStepSound(Block.soundTypeWood);
-		this.setBlockName(name);
+		this.setResistance(5.0F);
+		this.setStepSound(soundTypeWood);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
@@ -36,7 +38,7 @@ public class BlockCrystalFence extends BlockFence
 	}
 
 	@Override
-	public boolean canPlaceTorchOnTop(World world, int x, int y, int z)
+	public boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos)
 	{
 		return true;
 	}
@@ -48,40 +50,28 @@ public class BlockCrystalFence extends BlockFence
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
 
 	@Override
-	public boolean getBlocksMovement(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
+	public boolean isPassable(IBlockAccess world, BlockPos pos)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean canConnectFenceTo(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
+	public boolean canConnectTo(IBlockAccess world, BlockPos pos)
 	{
-		Block block = par1IBlockAccess.getBlock(par2, par3, par4);
-
-		if (block != this && !(block instanceof BlockFenceGate) && !(block instanceof BlockFence))
-		{
-			return block != null && block.getMaterial().isOpaque() && block.renderAsNormalBlock() ? block.getMaterial() != Material.gourd : false;
-		}
-		return true;
+		Block block = world.getBlockState(pos).getBlock();
+		return block == Blocks.barrier ? false : (!(block instanceof BlockFence) || block.getMaterial() != this.blockMaterial) && !(block instanceof BlockFenceGate) ? block.getMaterial().isOpaque() && block.isFullCube() ? block.getMaterial() != Material.gourd : false : true;
 	}
 
-	@SideOnly(Side.CLIENT)
 	@Override
-	public boolean shouldSideBeRendered(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5)
+	@SideOnly(Side.CLIENT)
+	public boolean shouldSideBeRendered(IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
 		return true;
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.blockIcon = par1IconRegister.registerIcon("koentus:crystal_planks");
 	}
 }

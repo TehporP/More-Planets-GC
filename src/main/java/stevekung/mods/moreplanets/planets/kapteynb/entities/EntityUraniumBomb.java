@@ -10,11 +10,9 @@ package stevekung.mods.moreplanets.planets.kapteynb.entities;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
 import stevekung.mods.moreplanets.planets.kapteynb.world.UraniumExplosion;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class EntityUraniumBomb extends Entity
 {
@@ -27,17 +25,16 @@ public class EntityUraniumBomb extends Entity
 		this.fuse = 400;
 		this.preventEntitySpawning = true;
 		this.setSize(0.98F, 0.98F);
-		this.yOffset = this.height / 2.0F;
 	}
 
 	public EntityUraniumBomb(World world, double x, double y, double z, EntityLivingBase entityLiving)
 	{
 		this(world);
 		this.setPosition(x, y, z);
-		float f = (float)(Math.random() * 3.141592741012573D * 2.0D);
-		this.motionX = -(float)Math.sin(f) * 0.02F;
-		this.motionY = 0.2000000029802322D;
-		this.motionZ = -(float)Math.cos(f) * 0.02F;
+		float f = (float)(Math.random() * Math.PI * 2.0D);
+		this.motionX = -((float)Math.sin(f)) * 0.02F;
+		this.motionY = 0.20000000298023224D;
+		this.motionZ = -((float)Math.cos(f)) * 0.02F;
 		this.fuse = 400;
 		this.prevPosX = x;
 		this.prevPosY = y;
@@ -66,7 +63,6 @@ public class EntityUraniumBomb extends Entity
 		this.prevPosX = this.posX;
 		this.prevPosY = this.posY;
 		this.prevPosZ = this.posZ;
-
 		this.motionY -= 0.03999999910593033D;
 		this.moveEntity(this.motionX, this.motionY, this.motionZ);
 		this.motionX *= 0.9800000190734863D;
@@ -79,6 +75,7 @@ public class EntityUraniumBomb extends Entity
 			this.motionZ *= 0.699999988079071D;
 			this.motionY *= -0.5D;
 		}
+
 		if (this.fuse-- <= 0)
 		{
 			this.setDead();
@@ -90,42 +87,39 @@ public class EntityUraniumBomb extends Entity
 		}
 		else
 		{
-			this.worldObj.spawnParticle("smoke", this.posX, this.posY + 0.5D, this.posZ, 0.0D, 0.0D, 0.0D);
-			MorePlanetsCore.proxy.spawnParticle("uraniumSmoke", this.posX, this.posY + 0.5D, this.posZ);
+			this.handleWaterMovement();
+			this.worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, this.posX, this.posY + 0.5D, this.posZ, 0.0D, 0.0D, 0.0D, new int[0]);
 		}
 	}
 
 	private void explode()
 	{
 		float f = 1000.0F;
-		UraniumExplosion explosion = new UraniumExplosion(this.worldObj, this, this.posX, this.posY, this.posZ, f);
-		explosion.isFlaming = true;
-		explosion.isSmoking = true;
+		UraniumExplosion explosion = new UraniumExplosion(this.worldObj, this, this.posX, this.posY, this.posZ, f, true, true);
 		explosion.doExplosionA();
 		explosion.doExplosionB(true);
 	}
 
 	@Override
-	protected void writeEntityToNBT(NBTTagCompound nbt)
+	protected void writeEntityToNBT(NBTTagCompound tagCompound)
 	{
-		nbt.setInteger("Fuse", this.fuse);
+		tagCompound.setByte("Fuse", (byte)this.fuse);
 	}
 
 	@Override
-	protected void readEntityFromNBT(NBTTagCompound nbt)
+	protected void readEntityFromNBT(NBTTagCompound tagCompund)
 	{
-		this.fuse = nbt.getInteger("Fuse");
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public float getShadowSize()
-	{
-		return 0.0F;
+		this.fuse = tagCompund.getByte("Fuse");
 	}
 
 	public EntityLivingBase getTntPlacedBy()
 	{
 		return this.tntPlacedBy;
+	}
+
+	@Override
+	public float getEyeHeight()
+	{
+		return 0.0F;
 	}
 }

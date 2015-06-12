@@ -18,15 +18,15 @@ import stevekung.mods.moreplanets.planets.polongnius.entities.EntityCheeseSlime;
 
 public class EntityCheeseSpore extends EntityFireball
 {
-	public EntityCheeseSpore(World par1World)
+	public EntityCheeseSpore(World world)
 	{
-		super(par1World);
+		super(world);
 		this.setSize(1.0F, 1.0F);
 	}
 
-	public EntityCheeseSpore(World par1World, EntityLivingBase par2EntityLivingBase, double par3, double par5, double par7)
+	public EntityCheeseSpore(World world, EntityLivingBase living, double x, double y, double z)
 	{
-		super(par1World, par2EntityLivingBase, par3, par5, par7);
+		super(world, living, x, y, z);
 		this.setSize(1.0F, 1.0F);
 	}
 
@@ -37,29 +37,29 @@ public class EntityCheeseSpore extends EntityFireball
 	}
 
 	@Override
-	protected void onImpact(MovingObjectPosition movingObjectPosition)
+	protected void onImpact(MovingObjectPosition moving)
 	{
 		if (!this.worldObj.isRemote)
 		{
-			if (movingObjectPosition.entityHit != null && !(movingObjectPosition.entityHit instanceof EntityCreeper))
+			if (moving.entityHit != null && !(moving.entityHit instanceof EntityCreeper))
 			{
-				movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeFireballDamage(this, this.shootingEntity), 10.0F);
+				moving.entityHit.attackEntityFrom(DamageSource.causeFireballDamage(this, this.shootingEntity), 10.0F);
 			}
-			this.worldObj.newExplosion((Entity) null, this.posX, this.posY, this.posZ, 1.0F, false, this.worldObj.getGameRules().getGameRuleBooleanValue("mobGriefing"));
+			this.worldObj.newExplosion((Entity)null, this.posX, this.posY, this.posZ, 1.0F, false, this.worldObj.getGameRules().getGameRuleBooleanValue("mobGriefing"));
 			this.setDead();
 		}
 		if (this.rand.nextInt(4) == 0)
 		{
 			if (!this.worldObj.isRemote)
 			{
-				byte b0 = 1;
+				byte j = 1;
 
 				if (this.rand.nextInt(16) == 0)
 				{
-					b0 = 4;
+					j = 4;
 				}
 
-				for (int i = 0; i < b0; ++i)
+				for (int i = 0; i < j; ++i)
 				{
 					EntityCheeseSlime slime = new EntityCheeseSlime(this.worldObj);
 					slime.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);

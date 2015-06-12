@@ -9,41 +9,34 @@ package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.Random;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.world.World;
+import stevekung.mods.moreplanets.common.blocks.BlockBreakableMP;
 
-public class BlockCheeseGlass extends BlockBreakable
+public class BlockCheeseGlass extends BlockBreakableMP
 {
 	public BlockCheeseGlass(String name)
 	{
-		super("fronos:cheese_glass", Material.glass, false);
-		this.setBlockName(name);
-		this.setStepSound(Block.soundTypeGlass);
+		super(Material.glass);
+		this.setUnlocalizedName(name);
+		this.setStepSound(soundTypeGlass);
 		this.setHardness(0.3F);
 	}
 
 	@Override
-	public int quantityDropped(Random par1Random)
+	public int quantityDropped(Random rand)
 	{
 		return 0;
 	}
 
 	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
+	public EnumWorldBlockLayer getBlockLayer()
 	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public int getRenderBlockPass()
-	{
-		return 1;
+		return EnumWorldBlockLayer.TRANSLUCENT;
 	}
 
 	@Override
@@ -53,13 +46,13 @@ public class BlockCheeseGlass extends BlockBreakable
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
 
 	@Override
-	protected boolean canSilkHarvest()
+	public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
 	{
 		return true;
 	}

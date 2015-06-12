@@ -12,10 +12,12 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -26,39 +28,39 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IShearable;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBreakableMP;
 import stevekung.mods.moreplanets.core.init.MPPotions;
 import stevekung.mods.moreplanets.planets.kapteynb.items.armor.KapteynBArmorItems;
 import stevekung.mods.moreplanets.planets.kapteynb.tileentities.TileEntityUraniumWaste;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockUraniumWaste extends BlockBreakable implements IShearable, ITileEntityProvider
+public class BlockUraniumWaste extends BlockBreakableMP implements IShearable, ITileEntityProvider
 {
-	private IIcon[] uraniumWasteIcon = new IIcon[2];
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockUraniumWaste(String name)
 	{
-		super(name, Material.plants, false);
-		this.setBlockName(name);
-		this.setStepSound(Block.soundTypeGrass);
+		super(Material.plants);
+		this.setUnlocalizedName(name);
+		this.setStepSound(soundTypeGrass);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.uranium_waste));
 		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.05F, 1.0F);
 	}
 
 	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
+	public int getLightValue(IBlockAccess world, BlockPos pos)
 	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
+		IBlockState state = world.getBlockState(pos);
 
-	@Override
-	public int getLightValue(IBlockAccess world, int x, int y, int z)
-	{
-		if (world.getBlockMetadata(x, y, z) == 0)
+		if (state == state.withProperty(VARIANT, BlockType.uranium_waste))
 		{
 			return 8;
 		}
@@ -69,13 +71,25 @@ public class BlockUraniumWaste extends BlockBreakable implements IShearable, ITi
 	}
 
 	@Override
-	public boolean canSilkHarvest()
+	public int quantityDropped(IBlockState state, int fortune, Random rand)
+	{
+		return 0;
+	}
+
+	@Override
+	public EnumWorldBlockLayer getBlockLayer()
+	{
+		return EnumWorldBlockLayer.CUTOUT;
+	}
+
+	@Override
+	public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
 	{
 		return true;
 	}
 
 	@Override
-	public boolean isReplaceable(IBlockAccess world, int x, int y, int z)
+	public boolean isReplaceable(World world, BlockPos pos)
 	{
 		return true;
 	}
@@ -87,22 +101,9 @@ public class BlockUraniumWaste extends BlockBreakable implements IShearable, ITi
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
-	}
-
-	@Override
-	public int quantityDropped(int meta, int fortune, Random rand)
-	{
-		return 0;
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.uraniumWasteIcon[0] = par1IconRegister.registerIcon("kapteynb:uranium_waste");
-		this.uraniumWasteIcon[1] = par1IconRegister.registerIcon("kapteynb:uranium_waste_inactive");
 	}
 
 	@Override
@@ -111,58 +112,48 @@ public class BlockUraniumWaste extends BlockBreakable implements IShearable, ITi
 	{
 		for (int i = 0; i < 2; ++i)
 		{
-			list.add(new ItemStack(item, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public IIcon getIcon(int side, int meta)
+	public int damageDropped(IBlockState state)
 	{
-		return this.uraniumWasteIcon[meta];
+		return this.getMetaFromState(state);
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random random, int par3)
+	public boolean canPlaceBlockAt(World world, BlockPos pos)
 	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public int damageDropped(int meta)
-	{
-		return meta;
-	}
-
-	@Override
-	public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
-	{
-		Block block = par1World.getBlock(par2, par3 - 1, par4);
+		Block block = world.getBlockState(pos.down()).getBlock();
 
 		if (block == null)
 		{
 			return false;
 		}
-		if (!block.isLeaves(par1World, par2, par3 - 1, par4) && !block.isOpaqueCube())
+		if (!block.isLeaves(world, pos.down()) && !block.isOpaqueCube())
 		{
 			return false;
 		}
-		return par1World.getBlock(par2, par3 - 1, par4).getMaterial().blocksMovement();
+		return world.getBlockState(pos.down()).getBlock().getMaterial().blocksMovement();
 	}
 
 	@Override
-	public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta)
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity tile)
 	{
+		super.harvestBlock(world, player, pos, state, tile);
+		BlockType type = (BlockType)state.getValue(VARIANT);
 		ItemStack equippedItem = player.getCurrentEquippedItem();
 
 		if (equippedItem != null)
 		{
 			if (equippedItem.getItem() != Items.shears)
 			{
-				if (meta == 0)
+				if (type == BlockType.uranium_waste)
 				{
 					player.addPotionEffect(new PotionEffect(MPPotions.chemical.id, 100));
 				}
-				else if (meta == 1)
+				if (type == BlockType.inactive_uranium_waste)
 				{
 					return;
 				}
@@ -170,11 +161,11 @@ public class BlockUraniumWaste extends BlockBreakable implements IShearable, ITi
 		}
 		else
 		{
-			if (meta == 0)
+			if (type == BlockType.uranium_waste)
 			{
 				player.addPotionEffect(new PotionEffect(MPPotions.chemical.id, 100));
 			}
-			else if (meta == 1)
+			if (type == BlockType.inactive_uranium_waste)
 			{
 				return;
 			}
@@ -182,17 +173,16 @@ public class BlockUraniumWaste extends BlockBreakable implements IShearable, ITi
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block par5)
 	{
-		this.canBlockStay(par1World, par2, par3, par4);
+		this.checkForDrop(world, pos, state);
 	}
 
-	@Override
-	public boolean canBlockStay(World par1World, int par2, int par3, int par4)
+	private boolean checkForDrop(World world, BlockPos pos, IBlockState state)
 	{
-		if (!this.canPlaceBlockAt(par1World, par2, par3, par4))
+		if (!this.canBlockStay(world, pos))
 		{
-			par1World.setBlockToAir(par2, par3, par4);
+			world.setBlockToAir(pos);
 			return false;
 		}
 		else
@@ -201,10 +191,15 @@ public class BlockUraniumWaste extends BlockBreakable implements IShearable, ITi
 		}
 	}
 
-	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	private boolean canBlockStay(World world, BlockPos pos)
 	{
-		TileEntity tile = world.getTileEntity(x, y, z);
+		return !world.isAirBlock(pos.down());
+	}
+
+	@Override
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
+	{
+		TileEntity tile = world.getTileEntity(pos);
 
 		if (tile instanceof TileEntityUraniumWaste)
 		{
@@ -237,28 +232,22 @@ public class BlockUraniumWaste extends BlockBreakable implements IShearable, ITi
 	}
 
 	@Override
-	public Item getItem(World par1World, int par2, int par3, int par4)
+	public ItemStack getPickBlock(MovingObjectPosition moving, World world, BlockPos pos)
 	{
-		return Item.getItemFromBlock(this);
+		return new ItemStack(this, 1, this.getMetaFromState(world.getBlockState(pos)));
 	}
 
 	@Override
-	public int getDamageValue(World world, int x, int y, int z)
-	{
-		return world.getBlockMetadata(x, y, z);
-	}
-
-	@Override
-	public boolean isShearable(ItemStack item, IBlockAccess world, int x, int y, int z)
+	public boolean isShearable(ItemStack item, IBlockAccess world, BlockPos pos)
 	{
 		return true;
 	}
 
 	@Override
-	public ArrayList<ItemStack> onSheared(ItemStack item, IBlockAccess world, int x, int y, int z, int fortune)
+	public ArrayList<ItemStack> onSheared(ItemStack item, IBlockAccess world, BlockPos pos, int fortune)
 	{
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-		ret.add(new ItemStack(this, 1, world.getBlockMetadata(x, y, z)));
+		ret.add(new ItemStack(this, 1, this.getMetaFromState(world.getBlockState(pos))));
 		return ret;
 	}
 
@@ -272,11 +261,47 @@ public class BlockUraniumWaste extends BlockBreakable implements IShearable, ITi
 		return null;
 	}
 
-	public static void updateBlockState(boolean flag, World world, int x, int y, int z)
+	public static void updateState(boolean flag, World world, BlockPos pos)
 	{
 		if (flag)
 		{
-			world.setBlock(x, y, z, KapteynBBlocks.uranium_waste, 1, 3);
+			world.setBlockState(pos, KapteynBBlocks.uranium_waste.getDefaultState().withProperty(VARIANT, BlockType.inactive_uranium_waste), 3);
+		}
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		uranium_waste,
+		inactive_uranium_waste;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
 		}
 	}
 }

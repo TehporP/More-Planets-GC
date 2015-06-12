@@ -9,79 +9,53 @@ package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.Random;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockOysterMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 import stevekung.mods.moreplanets.planets.fronos.tileentities.TileEntitySpaceOysterOpen;
 
-public class BlockSpaceOysterOpen extends BlockBaseMP implements ITileEntityProvider
+public class BlockSpaceOysterOpen extends BlockOysterMP
 {
 	public BlockSpaceOysterOpen(String name)
 	{
-		super(Material.plants);
-		this.setHardness(0.6F);
-		this.setBlockBounds(0.225F, 0.0F, 0.225F, 0.775F, 0.275F, 0.775F);
-		this.setTickRandomly(true);
-		this.setBlockName(name);
-		this.setBlockTextureName("fronos:oyster");
+		super();
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public int getRenderType()
-	{
-		return MorePlanetsCore.proxy.getBlockRender(this);
-	}
-
-	@Override
-	public boolean isOpaqueCube()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return false;
-	}
-
-	@Override
-	public int getLightValue(IBlockAccess world, int x, int y, int z)
+	public int getLightValue(IBlockAccess world, BlockPos pos)
 	{
 		return 4;
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
-	{
-		this.canBlockStay(par1World, par2, par3, par4);
-	}
-
-	@Override
-	public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+	@SideOnly(Side.CLIENT)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
 		if (rand.nextInt(1) == 0)
 		{
-			MorePlanetsCore.proxy.spawnParticle("goldDust", x + rand.nextFloat(), y + 0.15F, z + rand.nextFloat());
+			MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.GOLDEN_DUST, pos.getX() + rand.nextFloat(), pos.getY() + 0.15F, pos.getZ() + rand.nextFloat());
 		}
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float par7, float par8, float par9)
 	{
-		world.setBlock(x, y, z, FronosBlocks.space_oyster_close, world.getBlockMetadata(x, y, z), 3);
-		EntityItem entityitem = new EntityItem(world, x, y, z, new ItemStack(FronosItems.pearl, 1, 0));
+		world.setBlockState(pos, FronosBlocks.space_oyster_close.getDefaultState().withProperty(FACING, EnumFacing.getFront(this.getMetaFromState(state))), 3);
+		EntityItem entityitem = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(FronosItems.pearl, 1, 0));
 
 		if (!world.isRemote && world.rand.nextInt(20) == 0)
 		{
@@ -91,40 +65,9 @@ public class BlockSpaceOysterOpen extends BlockBaseMP implements ITileEntityProv
 	}
 
 	@Override
-	public boolean canBlockStay(World par1World, int par2, int par3, int par4)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
-		if (!this.canPlaceBlockAt(par1World, par2, par3, par4))
-		{
-			this.dropBlockAsItem(par1World, par2, par3, par4, par1World.getBlockMetadata(par2, par3, par4), 0);
-			par1World.setBlockToAir(par2, par3, par4);
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-
-	@Override
-	public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
-	{
-		Block block = par1World.getBlock(par2, par3 - 1, par4);
-
-		if (block == null)
-		{
-			return false;
-		}
-		if (!block.isLeaves(par1World, par2, par3 - 1, par4) && !block.isOpaqueCube())
-		{
-			return false;
-		}
-		return par1World.getBlock(par2, par3 - 1, par4).getMaterial().blocksMovement();
-	}
-
-	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
-	{
-		if (par2Random.nextInt(20) == 0)
+		if (rand.nextInt(20) == 0)
 		{
 			return FronosItems.pearl;
 		}
@@ -132,33 +75,9 @@ public class BlockSpaceOysterOpen extends BlockBaseMP implements ITileEntityProv
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
 		return 0;
-	}
-
-	@Override
-	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entityLiving, ItemStack itemStack)
-	{
-		int angle = MathHelper.floor_double(entityLiving.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
-		byte change = 0;
-
-		switch (angle)
-		{
-		case 0:
-			change = 0;
-			break;
-		case 1:
-			change = 3;
-			break;
-		case 2:
-			change = 1;
-			break;
-		case 3:
-			change = 2;
-			break;
-		}
-		world.setBlockMetadataWithNotify(x, y, z, change, 3);
 	}
 
 	@Override

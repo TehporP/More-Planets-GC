@@ -7,18 +7,20 @@
 
 package stevekung.mods.moreplanets.planets.diona.blocks;
 
+import java.util.Iterator;
+
 import net.minecraft.block.Block;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryLargeChest;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import stevekung.mods.moreplanets.core.blocks.BlockAncientChestMP;
+import stevekung.mods.moreplanets.common.blocks.BlockAncientChestMP;
 import stevekung.mods.moreplanets.planets.diona.entities.EntityDionaMinionCreeper;
 import stevekung.mods.moreplanets.planets.diona.tileentities.TileEntityDionaAncientChest;
 
@@ -27,171 +29,126 @@ public class BlockDionaAncientChest extends BlockAncientChestMP
 	public BlockDionaAncientChest(String name)
 	{
 		super();
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock)
 	{
-		super.onNeighborBlockChange(par1World, par2, par3, par4, par5);
-		TileEntityDionaAncientChest tileentitychest = (TileEntityDionaAncientChest)par1World.getTileEntity(par2, par3, par4);
+		super.onNeighborBlockChange(world, pos, state, neighborBlock);
+		TileEntity tileentity = world.getTileEntity(pos);
 
-		if (tileentitychest != null)
+		if (tileentity instanceof TileEntityDionaAncientChest)
 		{
-			tileentitychest.updateContainingBlockInfo();
+			tileentity.updateContainingBlockInfo();
 		}
 	}
 
 	@Override
-	public void breakBlock(World par1World, int par2, int par3, int par4, Block par5, int par6)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		TileEntityDionaAncientChest tileentitychest = (TileEntityDionaAncientChest)par1World.getTileEntity(par2, par3, par4);
-
-		if (tileentitychest != null)
-		{
-			for (int j1 = 0; j1 < tileentitychest.getSizeInventory(); ++j1)
-			{
-				ItemStack itemstack = tileentitychest.getStackInSlot(j1);
-
-				if (itemstack != null)
-				{
-					float f = this.random.nextFloat() * 0.8F + 0.1F;
-					float f1 = this.random.nextFloat() * 0.8F + 0.1F;
-					EntityItem entityitem;
-
-					for (float f2 = this.random.nextFloat() * 0.8F + 0.1F; itemstack.stackSize > 0; par1World.spawnEntityInWorld(entityitem))
-					{
-						int k1 = this.random.nextInt(21) + 10;
-
-						if (k1 > itemstack.stackSize)
-						{
-							k1 = itemstack.stackSize;
-						}
-
-						itemstack.stackSize -= k1;
-						entityitem = new EntityItem(par1World, par2 + f, par3 + f1, par4 + f2, new ItemStack(itemstack.getItem(), k1, itemstack.getItemDamage()));
-						float f3 = 0.05F;
-						entityitem.motionX = (float)this.random.nextGaussian() * f3;
-						entityitem.motionY = (float)this.random.nextGaussian() * f3 + 0.2F;
-						entityitem.motionZ = (float)this.random.nextGaussian() * f3;
-
-						if (itemstack.hasTagCompound())
-						{
-							entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
-						}
-					}
-				}
-			}
-			par1World.func_147453_f(par2, par3, par4, par5);
-		}
-		super.breakBlock(par1World, par2, par3, par4, par5, par6);
-	}
-
-	@Override
-	public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer player, int par6, float par7, float par8, float par9)
-	{
-		if (par1World.isRemote)
+		if (world.isRemote)
 		{
 			return true;
 		}
-		else if (par1World.rand.nextInt(10) == 0 && !player.capabilities.isCreativeMode)
+		else if (world.rand.nextInt(10) == 0 && !player.capabilities.isCreativeMode)
 		{
-			if (!par1World.isRemote)
+			if (!world.isRemote)
 			{
-				EntityDionaMinionCreeper creeper = new EntityDionaMinionCreeper(par1World);
-				creeper.setPosition(par2 + 0.5, par3 + 2, par4 + 0.5);
-				par1World.spawnEntityInWorld(creeper);
+				EntityDionaMinionCreeper creeper = new EntityDionaMinionCreeper(world);
+				creeper.setPosition(pos.getX() + 0.5, pos.getY() + 2, pos.getZ() + 0.5);
+				world.spawnEntityInWorld(creeper);
 			}
 		}
 		else
 		{
-			IInventory iinventory = this.getInventory(par1World, par2, par3, par4);
+			ILockableContainer lock = this.getLockableContainer(world, pos);
 
-			if (iinventory != null)
+			if (lock != null)
 			{
-				player.displayGUIChest(iinventory);
+				player.displayGUIChest(lock);
 			}
 		}
 		return true;
 	}
 
-	public IInventory getInventory(World par1World, int par2, int par3, int par4)
+	public ILockableContainer getLockableContainer(World world, BlockPos pos)
 	{
-		Object object = par1World.getTileEntity(par2, par3, par4);
+		TileEntity tileentity = world.getTileEntity(pos);
 
-		if (object == null)
-		{
-			return null;
-		}
-		else if (par1World.isSideSolid(par2, par3 + 1, par4, ForgeDirection.DOWN))
-		{
-			return null;
-		}
-		else if (par1World.getBlock(par2 - 1, par3, par4) == this && par1World.isSideSolid(par2 - 1, par3 + 1, par4, ForgeDirection.DOWN))
-		{
-			return null;
-		}
-		else if (par1World.getBlock(par2 + 1, par3, par4) == this && par1World.isSideSolid(par2 + 1, par3 + 1, par4, ForgeDirection.DOWN))
-		{
-			return null;
-		}
-		else if (par1World.getBlock(par2, par3, par4 - 1) == this && par1World.isSideSolid(par2, par3 + 1, par4 - 1, ForgeDirection.DOWN))
-		{
-			return null;
-		}
-		else if (par1World.getBlock(par2, par3, par4 + 1) == this && par1World.isSideSolid(par2, par3 + 1, par4 + 1, ForgeDirection.DOWN))
+		if (!(tileentity instanceof TileEntityDionaAncientChest))
 		{
 			return null;
 		}
 		else
 		{
-			if (par1World.getBlock(par2 - 1, par3, par4) == this)
-			{
-				object = new InventoryLargeChest(StatCollector.translateToLocal("container.diona.ancientchest.name"), (TileEntityDionaAncientChest)par1World.getTileEntity(par2 - 1, par3, par4), (IInventory)object);
-			}
+			Object object = tileentity;
 
-			if (par1World.getBlock(par2 + 1, par3, par4) == this)
+			if (this.isBlocked(world, pos))
 			{
-				object = new InventoryLargeChest(StatCollector.translateToLocal("container.diona.ancientchest.name"), (IInventory)object, (TileEntityDionaAncientChest)par1World.getTileEntity(par2 + 1, par3, par4));
+				return null;
 			}
+			else
+			{
+				Iterator iterator = EnumFacing.Plane.HORIZONTAL.iterator();
 
-			if (par1World.getBlock(par2, par3, par4 - 1) == this)
-			{
-				object = new InventoryLargeChest(StatCollector.translateToLocal("container.diona.ancientchest.name"), (TileEntityDionaAncientChest)par1World.getTileEntity(par2, par3, par4 - 1), (IInventory)object);
-			}
+				while (iterator.hasNext())
+				{
+					EnumFacing enumfacing = (EnumFacing)iterator.next();
+					BlockPos blockpos1 = pos.offset(enumfacing);
+					Block block = world.getBlockState(blockpos1).getBlock();
 
-			if (par1World.getBlock(par2, par3, par4 + 1) == this)
-			{
-				object = new InventoryLargeChest(StatCollector.translateToLocal("container.diona.ancientchest.name"), (IInventory)object, (TileEntityDionaAncientChest)par1World.getTileEntity(par2, par3, par4 + 1));
+					if (block == this)
+					{
+						if (this.isBlocked(world, blockpos1))
+						{
+							return null;
+						}
+
+						TileEntity tileentity1 = world.getTileEntity(blockpos1);
+
+						if (tileentity1 instanceof TileEntityDionaAncientChest)
+						{
+							if (enumfacing != EnumFacing.WEST && enumfacing != EnumFacing.NORTH)
+							{
+								object = new InventoryLargeChest(StatCollector.translateToLocal("container.diona.ancientchest.name"), (ILockableContainer)object, (TileEntityDionaAncientChest)tileentity1);
+							}
+							else
+							{
+								object = new InventoryLargeChest(StatCollector.translateToLocal("container.diona.ancientchest.name"), (TileEntityDionaAncientChest)tileentity1, (ILockableContainer)object);
+							}
+						}
+					}
+				}
+				return (ILockableContainer)object;
 			}
-			return (IInventory)object;
 		}
 	}
 
 	@Override
-	public void onBlockDestroyedByPlayer(World world, int par2, int par3, int par4, int par5)
+	public void onBlockDestroyedByPlayer(World world, BlockPos pos, IBlockState state)
 	{
 		if (world.rand.nextInt(10) == 0)
 		{
 			if (!world.isRemote)
 			{
 				EntityDionaMinionCreeper creeper = new EntityDionaMinionCreeper(world);
-				creeper.setPosition(par2 + 0.5, par3 + 2, par4 + 0.5);
+				creeper.setPosition(pos.getX() + 0.5, pos.getY() + 2, pos.getZ() + 0.5);
 				world.spawnEntityInWorld(creeper);
 			}
 		}
-		super.onBlockDestroyedByPlayer(world, par2, par3, par4, par5);
-	}
-
-	@Override
-	public String chestTexture()
-	{
-		return "diona:diona_ancient_chest";
+		super.onBlockDestroyedByPlayer(world, pos, state);
 	}
 
 	@Override
 	public TileEntity getChestTile()
 	{
 		return new TileEntityDionaAncientChest();
+	}
+
+	@Override
+	public int getComparatorInputOverride(World world, BlockPos pos)
+	{
+		return Container.calcRedstoneFromInventory(this.getLockableContainer(world, pos));
 	}
 }

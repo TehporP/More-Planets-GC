@@ -10,6 +10,7 @@ package stevekung.mods.moreplanets.planets.siriusb.items;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import stevekung.mods.moreplanets.common.items.ItemMorePlanets;
 import stevekung.mods.moreplanets.planets.siriusb.blocks.SiriusBBlocks;
 import stevekung.mods.stevecore.RegisterHelper;
 
@@ -31,12 +32,12 @@ public class SiriusBItems
 
 	private static void initItems()
 	{
-		SiriusBItems.sirius_b_item = new ItemBasicSiriusB("sirius-b_item");
-		SiriusBItems.sirius_b_dungeon_key = new ItemSiriusBDungeonKey("sirius-b_dungeon_key");
+		SiriusBItems.sirius_b_item = new ItemSiriusB("sirius_b_item");
+		SiriusBItems.sirius_b_dungeon_key = new ItemSiriusBDungeonKey("sirius_b_dungeon_key");
 		SiriusBItems.sirius_fire_charge = new ItemSiriusFireCharge("sirius_fire_charge");
-		SiriusBItems.sirius_obsidian_bucket = new ItemSiriusObsidianBucket(Blocks.air, "sirius_obsidian_bucket", "siriusb:sirius_obsidian_bucket");
-		SiriusBItems.sirius_lava_bucket = new ItemSiriusObsidianBucket(SiriusBBlocks.sirius_lava, "sirius_lava_bucket", "siriusb:sirius_lava_bucket");
-		SiriusBItems.sirius_glowstone_dust = new ItemSiriusGlowstoneDust("sirius_glowstone_dust");
+		SiriusBItems.sirius_obsidian_bucket = new ItemSiriusObsidianBucket("sirius_obsidian_bucket", Blocks.air);
+		SiriusBItems.sirius_lava_bucket = new ItemSiriusObsidianBucket("sirius_lava_bucket", SiriusBBlocks.sirius_lava);
+		SiriusBItems.sirius_glowstone_dust = new ItemMorePlanets("sirius_glowstone_dust");
 	}
 
 	private static void registerItems()

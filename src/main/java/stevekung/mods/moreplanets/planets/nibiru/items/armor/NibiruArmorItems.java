@@ -22,12 +22,12 @@ public class NibiruArmorItems
 	public static Item norium_chestplate;
 	public static Item norium_leggings;
 	public static Item norium_boots;
-	public static Item breathable_red_gem_helmet;
-	public static Item breathable_norium_helmet;
+	//	public static Item breathable_red_gem_helmet;
+	//	public static Item breathable_norium_helmet;
 
-	/**Name,Durability,ReductionAmounts[Helm,Chest,Leg,Boot],Enchantability**/
-	public static ArmorMaterial red_gem = EnumHelper.addArmorMaterial("red_gem", 40, new int[] { 10, 14, 11, 6 }, 16);
-	public static ArmorMaterial norium = EnumHelper.addArmorMaterial("norium", 40, new int[] { 10, 14, 11, 8 }, 16);
+	// Name,Durability,ReductionAmounts[Helm,Chest,Leg,Boot],Enchantability
+	public static ArmorMaterial red_gem = EnumHelper.addArmorMaterial("red_gem", "red_gem", 40, new int[] { 10, 14, 11, 6 }, 16);
+	public static ArmorMaterial norium = EnumHelper.addArmorMaterial("norium", "norium", 40, new int[] { 10, 14, 11, 8 }, 16);
 
 	public static void init()
 	{
@@ -45,8 +45,8 @@ public class NibiruArmorItems
 		NibiruArmorItems.norium_chestplate = new ArmorNorium("norium_chestplate", NibiruArmorItems.norium, 7, 1);
 		NibiruArmorItems.norium_leggings = new ArmorNorium("norium_leggings", NibiruArmorItems.norium, 7, 2);
 		NibiruArmorItems.norium_boots = new ArmorNorium("norium_boots", NibiruArmorItems.norium, 7, 3);
-		NibiruArmorItems.breathable_red_gem_helmet = new ArmorBreathableRedGem("breathable_red_gem_helmet", NibiruArmorItems.red_gem, 7, 0);
-		NibiruArmorItems.breathable_norium_helmet = new ArmorBreathableNorium("breathable_norium_helmet", NibiruArmorItems.norium, 7, 0);
+		//		NibiruArmorItems.breathable_red_gem_helmet = new ArmorBreathableRedGem("breathable_red_gem_helmet", NibiruArmorItems.red_gem, 7, 0);
+		//		NibiruArmorItems.breathable_norium_helmet = new ArmorBreathableNorium("breathable_norium_helmet", NibiruArmorItems.norium, 7, 0);
 	}
 
 	private static void registerItems()
@@ -59,7 +59,7 @@ public class NibiruArmorItems
 		RegisterHelper.registerItem(NibiruArmorItems.norium_chestplate);
 		RegisterHelper.registerItem(NibiruArmorItems.norium_leggings);
 		RegisterHelper.registerItem(NibiruArmorItems.norium_boots);
-		RegisterHelper.registerItem(NibiruArmorItems.breathable_red_gem_helmet);
-		RegisterHelper.registerItem(NibiruArmorItems.breathable_norium_helmet);
+		//		RegisterHelper.registerItem(NibiruArmorItems.breathable_red_gem_helmet);
+		//		RegisterHelper.registerItem(NibiruArmorItems.breathable_norium_helmet);
 	}
 }

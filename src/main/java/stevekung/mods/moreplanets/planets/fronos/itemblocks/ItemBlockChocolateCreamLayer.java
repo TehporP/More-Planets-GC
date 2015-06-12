@@ -8,13 +8,17 @@
 package stevekung.mods.moreplanets.planets.fronos.itemblocks;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockMorePlanet;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockMorePlanets;
+import stevekung.mods.moreplanets.planets.fronos.blocks.BlockCreamLayer;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
 
-public class ItemBlockChocolateCreamLayer extends ItemBlockMorePlanet
+public class ItemBlockChocolateCreamLayer extends ItemBlockMorePlanets
 {
 	public ItemBlockChocolateCreamLayer(Block block)
 	{
@@ -22,32 +26,52 @@ public class ItemBlockChocolateCreamLayer extends ItemBlockMorePlanet
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float par8, float par9, float par10)
+	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if (itemStack.stackSize == 0)
 		{
 			return false;
 		}
-		else if (!player.canPlayerEdit(x, y, z, side, itemStack))
+		else if (!player.canPlayerEdit(pos, side, itemStack))
 		{
 			return false;
 		}
 		else
 		{
-			Block block = world.getBlock(x, y, z);
+			IBlockState state = world.getBlockState(pos);
+			Block block = state.getBlock();
 
-			if (block == FronosBlocks.chocolate_cream_layer)
+			if (block != this.block && side != EnumFacing.UP)
 			{
-				int meta = world.getBlockMetadata(x, y, z) & 7;
+				pos = pos.offset(side);
+				state = world.getBlockState(pos);
+				block = state.getBlock();
+			}
 
-				if (meta <= 6 && world.checkNoEntityCollision(block.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlockMetadataWithNotify(x, y, z, meta + 1 | meta & -8, 2))
+			if (block == this.block)
+			{
+				int i = ((Integer)state.getValue(BlockCreamLayer.LAYERS)).intValue();
+
+				if (i <= 7)
 				{
-					world.playSoundEffect(x + 0.5F, y + 0.5F, z + 0.5F, block.stepSound.getStepResourcePath(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
-					--itemStack.stackSize;
-					return true;
+					IBlockState state1 = state.withProperty(BlockCreamLayer.LAYERS, Integer.valueOf(i + 1));
+
+					if (world.checkNoEntityCollision(this.block.getCollisionBoundingBox(world, pos, state1)) && world.setBlockState(pos, state1, 2))
+					{
+						world.playSoundEffect(pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, this.block.stepSound.getPlaceSound(), (this.block.stepSound.getVolume() + 1.0F) / 2.0F, this.block.stepSound.getFrequency() * 0.8F);
+						--itemStack.stackSize;
+						return true;
+					}
 				}
 			}
-			return super.onItemUse(itemStack, player, world, x, y, z, side, par8, par9, par10);
+			return super.onItemUse(itemStack, player, world, pos, side, hitX, hitY, hitZ);
 		}
+	}
+
+	@Override
+	public boolean canPlaceBlockOnSide(World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)
+	{
+		IBlockState state = world.getBlockState(pos);
+		return state.getBlock() != FronosBlocks.chocolate_cream_layer || (Integer)state.getValue(BlockCreamLayer.LAYERS) > 7 ? super.canPlaceBlockOnSide(world, pos, side, player, stack) : true;
 	}
 }

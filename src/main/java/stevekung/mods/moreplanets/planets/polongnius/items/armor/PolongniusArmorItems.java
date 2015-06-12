@@ -30,14 +30,14 @@ public class PolongniusArmorItems
 	public static Item purple_crystal_chestplate;
 	public static Item purple_crystal_leggings;
 	public static Item purple_crystal_boots;
-	public static Item breathable_polongnius_meteor_helmet;
-	public static Item breathable_palladium_helmet;
+	//	public static Item breathable_polongnius_meteor_helmet;
+	//	public static Item breathable_palladium_helmet;
 
-	/**Name,Durability,ReductionAmounts[Helm,Chest,Leg,Boot],Enchantability**/
-	public static ArmorMaterial cheese_leather = EnumHelper.addArmorMaterial("cheese_leather", 12, new int[] { 3, 6, 4, 2 }, 16);
-	public static ArmorMaterial polongnius_meteoric_iron = EnumHelper.addArmorMaterial("polongnius_meteoric_iron", 36, new int[] { 9, 13, 10, 7 }, 16);
-	public static ArmorMaterial palladium = EnumHelper.addArmorMaterial("palladium", 36, new int[] { 9, 13, 10, 7 }, 16);
-	public static ArmorMaterial purple_crystal = EnumHelper.addArmorMaterial("purple_crystal", 30, new int[] { 7, 10, 8, 6 }, 16);
+	// Name,Durability,ReductionAmounts[Helm,Chest,Leg,Boot],Enchantability
+	public static ArmorMaterial cheese_leather = EnumHelper.addArmorMaterial("cheese_leather", "cheese_leather", 12, new int[] { 3, 6, 4, 2 }, 16);
+	public static ArmorMaterial polongnius_meteoric_iron = EnumHelper.addArmorMaterial("polongnius_meteoric_iron", "polongnius_meteoric_iron", 36, new int[] { 9, 13, 10, 7 }, 16);
+	public static ArmorMaterial palladium = EnumHelper.addArmorMaterial("palladium", "palladium", 36, new int[] { 9, 13, 10, 7 }, 16);
+	public static ArmorMaterial purple_crystal = EnumHelper.addArmorMaterial("purple_crystal", "purple_crystal", 30, new int[] { 7, 10, 8, 6 }, 16);
 
 	public static void init()
 	{
@@ -51,10 +51,10 @@ public class PolongniusArmorItems
 		PolongniusArmorItems.cheese_leather_chestplate = new ArmorCheeseLeather("cheese_leather_chestplate", PolongniusArmorItems.cheese_leather, 7, 1);
 		PolongniusArmorItems.cheese_leather_leggings = new ArmorCheeseLeather("cheese_leather_leggings", PolongniusArmorItems.cheese_leather, 7, 2);
 		PolongniusArmorItems.cheese_leather_boots = new ArmorCheeseLeather("cheese_leather_boots", PolongniusArmorItems.cheese_leather, 7, 3);
-		PolongniusArmorItems.polongnius_meteoric_iron_helmet = new ArmorPolongniusMeteor("polongnius_meteor_helmet", PolongniusArmorItems.polongnius_meteoric_iron, 7, 0).setTextureName("polongnius:polongnius_meteoric_iron_helmet");
-		PolongniusArmorItems.polongnius_meteoric_iron_chestplate = new ArmorPolongniusMeteor("polongnius_meteor_chestplate", PolongniusArmorItems.polongnius_meteoric_iron, 7, 1).setTextureName("polongnius:polongnius_meteoric_iron_chestplate");
-		PolongniusArmorItems.polongnius_meteoric_iron_leggings = new ArmorPolongniusMeteor("polongnius_meteor_leggings", PolongniusArmorItems.polongnius_meteoric_iron, 7, 2).setTextureName("polongnius:polongnius_meteoric_iron_leggings");
-		PolongniusArmorItems.polongnius_meteoric_iron_boots = new ArmorPolongniusMeteor("polongnius_meteor_boots", PolongniusArmorItems.polongnius_meteoric_iron, 7, 3).setTextureName("polongnius:polongnius_meteoric_iron_boots");
+		PolongniusArmorItems.polongnius_meteoric_iron_helmet = new ArmorPolongniusMeteoricIron("polongnius_meteoric_iron_helmet", PolongniusArmorItems.polongnius_meteoric_iron, 7, 0);
+		PolongniusArmorItems.polongnius_meteoric_iron_chestplate = new ArmorPolongniusMeteoricIron("polongnius_meteoric_iron_chestplate", PolongniusArmorItems.polongnius_meteoric_iron, 7, 1);
+		PolongniusArmorItems.polongnius_meteoric_iron_leggings = new ArmorPolongniusMeteoricIron("polongnius_meteoric_iron_leggings", PolongniusArmorItems.polongnius_meteoric_iron, 7, 2);
+		PolongniusArmorItems.polongnius_meteoric_iron_boots = new ArmorPolongniusMeteoricIron("polongnius_meteoric_iron_boots", PolongniusArmorItems.polongnius_meteoric_iron, 7, 3);
 		PolongniusArmorItems.palladium_helmet = new ArmorPalladium("palladium_helmet", PolongniusArmorItems.palladium, 7, 0);
 		PolongniusArmorItems.palladium_chestplate = new ArmorPalladium("palladium_chestplate", PolongniusArmorItems.palladium, 7, 1);
 		PolongniusArmorItems.palladium_leggings = new ArmorPalladium("palladium_leggings", PolongniusArmorItems.palladium, 7, 2);
@@ -63,8 +63,8 @@ public class PolongniusArmorItems
 		PolongniusArmorItems.purple_crystal_chestplate = new ArmorPurpleCrystal("purple_crystal_chestplate", PolongniusArmorItems.purple_crystal, 7, 1);
 		PolongniusArmorItems.purple_crystal_leggings = new ArmorPurpleCrystal("purple_crystal_leggings", PolongniusArmorItems.purple_crystal, 7, 2);
 		PolongniusArmorItems.purple_crystal_boots = new ArmorPurpleCrystal("purple_crystal_boots", PolongniusArmorItems.purple_crystal, 7, 3);
-		PolongniusArmorItems.breathable_polongnius_meteor_helmet = new ArmorBreathablePolongniusMeteor("breathable_polongnius_meteor_helmet", PolongniusArmorItems.polongnius_meteoric_iron, 7, 0);
-		PolongniusArmorItems.breathable_palladium_helmet = new ArmorBreathablePalladium("breathable_palladium_helmet", PolongniusArmorItems.palladium, 7, 0);
+		//		PolongniusArmorItems.breathable_polongnius_meteor_helmet = new ArmorBreathablePolongniusMeteor("breathable_polongnius_meteor_helmet", PolongniusArmorItems.polongnius_meteoric_iron, 7, 0);
+		//		PolongniusArmorItems.breathable_palladium_helmet = new ArmorBreathablePalladium("breathable_palladium_helmet", PolongniusArmorItems.palladium, 7, 0);
 	}
 
 	private static void registerItems()
@@ -85,7 +85,7 @@ public class PolongniusArmorItems
 		RegisterHelper.registerItem(PolongniusArmorItems.purple_crystal_chestplate);
 		RegisterHelper.registerItem(PolongniusArmorItems.purple_crystal_leggings);
 		RegisterHelper.registerItem(PolongniusArmorItems.purple_crystal_boots);
-		RegisterHelper.registerItem(PolongniusArmorItems.breathable_polongnius_meteor_helmet);
-		RegisterHelper.registerItem(PolongniusArmorItems.breathable_palladium_helmet);
+		//		RegisterHelper.registerItem(PolongniusArmorItems.breathable_polongnius_meteor_helmet);
+		//		RegisterHelper.registerItem(PolongniusArmorItems.breathable_palladium_helmet);
 	}
 }

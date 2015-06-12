@@ -18,8 +18,7 @@ public class BlockVenusSand extends BlockFalling
 		super();
 		this.setStepSound(soundTypeSand);
 		this.setHardness(0.55F);
-		this.setBlockName(name);
-		this.setBlockTextureName("venus:venus_sand");
+		this.setUnlocalizedName(name);
 	}
 
 	@Override

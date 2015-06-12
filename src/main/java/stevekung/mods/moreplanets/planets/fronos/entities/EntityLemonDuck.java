@@ -21,9 +21,10 @@ import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAIFronosBeg;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAITemptMP;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAIFronosBeg;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAITemptMP;
 import stevekung.mods.moreplanets.core.init.MPItems;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 
@@ -38,7 +39,7 @@ public class EntityLemonDuck extends IFronosPet
 		this.tasks.addTask(2, this.aiSit);
 		this.tasks.addTask(3, new EntityAILeapAtTarget(this, 0.4F));
 		this.tasks.addTask(4, new EntityAIFollowOwner(this, 1.0D, 10.0F, 2.0F));
-		this.tasks.addTask(5, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.fronos_food2, 1, 1), false));
+		this.tasks.addTask(5, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.candy_food, 1, 1), false));
 		this.tasks.addTask(6, new EntityAIMate(this, 1.0D));
 		this.tasks.addTask(7, new EntityAIWander(this, 1.0D));
 		this.tasks.addTask(8, new EntityAIFronosBeg(this, 8.0F));
@@ -47,9 +48,16 @@ public class EntityLemonDuck extends IFronosPet
 	}
 
 	@Override
-	protected boolean isAIEnabled()
+	public float getEyeHeight()
 	{
-		return true;
+		return this.height - 0.15F;
+	}
+
+	@Override
+	protected void applyEntityAttributes()
+	{
+		super.applyEntityAttributes();
+		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.15D);
 	}
 
 	@Override
@@ -96,13 +104,6 @@ public class EntityLemonDuck extends IFronosPet
 	}
 
 	@Override
-	protected void applyEntityAttributes()
-	{
-		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.15D);
-	}
-
-	@Override
 	public double getMountedYOffset()
 	{
 		return this.height * 0.7D;
@@ -115,12 +116,12 @@ public class EntityLemonDuck extends IFronosPet
 
 		for (int k = 0; k < j; ++k)
 		{
-			this.entityDropItem(new ItemStack(FronosItems.fruits, 1, 1), 0.0F);
+			this.entityDropItem(new ItemStack(FronosItems.fronos_fruits, 1, 1), 0.0F);
 		}
 	}
 
 	@Override
-	public IEntityLivingData onSpawnWithEgg(IEntityLivingData par1EntityLivingData)
+	public IEntityLivingData func_180482_a(DifficultyInstance diff, IEntityLivingData data)
 	{
 		if (this.worldObj.rand.nextInt(10) == 0)
 		{
@@ -130,18 +131,18 @@ public class EntityLemonDuck extends IFronosPet
 			duck.setGrowingAge(-8000);
 			this.worldObj.spawnEntityInWorld(duck);
 		}
-		return par1EntityLivingData;
+		return data;
 	}
 
 	@Override
 	public EntityLemonDuck createChild(EntityAgeable entity)
 	{
 		EntityLemonDuck pet = new EntityLemonDuck(this.worldObj);
-		String owner = this.func_152113_b();
+		String owner = this.getOwnerId();
 
 		if (owner != null && owner.trim().length() > 0)
 		{
-			pet.func_152115_b(owner);
+			pet.setOwnerId(owner);
 			pet.setTamed(true);
 		}
 		return pet;

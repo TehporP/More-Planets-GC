@@ -13,9 +13,10 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.IImmuneMapleIvy;
+import stevekung.mods.moreplanets.common.entities.IImmuneMapleIvy;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 
@@ -43,27 +44,27 @@ public abstract class IFronosPet extends EntityTameable implements IImmuneMapleI
 	}
 
 	@Override
-	protected void func_145780_a(int par1, int par2, int par3, Block par4)
+	protected void playStepSound(BlockPos pos, Block block)
 	{
-		this.playSound("fronos:mob.fronos.step", 0.15F, 1.0F);
+		this.playSound("moreplanets:mob.fronos.step", 0.15F, 1.0F);
 	}
 
 	@Override
 	protected String getLivingSound()
 	{
-		return "fronos:mob.fronos.say";
+		return "moreplanets:mob.fronos.say";
 	}
 
 	@Override
 	protected String getHurtSound()
 	{
-		return "fronos:mob.fronos.hurt";
+		return "moreplanets:mob.fronos.hurt";
 	}
 
 	@Override
 	protected String getDeathSound()
 	{
-		return "fronos:mob.fronos.death";
+		return "moreplanets:mob.fronos.death";
 	}
 
 	@Override
@@ -94,12 +95,21 @@ public abstract class IFronosPet extends EntityTameable implements IImmuneMapleI
 	}
 
 	@Override
+	public void readEntityFromNBT(NBTTagCompound nbt)
+	{
+		super.readEntityFromNBT(nbt);
+	}
+
+	@Override
+	public void writeEntityToNBT(NBTTagCompound nbt)
+	{
+		super.writeEntityToNBT(nbt);
+	}
+
+	@Override
 	public boolean getCanSpawnHere()
 	{
-		int i = MathHelper.floor_double(this.posX);
-		int j = MathHelper.floor_double(this.boundingBox.minY);
-		int k = MathHelper.floor_double(this.posZ);
-		Block block = this.worldObj.getBlock(i, j - 1, k);
+		Block block = this.worldObj.getBlockState(this.getPosition().down()).getBlock();
 		return block == FronosBlocks.fronos_grass;
 	}
 
@@ -139,7 +149,7 @@ public abstract class IFronosPet extends EntityTameable implements IImmuneMapleI
 		{
 			return false;
 		}
-		return itemStack.getItem() == FronosItems.fronos_food2 && itemStack.getItemDamage() == 1;
+		return itemStack != null && itemStack.getItem() == FronosItems.candy_food && itemStack.getItemDamage() == 1;
 	}
 
 	@Override
@@ -162,7 +172,7 @@ public abstract class IFronosPet extends EntityTameable implements IImmuneMapleI
 					return true;
 				}
 			}
-			if (this.func_152114_e(player) && !this.worldObj.isRemote && !this.isBreedingItem(itemStack))
+			if (this.isOwner(player) && !this.worldObj.isRemote && !this.isBreedingItem(itemStack))
 			{
 				this.aiSit.setSitting(!this.isSitting());
 			}
@@ -184,7 +194,7 @@ public abstract class IFronosPet extends EntityTameable implements IImmuneMapleI
 					this.setTamed(true);
 					this.aiSit.setSitting(true);
 					this.setHealth(20.0F);
-					this.func_152115_b(player.getUniqueID().toString());
+					this.setOwnerId(player.getUniqueID().toString());
 					this.playTameEffect(true);
 					this.worldObj.setEntityState(this, (byte)7);
 				}

@@ -10,86 +10,54 @@ package stevekung.mods.moreplanets.planets.venus.blocks;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 
 public class BlockVenusSmokeGeyser extends BlockBaseMP
 {
-	private IIcon[] venusBlockIcon;
-
 	public BlockVenusSmokeGeyser(String name)
 	{
 		super(Material.rock);
 		this.setHardness(2.0F);
 		this.setResistance(5.0F);
-		this.setBlockName(name);
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.venusBlockIcon = new IIcon[14];
-		this.venusBlockIcon[0] = par1IconRegister.registerIcon("venus:venus_smoke_geyser");
-		this.venusBlockIcon[1] = par1IconRegister.registerIcon("venus:venus_surface_rock_side");
-		this.venusBlockIcon[2] = par1IconRegister.registerIcon("venus:venus_sub_surface_rock");
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		switch (side)
-		{
-		case 0:
-			return this.venusBlockIcon[2]; //BOTTOM
-		case 1:
-			return this.venusBlockIcon[0]; //TOP
-		case 2:
-			return this.venusBlockIcon[1]; //Z-
-		case 3:
-			return this.venusBlockIcon[1]; //Z+
-		case 4:
-			return this.venusBlockIcon[1]; //X-
-		case 5:
-			return this.venusBlockIcon[1]; //X+
-		default:
-			return this.venusBlockIcon[0];
-		}
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
 		for (int i = 0; i < 5; i++)
 		{
-			if (!World.doesBlockHaveSolidTopSurface(world, x, y + 1, z))
+			if (!World.doesBlockHaveSolidTopSurface(world, pos.up()))
 			{
-				MorePlanetsCore.proxy.spawnParticle("venusSmoke", x + 0.5F, y + 0.5F + rand.nextFloat(), z + 0.5F);
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.VENUS_SMOKE, pos.getX() + 0.5F, pos.getY() + 0.5F + rand.nextFloat(), pos.getZ() + 0.5F);
 			}
 		}
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random rand, int fortune)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return Item.getItemFromBlock(VenusBlocks.venus_block);
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
 		return 0;
 	}
 
 	@Override
-	public boolean canSilkHarvest(World world, EntityPlayer player, int x, int y, int z, int metadata)
+	public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
 	{
 		return true;
 	}

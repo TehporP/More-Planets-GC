@@ -7,17 +7,11 @@
 
 package stevekung.mods.moreplanets.planets.siriusb.items.armor;
 
-import micdoodle8.mods.galacticraft.core.proxy.ClientProxyCore;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 import stevekung.mods.moreplanets.planets.siriusb.items.SiriusBItems;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ArmorSulfur extends ItemArmorMP
 {
@@ -32,33 +26,21 @@ public class ArmorSulfur extends ItemArmorMP
 	{
 		if (stack.getItem() == SiriusBArmorItems.sulfur_helmet || stack.getItem() == SiriusBArmorItems.sulfur_chestplate || stack.getItem() == SiriusBArmorItems.sulfur_boots)
 		{
-			return "siriusb:textures/model/armor/sulfur_1.png";
+			return "moreplanets:textures/model/armor/sulfur_1.png";
 		}
 		if (stack.getItem() == SiriusBArmorItems.sulfur_leggings)
 		{
-			return "siriusb:textures/model/armor/sulfur_2.png";
+			return "moreplanets:textures/model/armor/sulfur_2.png";
 		}
 		return null;
 	}
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public EnumRarity getRarity(ItemStack itemStack)
-	{
-		return ClientProxyCore.galacticraftItem;
-	}
-
-	@Override
-	public CreativeTabs getCreativeTab()
-	{
-		return MorePlanetsCore.mpArmorTab;
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "siriusb";
-	}
+	//	@Override
+	//	@SideOnly(Side.CLIENT)
+	//	public EnumRarity getRarity(ItemStack itemStack)
+	//	{
+	//		return ClientProxyCore.galacticraftItem;
+	//	}
 
 	@Override
 	public Item getRepairItems()

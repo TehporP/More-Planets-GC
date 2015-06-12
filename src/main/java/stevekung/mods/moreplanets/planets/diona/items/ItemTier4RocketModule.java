@@ -15,10 +15,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
-import stevekung.mods.moreplanets.core.config.ConfigManagerMP;
-import stevekung.mods.moreplanets.core.items.ItemBaseMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.config.ConfigManagerMP;
+import stevekung.mods.moreplanets.common.items.ItemBaseMP;
 
 public class ItemTier4RocketModule extends ItemBaseMP
 {
@@ -30,19 +30,19 @@ public class ItemTier4RocketModule extends ItemBaseMP
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
+	public void addInformation(ItemStack itemStack, EntityPlayer player, List list, boolean par4)
 	{
-		if (par2EntityPlayer.worldObj.isRemote)
+		if (player.worldObj.isRemote)
 		{
-			if (par1ItemStack.getItemDamage() == 1)
+			if (itemStack.getItemDamage() == 1)
 			{
-				par3List.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("desc.tier4.name"));
+				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("desc.tier4.name"));
 			}
-			else if (par1ItemStack.getItemDamage() == 4)
+			else if (itemStack.getItemDamage() == 4)
 			{
 				if (ConfigManagerMP.enableThaiFlagAndCanvas)
 				{
-					par3List.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("desc.rocket.noflag.name"));
+					list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("desc.rocket.noflag.name"));
 				}
 			}
 		}
@@ -50,13 +50,13 @@ public class ItemTier4RocketModule extends ItemBaseMP
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubItems(Item item, CreativeTabs creativeTabs, List list)
 	{
 		if (ConfigManagerMP.enableRocketWithThaiFlag)
 		{
 			for (int i = 0; i < this.getItemVariantsName().length; i++)
 			{
-				par3List.add(new ItemStack(par1, 1, i));
+				list.add(new ItemStack(this, 1, i));
 			}
 		}
 		else
@@ -65,7 +65,7 @@ public class ItemTier4RocketModule extends ItemBaseMP
 			{
 				if (i != 0)
 				{
-					par3List.add(new ItemStack(par1, 1, i));
+					list.add(new ItemStack(this, 1, i));
 				}
 			}
 		}
@@ -74,12 +74,6 @@ public class ItemTier4RocketModule extends ItemBaseMP
 	@Override
 	public String[] getItemVariantsName()
 	{
-		return new String[] { "tier4_nose_cone", "tier4_heavy_duty_plate", "tier4_rocket_engine", "tier4_booster", "tier4_nose_cone_no_flag", "tier5_rocket_engine", "tier5_booster" };
-	}
-
-	@Override
-	public String getTexturesFolder()
-	{
-		return "diona";
+		return new String[] { "tier_4_nose_cone", "tier_4_heavy_duty_plate", "tier_4_rocket_engine", "tier_4_booster", "tier_4_nose_cone_no_flag", "tier_5_rocket_engine", "tier_5_booster" };
 	}
 }

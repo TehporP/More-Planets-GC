@@ -8,7 +8,7 @@
 package stevekung.mods.moreplanets.planets.fronos.itemblocks;
 
 import net.minecraft.block.Block;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
 public class ItemBlockFrostedCake extends ItemBlockBaseMP
 {
@@ -20,6 +20,6 @@ public class ItemBlockFrostedCake extends ItemBlockBaseMP
 	@Override
 	public String[] getBlockVariantsName()
 	{
-		return new String[] { "cake_bread", "white_cake_bread", "chocolate_cake_bread", "frosted_white_cake", "frosted_pink_cake", "frosted_white_cream_cake", "frosted_chocolate_cake", };
+		return new String[] { "cake_bread", "white_cake_bread", "chocolate_cake_bread", "frosted_white_cake", "frosted_pink_cake", "frosted_white_cake2", "frosted_chocolate_cake", };
 	}
 }

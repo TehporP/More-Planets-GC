@@ -21,41 +21,38 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAITemptMP;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAITemptMP;
 import stevekung.mods.moreplanets.core.init.MPItems;
+import stevekung.mods.moreplanets.planets.fronos.blocks.BlockFronosSand;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 
 public class EntityStarfish extends EntityAnimal
 {
-	public EntityStarfish(World par1World)
+	public EntityStarfish(World world)
 	{
-		super(par1World);
+		super(world);
 		this.setSize(0.5F, 0.15F);
 		this.tasks.addTask(0, new EntityAIPanic(this, 1.4D));
 		this.tasks.addTask(1, new EntityAIMate(this, 1.0D));
 		this.tasks.addTask(2, new EntityAIFollowParent(this, 1.1D));
 		this.tasks.addTask(3, new EntityAIWander(this, 1.0D));
-		this.tasks.addTask(4, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.fronos_food2, 1, 0), false));
+		this.tasks.addTask(4, new EntityAITemptMP(this, 1.1D, new ItemStack(FronosItems.candy_food, 1, 0), false));
 	}
 
 	@Override
 	public boolean getCanSpawnHere()
 	{
-		int x = MathHelper.floor_double(this.posX);
-		int y = MathHelper.floor_double(this.boundingBox.minY);
-		int z = MathHelper.floor_double(this.posZ);
-		Block block = this.worldObj.getBlock(x, y - 1, z);
-		int meta = this.worldObj.getBlockMetadata(x, y - 1, z);
+		Block block = this.worldObj.getBlockState(this.getPosition().down()).getBlock();
 
-		if (block == FronosBlocks.fronos_sand && meta == 1 || block == Blocks.sand)
+		if (block == FronosBlocks.fronos_sand.getDefaultState().withProperty(BlockFronosSand.VARIANT, BlockFronosSand.BlockType.white_sand) || block == Blocks.sand)
 		{
 			return true;
 		}
-		return false;
+		return block == FronosBlocks.fronos_grass;
 	}
 
 	@Override
@@ -102,18 +99,10 @@ public class EntityStarfish extends EntityAnimal
 	}
 
 	@Override
-	public void knockBack(Entity par1Entity, float par2, double par3, double par5)
-	{
-	}
+	public void knockBack(Entity entity, float par2, double par3, double par5) {}
 
 	@Override
 	public boolean canBreatheUnderwater()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean isAIEnabled()
 	{
 		return true;
 	}
@@ -133,7 +122,7 @@ public class EntityStarfish extends EntityAnimal
 	}
 
 	@Override
-	protected void fall(float par1) {}
+	public void fall(float distance, float damageMultiplier) {}
 
 	@Override
 	protected String getHurtSound()
@@ -157,7 +146,7 @@ public class EntityStarfish extends EntityAnimal
 	public boolean isBreedingItem(ItemStack par1ItemStack)
 	{
 		int meta = par1ItemStack.getItemDamage();
-		return par1ItemStack.getItem() == FronosItems.fronos_food2 && meta == 1;
+		return par1ItemStack.getItem() == FronosItems.candy_food && meta == 1;
 	}
 
 	/*@Override
@@ -211,7 +200,7 @@ public class EntityStarfish extends EntityAnimal
 	}
 
 	@Override
-	public IEntityLivingData onSpawnWithEgg(IEntityLivingData entity)
+	public IEntityLivingData func_180482_a(DifficultyInstance diff, IEntityLivingData data)
 	{
 		if (this.worldObj.rand.nextInt(5) == 0)
 		{
@@ -223,6 +212,6 @@ public class EntityStarfish extends EntityAnimal
 				this.worldObj.spawnEntityInWorld(starfish);
 			}
 		}
-		return entity;
+		return data;
 	}
 }

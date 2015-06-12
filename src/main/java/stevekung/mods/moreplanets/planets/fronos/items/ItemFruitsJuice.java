@@ -18,9 +18,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.items.ItemFoodMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.ItemFoodMP;
 
 public class ItemFruitsJuice extends ItemFoodMP
 {
@@ -33,8 +33,24 @@ public class ItemFruitsJuice extends ItemFoodMP
 	}
 
 	@Override
-	protected void onFoodEaten(ItemStack itemStack, World world, EntityPlayer player)
+	public EnumAction getItemUseAction(ItemStack itemStack)
 	{
+		return EnumAction.DRINK;
+	}
+
+	@Override
+	public ItemStack onItemUseFinish(ItemStack itemStack, World world, EntityPlayer player)
+	{
+		--itemStack.stackSize;
+		world.playSoundAtEntity(player, "random.burp", 0.5F, world.rand.nextFloat() * 0.1F + 0.9F);
+		this.onFoodEaten(itemStack, world, player);
+		player.getFoodStats().addStats(this, itemStack);
+
+		if (!player.inventory.addItemStackToInventory(new ItemStack(Items.glass_bottle)))
+		{
+			player.entityDropItem(new ItemStack(Items.glass_bottle, 1, 0), 0.0F);
+		}
+
 		if (!world.isRemote)
 		{
 			switch (itemStack.getItemDamage())
@@ -53,26 +69,6 @@ public class ItemFruitsJuice extends ItemFoodMP
 				break;
 			}
 		}
-	}
-
-	@Override
-	public EnumAction getItemUseAction(ItemStack itemStack)
-	{
-		return EnumAction.drink;
-	}
-
-	@Override
-	public ItemStack onEaten(ItemStack itemStack, World world, EntityPlayer player)
-	{
-		--itemStack.stackSize;
-		world.playSoundAtEntity(player, "random.burp", 0.5F, world.rand.nextFloat() * 0.1F + 0.9F);
-		this.onFoodEaten(itemStack, world, player);
-		player.getFoodStats().func_151686_a(this, itemStack);
-
-		if (!player.inventory.addItemStackToInventory(new ItemStack(Items.glass_bottle)))
-		{
-			player.entityDropItem(new ItemStack(Items.glass_bottle, 1, 0), 0.0F);
-		}
 		return itemStack;
 	}
 
@@ -82,18 +78,18 @@ public class ItemFruitsJuice extends ItemFoodMP
 	{
 		for (int i = 0; i < this.getItemVariantsName().length; i++)
 		{
-			list.add(new ItemStack(item, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public int getFoodAmount(ItemStack itemStack)
+	public int getHealAmount(ItemStack itemStack)
 	{
 		return 5;
 	}
 
 	@Override
-	public float getFoodSaturation(ItemStack itemStack)
+	public float getSaturationModifier(ItemStack itemStack)
 	{
 		return 0.6F;
 	}
@@ -101,12 +97,6 @@ public class ItemFruitsJuice extends ItemFoodMP
 	@Override
 	public String[] getItemVariantsName()
 	{
-		return new String[] { "strawberry_juice", "berry_juice", "kiwi_juice", "lemon_juice" } ;
-	}
-
-	@Override
-	public String getResourceLocation()
-	{
-		return "fronos";
+		return new String[] { "strawberry_juice", "berry_juice", "kiwi_juice", "lemon_juice" };
 	}
 }

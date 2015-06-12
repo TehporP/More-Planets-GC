@@ -6,33 +6,34 @@
  ******************************************************************************/
 
 package stevekung.mods.moreplanets.moons.koentus.tileentities;
-
-import net.minecraft.block.Block;
-import stevekung.mods.moreplanets.core.tileentities.TileEntityTreasureChestMP;
-import stevekung.mods.moreplanets.moons.koentus.blocks.KoentusBlocks;
-
-public class TileEntityKoentusTreasureChest extends TileEntityTreasureChestMP
-{
-	public TileEntityKoentusTreasureChest()
-	{
-		super(4);
-	}
-
-	@Override
-	public int getTreasureChestTier()
-	{
-		return 4;
-	}
-
-	@Override
-	public String getTreasureChestName()
-	{
-		return "koentus";
-	}
-
-	@Override
-	public Block getTreasureChestBlock()
-	{
-		return KoentusBlocks.koentus_treasure_chest;
-	}
-}
+//package stevekung.mods.moreplanets.moons.koentus.tileentities;
+//
+//import net.minecraft.block.Block;
+//import stevekung.mods.moreplanets.core.tileentities.TileEntityTreasureChestMP;
+//import stevekung.mods.moreplanets.moons.koentus.blocks.KoentusBlocks;
+//
+//public class TileEntityKoentusTreasureChest extends TileEntityTreasureChestMP
+//{
+//	public TileEntityKoentusTreasureChest()
+//	{
+//		super(4);
+//	}
+//
+//	@Override
+//	public int getTreasureChestTier()
+//	{
+//		return 4;
+//	}
+//
+//	@Override
+//	public String getTreasureChestName()
+//	{
+//		return "koentus";
+//	}
+//
+//	@Override
+//	public Block getTreasureChestBlock()
+//	{
+//		return KoentusBlocks.koentus_treasure_chest;
+//	}
+//}

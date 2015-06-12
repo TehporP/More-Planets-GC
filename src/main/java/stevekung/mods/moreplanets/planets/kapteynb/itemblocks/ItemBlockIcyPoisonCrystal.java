@@ -8,13 +8,16 @@
 package stevekung.mods.moreplanets.planets.kapteynb.itemblocks;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockMorePlanet;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockMorePlanets;
 import stevekung.mods.moreplanets.planets.kapteynb.tileentities.TileEntityIcyPoisonCrystal;
 
-public class ItemBlockIcyPoisonCrystal extends ItemBlockMorePlanet
+public class ItemBlockIcyPoisonCrystal extends ItemBlockMorePlanets
 {
 	public ItemBlockIcyPoisonCrystal(Block block)
 	{
@@ -22,14 +25,14 @@ public class ItemBlockIcyPoisonCrystal extends ItemBlockMorePlanet
 	}
 
 	@Override
-	public boolean placeBlockAt(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata)
+	public boolean placeBlockAt(ItemStack itemStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState state)
 	{
-		boolean placed = super.placeBlockAt(itemStack, player, world, x, y, z, side, hitX, hitY, hitZ, metadata);
+		boolean placed = super.placeBlockAt(itemStack, player, world, pos, side, hitX, hitY, hitZ, state);
 
-		if (placed && metadata <= 6)
+		if (placed && state.getBlock().getMetaFromState(state) <= 6)
 		{
-			TileEntityIcyPoisonCrystal ts = (TileEntityIcyPoisonCrystal)world.getTileEntity(x, y, z);
-			ts.orientation = (short)side;
+			TileEntityIcyPoisonCrystal ts = (TileEntityIcyPoisonCrystal)world.getTileEntity(pos);
+			ts.facing = (short)side.getIndex();
 		}
 		return placed;
 	}

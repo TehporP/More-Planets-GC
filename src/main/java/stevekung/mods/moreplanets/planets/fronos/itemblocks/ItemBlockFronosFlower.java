@@ -8,10 +8,9 @@
 package stevekung.mods.moreplanets.planets.fronos.itemblocks;
 
 import net.minecraft.block.Block;
-import net.minecraft.util.IIcon;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
 public class ItemBlockFronosFlower extends ItemBlockBaseMP
 {
@@ -25,13 +24,6 @@ public class ItemBlockFronosFlower extends ItemBlockBaseMP
 	public boolean isFull3D()
 	{
 		return true;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public IIcon getIconFromDamage(int meta)
-	{
-		return this.field_150939_a.getIcon(0, meta);
 	}
 
 	@Override

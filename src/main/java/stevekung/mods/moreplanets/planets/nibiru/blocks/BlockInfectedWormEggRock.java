@@ -1,18 +1,13 @@
-/*******************************************************************************
- * Copyright 2015 SteveKunG - More Planets Mod
- * 
- * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License.
- * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
- ******************************************************************************/
-
 package stevekung.mods.moreplanets.planets.nibiru.blocks;
 
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.planets.nibiru.entities.EntityInfectedWorm;
 
 public class BlockInfectedWormEggRock extends BlockBaseMP
@@ -21,33 +16,32 @@ public class BlockInfectedWormEggRock extends BlockBaseMP
 	{
 		super(Material.rock);
 		this.setResistance(5.0F);
-		this.setHardness(4.0F);
-		this.setBlockName(name);
-		this.setBlockTextureName("nibiru:infected_worm_egg_rock");
+		this.setHardness(2.0F);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
-	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public int quantityDropped(Random par1Random)
+	public int quantityDropped(Random rand)
 	{
 		return 0;
 	}
 
 	@Override
-	public void onBlockDestroyedByPlayer(World par1World, int par2, int par3, int par4, int par5)
+	public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
 	{
-		if (!par1World.isRemote)
+		return true;
+	}
+
+	@Override
+	public void onBlockDestroyedByPlayer(World world, BlockPos pos, IBlockState state)
+	{
+		if (!world.isRemote)
 		{
-			EntityInfectedWorm infectedWorm = new EntityInfectedWorm(par1World);
-			infectedWorm.setLocationAndAngles(par2 + 0.5D, par3, par4 + 0.5D, 0.0F, 0.0F);
-			par1World.spawnEntityInWorld(infectedWorm);
+			EntityInfectedWorm infectedWorm = new EntityInfectedWorm(world);
+			infectedWorm.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0F, 0.0F);
+			world.spawnEntityInWorld(infectedWorm);
 			infectedWorm.spawnExplosionParticle();
 		}
-		super.onBlockDestroyedByPlayer(par1World, par2, par3, par4, par5);
+		super.onBlockDestroyedByPlayer(world, pos, state);
 	}
 }

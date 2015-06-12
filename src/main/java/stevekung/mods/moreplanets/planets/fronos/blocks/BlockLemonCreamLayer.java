@@ -15,13 +15,7 @@ public class BlockLemonCreamLayer extends BlockCreamLayer
 	public BlockLemonCreamLayer(String name)
 	{
 		super();
-		this.setBlockName(name);
-	}
-
-	@Override
-	public String getCreamTexture()
-	{
-		return "fronos:lemon_cream";
+		this.setUnlocalizedName(name);
 	}
 
 	@Override

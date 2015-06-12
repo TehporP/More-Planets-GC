@@ -8,8 +8,8 @@
 package stevekung.mods.moreplanets.moons.koentus.items;
 
 import net.minecraft.item.Item;
-import stevekung.mods.moreplanets.core.blocks.BlockDoorMP.DoorType;
-import stevekung.mods.moreplanets.core.items.ItemDoorMP;
+import stevekung.mods.moreplanets.common.blocks.BlockDoorMP.DoorType;
+import stevekung.mods.moreplanets.common.items.ItemDoorMP;
 import stevekung.mods.stevecore.RegisterHelper;
 
 public class KoentusItems
@@ -26,7 +26,7 @@ public class KoentusItems
 
 	private static void initItems()
 	{
-		KoentusItems.koentus_item = new ItemBasicKoentus("koentus_item");
+		KoentusItems.koentus_item = new ItemKoentus("koentus_item");
 		KoentusItems.koentus_meteor_chunk = new ItemKoentusMeteorChunk("koentus_meteor_chunk");
 		KoentusItems.crystal_door = new ItemDoorMP("crystal_door", DoorType.CRYSTAL);
 	}

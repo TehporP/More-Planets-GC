@@ -8,11 +8,13 @@
 package stevekung.mods.moreplanets.core.init;
 
 import net.minecraft.item.Item;
-import stevekung.mods.moreplanets.core.items.ItemMonsterPlacerMP;
+import stevekung.mods.moreplanets.common.items.ItemFlagMP;
+import stevekung.mods.moreplanets.common.items.ItemMeteorShower;
+import stevekung.mods.moreplanets.common.items.ItemMonsterPlacerMP;
+import stevekung.mods.moreplanets.moons.europa.items.EuropaItems;
 import stevekung.mods.moreplanets.moons.io.items.IoItems;
 import stevekung.mods.moreplanets.moons.koentus.items.KoentusItems;
 import stevekung.mods.moreplanets.planets.diona.items.DionaItems;
-import stevekung.mods.moreplanets.planets.diona.items.ItemFlagMP;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 import stevekung.mods.moreplanets.planets.kapteynb.items.KapteynBItems;
 import stevekung.mods.moreplanets.planets.mercury.items.MercuryItems;
@@ -26,6 +28,7 @@ import stevekung.mods.stevecore.RegisterHelper;
 public class MPItems
 {
 	public static Item flag;
+	public static Item meteor_shower;
 	public static Item spawn_egg_mp;
 
 	public static void init()
@@ -42,6 +45,7 @@ public class MPItems
 		VenusItems.init();
 		PlutoItems.init();
 		IoItems.init();
+		EuropaItems.init();
 
 		MPItems.initItems();
 		MPItems.registerItems();
@@ -50,12 +54,14 @@ public class MPItems
 	private static void initItems()
 	{
 		MPItems.flag = new ItemFlagMP("mp_flag");
-		MPItems.spawn_egg_mp = new ItemMonsterPlacerMP("spawn_egg_mp").setTextureName("spawn_egg");
+		MPItems.meteor_shower = new ItemMeteorShower("meteor_shower");
+		MPItems.spawn_egg_mp = new ItemMonsterPlacerMP("spawn_egg_mp");
 	}
 
 	private static void registerItems()
 	{
 		RegisterHelper.registerItem(MPItems.flag);
+		RegisterHelper.registerItem(MPItems.meteor_shower);
 		RegisterHelper.registerItem(MPItems.spawn_egg_mp);
 	}
 }

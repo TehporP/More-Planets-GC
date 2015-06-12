@@ -8,125 +8,98 @@
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.List;
-import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.BlockFlowerMP;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockFlowerMP;
+import stevekung.mods.moreplanets.common.blocks.IFronosGrass;
 
 public class BlockPoppy extends BlockFlowerMP
 {
-	private static final String[] plants = new String[] {
-		"white_poppy",
-		"orange_poppy",
-		"purple_poppy",
-	};
-
-	private IIcon[] textures;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockPoppy(String name)
 	{
-		super(Material.plants);
-		this.setTickRandomly(true);
-		final float var4 = 0.2F;
-		this.setStepSound(Block.soundTypeGrass);
-		this.setBlockBounds(0.5F - var4, 0.0F, 0.5F - var4, 0.5F + var4, var4 * 3.0F, 0.5F + var4);
-		this.setBlockName(name);
+		super();
+		this.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.6F, 0.7F);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.white_poppy));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
+	@SideOnly(Side.CLIENT)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
-		this.textures = new IIcon[BlockPoppy.plants.length];
-
-		for (int i = 0; i < BlockPoppy.plants.length; ++i)
-		{
-			this.textures[i] = iconRegister.registerIcon("fronos:" + BlockPoppy.plants[i]);
-		}
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		if (meta < 0 || meta >= this.textures.length)
-		{
-			meta = 0;
-		}
-		return this.textures[meta];
-	}
-
-	@Override
-	public int getRenderType()
-	{
-		return 1;
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess world, int par2, int par3, int par4)
-	{
-		final int meta = world.getBlockMetadata(par2, par3, par4);
-
-		switch (meta)
-		{
-		default:
-			this.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.6F, 0.7F);
-			break;
-		}
-	}
-
-	@Override
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
-	{
-		for (int i = 0; i < BlockPoppy.plants.length; ++i)
+		for (int i = 0; i < 3; ++i)
 		{
 			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random par2Random, int par3)
+	public int damageDropped(IBlockState state)
 	{
-		return Item.getItemFromBlock(this);
+		return this.getMetaFromState(state);
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public boolean canBlockStay(World world, BlockPos pos, IBlockState state)
 	{
-		return meta;
+		Block block = world.getBlockState(pos.down()).getBlock();
+		return block instanceof IFronosGrass || block == FronosBlocks.fronos_dirt;
 	}
 
 	@Override
-	public boolean isValidPosition(World world, int x, int y, int z, int metadata)
+	public boolean isReplaceable(World world, BlockPos pos)
 	{
-		final Block block = world.getBlock(x, y - 1, z);
-		final int meta = world.getBlockMetadata(x, y - 1, z);
+		return false;
+	}
 
-		switch (meta)
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		white_poppy,
+		orange_poppy,
+		purple_poppy;
+
+		@Override
+		public String toString()
 		{
-		default:
-			return block instanceof IFronosGrass || block == FronosBlocks.fronos_dirt;
+			return this.getName();
 		}
-	}
 
-	@Override
-	public int getDamageValue(World world, int x, int y, int z)
-	{
-		final int meta = world.getBlockMetadata(x, y, z);
-
-		return meta;
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

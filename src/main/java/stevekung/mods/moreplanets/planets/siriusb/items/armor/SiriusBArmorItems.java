@@ -18,10 +18,10 @@ public class SiriusBArmorItems
 	public static Item sulfur_chestplate;
 	public static Item sulfur_leggings;
 	public static Item sulfur_boots;
-	public static Item breathable_sulfur_helmet;
+	//public static Item breathable_sulfur_helmet;
 
 	// Name,Durability,ReductionAmounts[Helm,Chest,Leg,Boot],Enchantability
-	public static ArmorMaterial sulfur = EnumHelper.addArmorMaterial("sulfur", 26, new int[] { 6, 9, 8, 4 }, 16);
+	public static ArmorMaterial sulfur = EnumHelper.addArmorMaterial("sulfur", "sulfur", 26, new int[] { 6, 9, 8, 4 }, 16);
 
 	public static void init()
 	{
@@ -35,7 +35,7 @@ public class SiriusBArmorItems
 		SiriusBArmorItems.sulfur_chestplate = new ArmorSulfur("sulfur_chestplate", SiriusBArmorItems.sulfur, 7, 1);
 		SiriusBArmorItems.sulfur_leggings = new ArmorSulfur("sulfur_leggings", SiriusBArmorItems.sulfur, 7, 2);
 		SiriusBArmorItems.sulfur_boots = new ArmorSulfur("sulfur_boots", SiriusBArmorItems.sulfur, 7, 3);
-		SiriusBArmorItems.breathable_sulfur_helmet = new ArmorBreathableSulfur("breathable_sulfur_helmet", SiriusBArmorItems.sulfur, 7, 0);
+		//SiriusBArmorItems.breathable_sulfur_helmet = new ArmorBreathableSulfur("breathable_sulfur_helmet", SiriusBArmorItems.sulfur, 7, 0);
 	}
 
 	private static void registerItems()
@@ -44,6 +44,6 @@ public class SiriusBArmorItems
 		RegisterHelper.registerItem(SiriusBArmorItems.sulfur_chestplate);
 		RegisterHelper.registerItem(SiriusBArmorItems.sulfur_leggings);
 		RegisterHelper.registerItem(SiriusBArmorItems.sulfur_boots);
-		RegisterHelper.registerItem(SiriusBArmorItems.breathable_sulfur_helmet);
+		//RegisterHelper.registerItem(SiriusBArmorItems.breathable_sulfur_helmet);
 	}
 }

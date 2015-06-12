@@ -8,38 +8,43 @@
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.List;
-import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
+import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.planets.fronos.entities.EntityCreamGolem;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockGolemCreamHead extends BlockBaseMP
 {
-	private IIcon[] creamBlockIcon;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
-	protected BlockGolemCreamHead(String name)
+	public BlockGolemCreamHead(String name)
 	{
 		super(Material.plants);
 		this.setHardness(0.4F);
 		this.setTickRandomly(true);
-		this.setBlockBounds(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F);
-		this.setStepSound(Block.soundTypeSnow);
-		this.setBlockName(name);
+		this.setBlockBounds(0.186F, 0.186F, 0.186F, 0.814F, 0.814F, 0.814F);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.vanilla_cream_head));
+		this.setStepSound(soundTypeSnow);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
@@ -51,169 +56,204 @@ public class BlockGolemCreamHead extends BlockBaseMP
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random par2Random, int par3)
+	public int damageDropped(IBlockState state)
 	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public int damageDropped(int meta)
-	{
-		return meta;
-	}
-
-	@Override
-	public int getDamageValue(World world, int x, int y, int z)
-	{
-		return world.getBlockMetadata(x, y, z);
+		return this.getMetaFromState(state);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < 6; i++)
 		{
-			list.add(new ItemStack(block, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public IIcon getIcon(int side, int meta)
+	public void onBlockAdded(World world, BlockPos pos, IBlockState state)
 	{
-		return this.creamBlockIcon[meta];
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.creamBlockIcon = new IIcon[6];
-		this.creamBlockIcon[0] = par1IconRegister.registerIcon("fronos:vanilla_cream");
-		this.creamBlockIcon[1] = par1IconRegister.registerIcon("fronos:chocolate_cream");
-		this.creamBlockIcon[2] = par1IconRegister.registerIcon("fronos:strawberry_cream");
-		this.creamBlockIcon[3] = par1IconRegister.registerIcon("fronos:orange_cream");
-		this.creamBlockIcon[4] = par1IconRegister.registerIcon("fronos:tea_cream");
-		this.creamBlockIcon[5] = par1IconRegister.registerIcon("fronos:lemon_cream");
-	}
-
-	@Override
-	public void onBlockAdded(World world, int x, int y, int z)
-	{
-		super.onBlockAdded(world, x, y, z);
-		Block block = world.getBlock(x, y - 1, z);
-		Block block2 = world.getBlock(x, y - 2, z);
-		int meta = world.getBlockMetadata(x, y, z);
-		int meta1 = world.getBlockMetadata(x, y - 1, z);
-		int meta2 = world.getBlockMetadata(x, y - 2, z);
+		super.onBlockAdded(world, pos, state);
 		EntityCreamGolem golem = new EntityCreamGolem(world);
 
-		if (this == FronosBlocks.cream_golem_head && meta == 0)
+		if (world.getBlockState(pos) == state.withProperty(VARIANT, BlockType.vanilla_cream_head))
 		{
-			if (block == FronosBlocks.cream_block && meta1 == 0 && block2 == FronosBlocks.cream_block && meta2 == 0)
+			if (world.getBlockState(pos.down()) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.vanilla_cream) && world.getBlockState(pos.down(2)) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.vanilla_cream))
 			{
 				if (!world.isRemote)
 				{
-					world.setBlock(x, y, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 1, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 2, z, Blocks.air, 0, 2);
-					golem.setLocationAndAngles(x + 0.5D, y - 1.95D, z + 0.5D, 0.0F, 0.0F);
+					world.setBlockState(pos, Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(), Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(2), Blocks.air.getDefaultState(), 2);
+					golem.setLocationAndAngles(pos.getX() + 0.5D, pos.getY() - 1.95D, pos.getZ() + 0.5D, 0.0F, 0.0F);
 					golem.setCreamGolemType(0);
 					world.spawnEntityInWorld(golem);
-					world.notifyBlockChange(x, y, z, Blocks.air);
-					world.notifyBlockChange(x, y - 1, z, Blocks.air);
-					world.notifyBlockChange(x, y - 2, z, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(), Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(2), Blocks.air);
+				}
+
+				for (int i = 0; i < 120; ++i)
+				{
+					MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.VANILLA_CREAM_BALL, pos.getX() + world.rand.nextDouble(), pos.getY() + world.rand.nextDouble() - 1.5D, pos.getZ() + world.rand.nextDouble());
 				}
 			}
 		}
-		else if (this == FronosBlocks.cream_golem_head && meta == 1)
+		else if (world.getBlockState(pos) == state.withProperty(VARIANT, BlockType.chocolate_cream_head))
 		{
-			if (block == FronosBlocks.cream_block && meta1 == 1 && block2 == FronosBlocks.cream_block && meta2 == 1)
+			if (world.getBlockState(pos.down()) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.chocolate_cream) && world.getBlockState(pos.down(2)) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.chocolate_cream))
 			{
 				if (!world.isRemote)
 				{
-					world.setBlock(x, y, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 1, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 2, z, Blocks.air, 0, 2);
-					golem.setLocationAndAngles(x + 0.5D, y - 1.95D, z + 0.5D, 0.0F, 0.0F);
+					world.setBlockState(pos, Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(), Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(2), Blocks.air.getDefaultState(), 2);
+					golem.setLocationAndAngles(pos.getX() + 0.5D, pos.getY() - 1.95D, pos.getZ() + 0.5D, 0.0F, 0.0F);
 					golem.setCreamGolemType(1);
 					world.spawnEntityInWorld(golem);
-					world.notifyBlockChange(x, y, z, Blocks.air);
-					world.notifyBlockChange(x, y - 1, z, Blocks.air);
-					world.notifyBlockChange(x, y - 2, z, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(), Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(2), Blocks.air);
+				}
+
+				for (int i = 0; i < 120; ++i)
+				{
+					MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.CHOCOLATE_CREAM_BALL, pos.getX() + world.rand.nextDouble(), pos.getY() + world.rand.nextDouble() - 1.5D, pos.getZ() + world.rand.nextDouble());
 				}
 			}
 		}
-		else if (this == FronosBlocks.cream_golem_head && meta == 2)
+		else if (world.getBlockState(pos) == state.withProperty(VARIANT, BlockType.strawberry_cream_head))
 		{
-			if (block == FronosBlocks.cream_block && meta1 == 2 && block2 == FronosBlocks.cream_block && meta2 == 2)
+			if (world.getBlockState(pos.down()) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.strawberry_cream) && world.getBlockState(pos.down(2)) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.strawberry_cream))
 			{
 				if (!world.isRemote)
 				{
-					world.setBlock(x, y, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 1, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 2, z, Blocks.air, 0, 2);
-					golem.setLocationAndAngles(x + 0.5D, y - 1.95D, z + 0.5D, 0.0F, 0.0F);
+					world.setBlockState(pos, Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(), Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(2), Blocks.air.getDefaultState(), 2);
+					golem.setLocationAndAngles(pos.getX() + 0.5D, pos.getY() - 1.95D, pos.getZ() + 0.5D, 0.0F, 0.0F);
 					golem.setCreamGolemType(2);
 					world.spawnEntityInWorld(golem);
-					world.notifyBlockChange(x, y, z, Blocks.air);
-					world.notifyBlockChange(x, y - 1, z, Blocks.air);
-					world.notifyBlockChange(x, y - 2, z, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(), Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(2), Blocks.air);
+				}
+
+				for (int i = 0; i < 120; ++i)
+				{
+					MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.STRAWBERRY_CREAM_BALL, pos.getX() + world.rand.nextDouble(), pos.getY() + world.rand.nextDouble() - 1.5D, pos.getZ() + world.rand.nextDouble());
 				}
 			}
 		}
-		else if (this == FronosBlocks.cream_golem_head && meta == 3)
+		else if (world.getBlockState(pos) == state.withProperty(VARIANT, BlockType.orange_cream_head))
 		{
-			if (block == FronosBlocks.cream_block && meta1 == 3 && block2 == FronosBlocks.cream_block && meta2 == 3)
+			if (world.getBlockState(pos.down()) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.orange_cream) && world.getBlockState(pos.down(2)) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.orange_cream))
 			{
 				if (!world.isRemote)
 				{
-					world.setBlock(x, y, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 1, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 2, z, Blocks.air, 0, 2);
-					golem.setLocationAndAngles(x + 0.5D, y - 1.95D, z + 0.5D, 0.0F, 0.0F);
+					world.setBlockState(pos, Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(), Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(2), Blocks.air.getDefaultState(), 2);
+					golem.setLocationAndAngles(pos.getX() + 0.5D, pos.getY() - 1.95D, pos.getZ() + 0.5D, 0.0F, 0.0F);
 					golem.setCreamGolemType(3);
 					world.spawnEntityInWorld(golem);
-					world.notifyBlockChange(x, y, z, Blocks.air);
-					world.notifyBlockChange(x, y - 1, z, Blocks.air);
-					world.notifyBlockChange(x, y - 2, z, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(), Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(2), Blocks.air);
+				}
+
+				for (int i = 0; i < 120; ++i)
+				{
+					MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.ORANGE_CREAM_BALL, pos.getX() + world.rand.nextDouble(), pos.getY() + world.rand.nextDouble() - 1.5D, pos.getZ() + world.rand.nextDouble());
 				}
 			}
 		}
-		else if (this == FronosBlocks.cream_golem_head && meta == 4)
+		else if (world.getBlockState(pos) == state.withProperty(VARIANT, BlockType.tea_cream_head))
 		{
-			if (block == FronosBlocks.cream_block && meta1 == 4 && block2 == FronosBlocks.cream_block && meta2 == 4)
+			if (world.getBlockState(pos.down()) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.tea_cream) && world.getBlockState(pos.down(2)) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.tea_cream))
 			{
 				if (!world.isRemote)
 				{
-					world.setBlock(x, y, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 1, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 2, z, Blocks.air, 0, 2);
-					golem.setLocationAndAngles(x + 0.5D, y - 1.95D, z + 0.5D, 0.0F, 0.0F);
+					world.setBlockState(pos, Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(), Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(2), Blocks.air.getDefaultState(), 2);
+					golem.setLocationAndAngles(pos.getX() + 0.5D, pos.getY() - 1.95D, pos.getZ() + 0.5D, 0.0F, 0.0F);
 					golem.setCreamGolemType(4);
 					world.spawnEntityInWorld(golem);
-					world.notifyBlockChange(x, y, z, Blocks.air);
-					world.notifyBlockChange(x, y - 1, z, Blocks.air);
-					world.notifyBlockChange(x, y - 2, z, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(), Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(2), Blocks.air);
+				}
+
+				for (int i = 0; i < 120; ++i)
+				{
+					MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.TEA_CREAM_BALL, pos.getX() + world.rand.nextDouble(), pos.getY() + world.rand.nextDouble() - 1.5D, pos.getZ() + world.rand.nextDouble());
 				}
 			}
 		}
-		else if (this == FronosBlocks.cream_golem_head && meta == 5)
+		else if (world.getBlockState(pos) == state.withProperty(VARIANT, BlockType.lemon_cream_head))
 		{
-			if (block == FronosBlocks.cream_block && meta1 == 5 && block2 == FronosBlocks.cream_block && meta2 == 5)
+			if (world.getBlockState(pos.down()) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.lemon_cream) && world.getBlockState(pos.down(2)) == FronosBlocks.cream_block.getDefaultState().withProperty(BlockCream.VARIANT, BlockCream.BlockType.lemon_cream))
 			{
 				if (!world.isRemote)
 				{
-					world.setBlock(x, y, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 1, z, Blocks.air, 0, 2);
-					world.setBlock(x, y - 2, z, Blocks.air, 0, 2);
-					golem.setLocationAndAngles(x + 0.5D, y - 1.95D, z + 0.5D, 0.0F, 0.0F);
+					world.setBlockState(pos, Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(), Blocks.air.getDefaultState(), 2);
+					world.setBlockState(pos.down(2), Blocks.air.getDefaultState(), 2);
+					golem.setLocationAndAngles(pos.getX() + 0.5D, pos.getY() - 1.95D, pos.getZ() + 0.5D, 0.0F, 0.0F);
 					golem.setCreamGolemType(5);
 					world.spawnEntityInWorld(golem);
-					world.notifyBlockChange(x, y, z, Blocks.air);
-					world.notifyBlockChange(x, y - 1, z, Blocks.air);
-					world.notifyBlockChange(x, y - 2, z, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos, Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(), Blocks.air);
+					world.notifyNeighborsRespectDebug(pos.down(2), Blocks.air);
+				}
+
+				for (int i = 0; i < 120; ++i)
+				{
+					MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.LEMON_CREAM_BALL, pos.getX() + world.rand.nextDouble(), pos.getY() + world.rand.nextDouble() - 1.5D, pos.getZ() + world.rand.nextDouble());
 				}
 			}
+		}
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		vanilla_cream_head,
+		chocolate_cream_head,
+		strawberry_cream_head,
+		orange_cream_head,
+		tea_cream_head,
+		lemon_cream_head;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
 		}
 	}
 }

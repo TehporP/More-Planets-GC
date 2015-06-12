@@ -10,14 +10,14 @@ package stevekung.mods.moreplanets.planets.kapteynb.items.armor;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 import stevekung.mods.moreplanets.planets.kapteynb.items.KapteynBItems;
 
 public class ArmorFrozenIron extends ItemArmorMP
 {
-	public ArmorFrozenIron(String name, ArmorMaterial par2EnumArmorMaterial, int par3, int par4)
+	public ArmorFrozenIron(String name, ArmorMaterial material, int render, int type)
 	{
-		super(par2EnumArmorMaterial, par3, par4);
+		super(material, render, type);
 		this.setUnlocalizedName(name);
 	}
 
@@ -26,19 +26,13 @@ public class ArmorFrozenIron extends ItemArmorMP
 	{
 		if (stack.getItem() == KapteynBArmorItems.frozen_iron_helmet || stack.getItem() == KapteynBArmorItems.frozen_iron_chestplate || stack.getItem() == KapteynBArmorItems.frozen_iron_boots)
 		{
-			return "kapteynb:textures/model/armor/frozen_iron_1.png";
+			return "moreplanets:textures/model/armor/frozen_iron_1.png";
 		}
 		if (stack.getItem() == KapteynBArmorItems.frozen_iron_leggings)
 		{
-			return "kapteynb:textures/model/armor/frozen_iron_2.png";
+			return "moreplanets:textures/model/armor/frozen_iron_2.png";
 		}
 		return null;
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "kapteynb";
 	}
 
 	@Override

@@ -15,13 +15,7 @@ public class BlockOrangeCreamLayer extends BlockCreamLayer
 	public BlockOrangeCreamLayer(String name)
 	{
 		super();
-		this.setBlockName(name);
-	}
-
-	@Override
-	public String getCreamTexture()
-	{
-		return "fronos:orange_cream";
+		this.setUnlocalizedName(name);
 	}
 
 	@Override

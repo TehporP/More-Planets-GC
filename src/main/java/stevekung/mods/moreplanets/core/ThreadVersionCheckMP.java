@@ -15,21 +15,20 @@ import java.net.URL;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent.Serializer;
 import net.minecraft.util.StatCollector;
-import stevekung.mods.moreplanets.core.config.ConfigManagerMP;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import stevekung.mods.moreplanets.common.config.ConfigManagerMP;
 
 public class ThreadVersionCheckMP extends Thread
 {
 	public static ThreadVersionCheckMP INSTANCE = new ThreadVersionCheckMP();
 	private int count = 0;
-	private String URL = "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2358057-more-planets-mod-v-1-2-7-galacticraft-add-on-the";
+	private String URL = "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2358057-more-planets-mod-v-1-2-6-galacticraft-add-on-the";
 
 	public static int remoteMajVer;
 	public static int remoteMinVer;
 	public static int remoteBuildVer;
-	public static String information;
 
 	public ThreadVersionCheckMP()
 	{
@@ -61,7 +60,6 @@ public class ThreadVersionCheckMP extends Thread
 				http.addRequestProperty("User-Agent", "Mozilla/4.76");
 				BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
 				String str;
-				String info;
 				String str2[] = null;
 
 				while ((str = in.readLine()) != null)
@@ -86,7 +84,8 @@ public class ThreadVersionCheckMP extends Thread
 							{
 								if (ConfigManagerMP.enableClientVersionCheck == true)
 								{
-									FMLClientHandler.instance().getClient().thePlayer.addChatMessage(Serializer.func_150699_a("[{text:\"" + EnumChatFormatting.GRAY + "New \",extra:[{text:\"" + EnumChatFormatting.AQUA + "More Planets\"},{text:\"" + EnumChatFormatting.GRAY + " version available!\"},{text:\"" + EnumChatFormatting.GREEN + EnumChatFormatting.BOLD + " v" + String.valueOf(remoteMajVer) + "." + String.valueOf(remoteMinVer) + "." + String.valueOf(remoteBuildVer) + " \"},{text:\"" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "CLICK HERE!\",hoverEvent:{action:show_text,value:\"" + EnumChatFormatting.YELLOW + EnumChatFormatting.BOLD + "Download Latest Version\"},clickEvent:{action:open_url,value:\"" + this.URL + "\"}}]}]"));
+									FMLClientHandler.instance().getClient().thePlayer.addChatMessage(Serializer.jsonToComponent("[{text:\"" + EnumChatFormatting.GRAY + "New \",extra:[{text:\"" + EnumChatFormatting.AQUA + "More Planets\"},{text:\"" + EnumChatFormatting.GRAY + " version available!\"},{text:\"" + EnumChatFormatting.GREEN + EnumChatFormatting.BOLD + " v" + String.valueOf(remoteMajVer) + "." + String.valueOf(remoteMinVer) + "." + String.valueOf(remoteBuildVer) + " \"},{text:\"" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "CLICK HERE!\",hoverEvent:{action:show_text,value:\"" + EnumChatFormatting.YELLOW + EnumChatFormatting.BOLD + "Download Latest Version\"},clickEvent:{action:open_url,value:\"" + this.URL + "\"}}]}]"));
+									FMLClientHandler.instance().getClient().thePlayer.addChatMessage(Serializer.jsonToComponent("[{text:\"" + EnumChatFormatting.GRAY + "Some minor improvement and fixes some issue\"}]"));
 								}
 							}
 							else if (sideToCheck.equals(Side.SERVER))
@@ -96,20 +95,6 @@ public class ThreadVersionCheckMP extends Thread
 									MorePlanetsCore.info("New version available! v" + String.valueOf(remoteMajVer) + "." + String.valueOf(remoteMinVer) + "." + String.valueOf(remoteBuildVer) + " ");
 								}
 							}
-						}
-					}
-				}
-				while ((info = in.readLine()) != null)
-				{
-					if (info.contains("Information"))
-					{
-						info = info.replace("Information=", "");
-						info = information;
-						Thread.sleep(5000);
-
-						if (sideToCheck.equals(Side.CLIENT))
-						{
-							FMLClientHandler.instance().getClient().thePlayer.addChatMessage(Serializer.func_150699_a("[{text:\"" + EnumChatFormatting.GRAY + ThreadVersionCheckMP.information + "\"}]"));
 						}
 					}
 				}

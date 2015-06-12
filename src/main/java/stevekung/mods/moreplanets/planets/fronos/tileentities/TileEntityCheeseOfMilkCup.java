@@ -11,4 +11,9 @@ import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityCheeseOfMilkCup extends TileEntity
 {
+	@Override
+	public boolean canRenderBreaking()
+	{
+		return true;
+	}
 }

@@ -8,104 +8,94 @@
 package stevekung.mods.moreplanets.planets.mercury.blocks;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
-import stevekung.mods.moreplanets.core.blocks.BlockIceMP;
-import stevekung.mods.moreplanets.core.util.WorldUtilMP;
+import stevekung.mods.moreplanets.common.blocks.BlockIceMP;
+import stevekung.mods.moreplanets.common.util.WorldUtilMP;
 
 public class BlockMercuryIce extends BlockIceMP
 {
 	public BlockMercuryIce(String name)
 	{
 		super(Material.ice);
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister par1IconRegister)
-	{
-		this.blockIcon = par1IconRegister.registerIcon("mercury:mercury_ice");
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		return this.blockIcon;
-	}
-
-	@Override
-	public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta)
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity tile)
 	{
 		player.addExhaustion(0.025F);
 
-		if (this.canSilkHarvest(world, player, x, y, z, meta) && EnchantmentHelper.getSilkTouchModifier(player))
+		if (this.canSilkHarvest(world, pos, world.getBlockState(pos), player) && EnchantmentHelper.getSilkTouchModifier(player))
 		{
-			ArrayList<ItemStack> items = new ArrayList();
-			ItemStack itemstack = this.createStackedBlock(meta);
+			List<ItemStack> items = new ArrayList<ItemStack>();
+			ItemStack itemstack = this.createStackedBlock(state);
 
 			if (itemstack != null)
 			{
 				items.add(itemstack);
 			}
 
-			ForgeEventFactory.fireBlockHarvesting(items, world, this, x, y, z, meta, 0, 1.0F, true, player);
+			ForgeEventFactory.fireBlockHarvesting(items, world, pos, world.getBlockState(pos), 0, 1.0f, true, player);
 
 			for (ItemStack is : items)
 			{
-				this.dropBlockAsItem(world, x, y, z, is);
+				spawnAsEntity(world, pos, is);
 			}
 		}
 		else
 		{
-			if (world.provider.isHellWorld)
+			if (world.provider.doesWaterVaporize())
 			{
-				world.setBlockToAir(x, y, z);
+				world.setBlockToAir(pos);
 				return;
 			}
-			else if (WorldUtilMP.isMercuryWorld(world, x, y, z))
+			else if (WorldUtilMP.isMercuryWorld(world, pos))
 			{
-				world.setBlockToAir(x, y, z);
+				world.setBlockToAir(pos);
 				return;
 			}
 
-			int i1 = EnchantmentHelper.getFortuneModifier(player);
+			int i = EnchantmentHelper.getFortuneModifier(player);
 			this.harvesters.set(player);
-			this.dropBlockAsItem(world, x, y, z, meta, i1);
+			this.dropBlockAsItem(world, pos, state, i);
 			this.harvesters.set(null);
-			Material material = world.getBlock(x, y - 1, z).getMaterial();
+			Material material = world.getBlockState(pos.down()).getBlock().getMaterial();
 
 			if (material.blocksMovement() || material.isLiquid())
 			{
-				world.setBlock(x, y, z, MercuryBlocks.dirty_water);
+				world.setBlockState(pos, MercuryBlocks.dirty_water.getDefaultState());
 			}
 		}
 	}
 
 	@Override
-	public void updateTick(World world, int x, int y, int z, Random rand)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		if (world.getSavedLightValue(EnumSkyBlock.Block, x, y, z) > 11 - this.getLightOpacity())
+		if (world.getLightFor(EnumSkyBlock.BLOCK, pos) > 11 - this.getLightOpacity())
 		{
-			if (world.provider.isHellWorld)
+			if (world.provider.doesWaterVaporize())
 			{
-				world.setBlockToAir(x, y, z);
+				world.setBlockToAir(pos);
 				return;
 			}
-			this.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
-			world.setBlock(x, y, z, MercuryBlocks.dirty_water);
+			this.dropBlockAsItem(world, pos, state, 0);
+			world.setBlockState(pos, MercuryBlocks.dirty_water.getDefaultState());
 		}
-		if (WorldUtilMP.isMercuryWorld(world, x, y, z))
+		if (WorldUtilMP.isMercuryWorld(world, pos))
 		{
-			world.setBlockToAir(x, y, z);
+			world.setBlockToAir(pos);
 			return;
 		}
 	}

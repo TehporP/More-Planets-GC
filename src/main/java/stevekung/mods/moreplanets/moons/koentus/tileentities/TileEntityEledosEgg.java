@@ -8,16 +8,17 @@
 package stevekung.mods.moreplanets.moons.koentus.tileentities;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
 
-public class TileEntityEledosEgg extends TileEntity
+public class TileEntityEledosEgg extends TileEntity implements IUpdatePlayerListBox
 {
 	public int timeToHatch = -1;
 
 	@Override
-	public void updateEntity()
+	public void update()
 	{
-		super.updateEntity();
+		super.validate();
 
 		if (!this.worldObj.isRemote)
 		{
@@ -25,13 +26,10 @@ public class TileEntityEledosEgg extends TileEntity
 			{
 				this.timeToHatch--;
 			}
-			/*else if (this.timeToHatch == 0)
+			/*else if (this.timeToHatch == 0) TODO
 			{
-				this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
-
 				EntityEledos eledos = new EntityEledos(this.worldObj);
-
-				eledos.setPosition(this.xCoord + 0.5, this.yCoord + 1.0, this.zCoord + 0.5);
+				eledos.setPosition(this.pos.getX() + 0.5, this.pos.getY() + 1.0, this.pos.getZ() + 0.5);
 
 				if (!this.worldObj.isRemote)
 				{
@@ -39,7 +37,7 @@ public class TileEntityEledosEgg extends TileEntity
 				}
 				eledos.setPathToEntity((PathEntity) null);
 				eledos.setAttackTarget((EntityLivingBase) null);
-				this.worldObj.setBlockToAir(this.xCoord, this.yCoord, this.zCoord);
+				this.worldObj.setBlockToAir(this.pos);
 			}*/
 		}
 	}

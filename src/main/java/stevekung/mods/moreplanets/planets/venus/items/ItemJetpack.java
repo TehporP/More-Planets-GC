@@ -15,22 +15,23 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.input.Keyboard;
 
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 import stevekung.mods.moreplanets.core.proxy.ClientProxyMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemJetpack extends ItemArmorMP
 {
 	int tick;
 
-	public ItemJetpack(String name, ArmorMaterial par2EnumArmorMaterial, int par3, int par4)
+	public ItemJetpack(String name, ArmorMaterial material, int type, int render)
 	{
-		super(par2EnumArmorMaterial, par3, par4);
+		super(material, type, render);
 		this.setUnlocalizedName(name);
 	}
 
@@ -39,7 +40,7 @@ public class ItemJetpack extends ItemArmorMP
 	{
 		if (stack.getItem() == this)
 		{
-			return "venus:textures/model/jetpack.png";
+			return "moreplanets:textures/model/jetpack.png";
 		}
 		return null;
 	}
@@ -104,7 +105,7 @@ public class ItemJetpack extends ItemArmorMP
 
 					for (int i = 0; i < 5; i++)
 					{
-						world.spawnParticle("largesmoke", player.posX, player.posY - 1, player.posZ, 0, -1.0D, 0);
+						world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, player.posX, player.posY - 1, player.posZ, 0, -1.0D, 0);
 					}
 
 					if (this.tick >= 1000)
@@ -125,7 +126,7 @@ public class ItemJetpack extends ItemArmorMP
 
 					for (int i = 0; i < 5; i++)
 					{
-						world.spawnParticle("largesmoke", player.posX, player.posY - 1, player.posZ, 0, -2.0D, 0);
+						world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, player.posX, player.posY - 1, player.posZ, 0, -2.0D, 0);
 					}
 					if (this.tick >= 1000)
 					{
@@ -141,12 +142,6 @@ public class ItemJetpack extends ItemArmorMP
 				}
 			}
 		}
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "venus";
 	}
 
 	@Override

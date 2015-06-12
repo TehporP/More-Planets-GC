@@ -12,22 +12,23 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IShearable;
-import net.minecraftforge.common.util.ForgeDirection;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.planets.nibiru.entities.EntityInfectedWorm;
 
 public class BlockInfectedCavernousVine extends BlockBaseMP implements IShearable
@@ -37,28 +38,33 @@ public class BlockInfectedCavernousVine extends BlockBaseMP implements IShearabl
 		super(Material.vine);
 		this.setLightLevel(1.0F);
 		this.setTickRandomly(true);
-		this.setStepSound(Block.soundTypeGrass);
-		this.setBlockName(name);
-		this.setBlockTextureName("nibiru:infected_cavernous_vine");
+		this.setStepSound(soundTypeGrass);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public MovingObjectPosition collisionRayTrace(World world, int x, int y, int z, Vec3 vec3d, Vec3 vec3d1)
+	public EnumWorldBlockLayer getBlockLayer()
 	{
-		return super.collisionRayTrace(world, x, y, z, vec3d, vec3d1);
+		return EnumWorldBlockLayer.CUTOUT;
 	}
 
 	@Override
-	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z)
+	public MovingObjectPosition collisionRayTrace(World world, BlockPos pos, Vec3 vec3d, Vec3 vec3d1)
 	{
-		if (world.setBlockToAir(x, y, z))
+		return super.collisionRayTrace(world, pos, vec3d, vec3d1);
+	}
+
+	@Override
+	public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
+	{
+		if (world.setBlockToAir(pos))
 		{
-			int y2 = y - 1;
+			int y = pos.down().getY();
 
-			while (world.getBlock(x, y2, z) == this)
+			while (world.getBlockState(pos.add(pos.getX(), y, pos.getZ())) == this)
 			{
-				world.setBlockToAir(x, y2, z);
-				y2--;
+				world.setBlockToAir(pos.add(pos.getX(), y, pos.getZ()));
+				y--;
 			}
 			return true;
 		}
@@ -66,47 +72,28 @@ public class BlockInfectedCavernousVine extends BlockBaseMP implements IShearabl
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
 		if (entity instanceof EntityLivingBase)
 		{
-			if (entity instanceof EntityPlayer)
+			if (entity instanceof EntityPlayer && world.rand.nextInt(1000) == 0)
 			{
-				if (((EntityPlayer)entity).capabilities.isCreativeMode || ((EntityPlayer)entity).capabilities.isFlying)
+				if (((EntityPlayer)entity).capabilities.isFlying)
 				{
 					return;
 				}
+				if (!world.isRemote)
+				{
+					EntityInfectedWorm worm = new EntityInfectedWorm(world);
+					worm.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0F, 0.0F);
+					world.spawnEntityInWorld(worm);
+				}
 			}
-
-			entity.motionY = 0.07F;
-
-			if (!((EntityLivingBase)entity).getActivePotionEffects().contains(Potion.poison))
-			{
-				((EntityLivingBase)entity).addPotionEffect(new PotionEffect(Potion.poison.id, 5, 20, false));
-			}
+			((EntityLivingBase)entity).addPotionEffect(new PotionEffect(Potion.poison.id, 5, 20, false, false));
+			entity.motionY = 0.09F;
+			entity.fallDistance = 0.0F;
+			return;
 		}
-
-		if (entity instanceof EntityPlayer && world.rand.nextInt(1000) == 0)
-		{
-			if (!world.isRemote)
-			{
-				EntityInfectedWorm worm = new EntityInfectedWorm(world);
-				worm.setLocationAndAngles(x + 0.5D, y, z + 0.5D, 0.0F, 0.0F);
-				world.spawnEntityInWorld(worm);
-			}
-		}
-	}
-
-	@Override
-	public int getLightValue(IBlockAccess world, int x, int y, int z)
-	{
-		return this.getVineLight(world, x, y, z);
-	}
-
-	@Override
-	public int getRenderType()
-	{
-		return 1;
 	}
 
 	@Override
@@ -116,127 +103,97 @@ public class BlockInfectedCavernousVine extends BlockBaseMP implements IShearabl
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
+	public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state)
 	{
 		return null;
 	}
 
 	@Override
-	public boolean canPlaceBlockOnSide(World world, int x, int y, int z, int side)
+	public boolean isReplaceable(World world, BlockPos pos)
 	{
-		return ForgeDirection.getOrientation(side) == ForgeDirection.DOWN && world.getBlock(x, y + 1, z).getMaterial().isSolid();
-	}
-
-	public int getVineLength(IBlockAccess world, int x, int y, int z)
-	{
-		int vineCount = 0;
-		int y2 = y;
-
-		while (world.getBlock(x, y2, z) == NibiruBlocks.infected_cavernous_vine)
-		{
-			vineCount++;
-			y2++;
-		}
-		return vineCount;
-	}
-
-	public int getVineLight(IBlockAccess world, int x, int y, int z)
-	{
-		int vineCount = 0;
-		int y2 = y;
-
-		while (world.getBlock(x, y2, z) == NibiruBlocks.infected_cavernous_vine)
-		{
-			vineCount += 4;
-			y2--;
-		}
-		return Math.max(19 - vineCount, 0);
+		return false;
 	}
 
 	@Override
-	public int tickRate(World par1World)
+	public boolean canPlaceBlockOnSide(World world, BlockPos pos, EnumFacing side)
+	{
+		return side == EnumFacing.DOWN && world.getBlockState(pos.up()).getBlock().getMaterial().isSolid();
+	}
+
+	@Override
+	public int tickRate(World world)
 	{
 		return 50;
 	}
 
 	@Override
-	public void updateTick(World world, int x, int y, int z, Random rand)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
 		if (!world.isRemote)
 		{
-			for (int y2 = y - 1; y2 >= y - 2; y2--)
+			for (int y = pos.down().getY(); y >= pos.down(2).getY(); y--)
 			{
-				Block block = world.getBlock(x, y2, z);
+				Block block = world.getBlockState(new BlockPos(pos.getX(), y, pos.getZ())).getBlock();
 
-				if (!block.isAir(world, x, y, z))
+				if (!block.isAir(world, pos))
 				{
 					return;
 				}
 			}
-			world.setBlock(x, y - 1, z, this, 0, 2);
-			world.func_147451_t(x, y, z);
+			world.setBlockState(pos.down(), this.getDefaultState(), 2);
+			world.checkLight(pos);
 		}
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
-	{
-		return Item.getItemFromBlock(Blocks.air);
-	}
-
-	@Override
-	public int quantityDropped(Random par1Random)
+	public int quantityDropped(Random rand)
 	{
 		return 0;
 	}
 
 	@Override
-	public boolean canBlockStay(World world, int x, int y, int z)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block block)
 	{
-		Block block = world.getBlock(x, y + 1, z);
+		this.checkForDrop(world, pos, state);
+	}
+
+	private boolean checkForDrop(World world, BlockPos pos, IBlockState state)
+	{
+		if (!this.canBlockStay(world, pos))
+		{
+			this.dropBlockAsItem(world, pos, state, 0);
+			world.setBlockToAir(pos);
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	private boolean canBlockStay(World world, BlockPos pos)
+	{
+		Block block = world.getBlockState(pos.up()).getBlock();
 		return block == this || block.getMaterial().isSolid();
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
-	{
-		super.onNeighborBlockChange(world, x, y, z, block);
-
-		if (!this.canBlockStay(world, x, y, z))
-		{
-			world.setBlockToAir(x, y, z);
-		}
-	}
-
-	@Override
-	public void harvestBlock(World par1World, EntityPlayer par2EntityPlayer, int par3, int par4, int par5, int par6)
-	{
-		super.harvestBlock(par1World, par2EntityPlayer, par3, par4, par5, par6);
-	}
-
-	@Override
-	public boolean isShearable(ItemStack item, IBlockAccess world, int x, int y, int z)
+	public boolean isShearable(ItemStack itemStack, IBlockAccess world, BlockPos pos)
 	{
 		return true;
 	}
 
 	@Override
-	public ArrayList<ItemStack> onSheared(ItemStack item, IBlockAccess world, int x, int y, int z, int fortune)
+	public ArrayList<ItemStack> onSheared(ItemStack itemStack, IBlockAccess world, BlockPos pos, int fortune)
 	{
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
 		ret.add(new ItemStack(this, 1, 0));
 		return ret;
-	}
-
-	@Override
-	public boolean isLadder(IBlockAccess world, int x, int y, int z, EntityLivingBase entity)
-	{
-		return true;
 	}
 }

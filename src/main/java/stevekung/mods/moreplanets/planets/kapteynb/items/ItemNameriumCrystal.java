@@ -7,16 +7,15 @@
 
 package stevekung.mods.moreplanets.planets.kapteynb.items;
 
-import stevekung.mods.moreplanets.core.items.IPowerCrystal;
-import stevekung.mods.moreplanets.core.items.ItemMorePlanet;
+import stevekung.mods.moreplanets.common.items.IPowerCrystal;
+import stevekung.mods.moreplanets.common.items.ItemMorePlanets;
 
-public class ItemNameriumCrystal extends ItemMorePlanet implements IPowerCrystal
+public class ItemNameriumCrystal extends ItemMorePlanets implements IPowerCrystal
 {
 	public ItemNameriumCrystal(String name)
 	{
 		super();
 		this.setUnlocalizedName(name);
-		this.setTextureName("kapteynb:namerium_crystal");
 	}
 
 	@Override

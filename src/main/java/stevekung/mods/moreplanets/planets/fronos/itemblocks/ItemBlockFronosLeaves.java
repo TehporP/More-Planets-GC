@@ -8,16 +8,13 @@
 package stevekung.mods.moreplanets.planets.fronos.itemblocks;
 
 import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockMorePlanet;
-import stevekung.mods.moreplanets.planets.fronos.blocks.BlockFronosLeaves;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
-public class ItemBlockFronosLeaves extends ItemBlockMorePlanet
+public class ItemBlockFronosLeaves extends ItemBlockBaseMP
 {
 	public ItemBlockFronosLeaves(Block block)
 	{
 		super(block);
-		this.setHasSubtypes(true);
 	}
 
 	@Override
@@ -27,9 +24,8 @@ public class ItemBlockFronosLeaves extends ItemBlockMorePlanet
 	}
 
 	@Override
-	public String getUnlocalizedName(ItemStack itemStack)
+	public String[] getBlockVariantsName()
 	{
-		BlockFronosLeaves block = (BlockFronosLeaves)this.field_150939_a;
-		return super.getUnlocalizedName() + "." + block.getLeafType(itemStack.getItemDamage());
+		return new String[] { "red_maple_leaves", "yellow_maple_leaves", "purple_maple_leaves" };
 	}
 }

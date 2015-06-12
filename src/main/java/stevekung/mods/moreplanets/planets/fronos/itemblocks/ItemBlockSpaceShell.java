@@ -8,12 +8,11 @@
 package stevekung.mods.moreplanets.planets.fronos.itemblocks;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockColored;
-import net.minecraft.item.ItemDye;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockMorePlanet;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockMorePlanets;
 
-public class ItemBlockSpaceShell extends ItemBlockMorePlanet
+public class ItemBlockSpaceShell extends ItemBlockMorePlanets
 {
 	public ItemBlockSpaceShell(Block block)
 	{
@@ -28,8 +27,8 @@ public class ItemBlockSpaceShell extends ItemBlockMorePlanet
 	}
 
 	@Override
-	public String getUnlocalizedName(ItemStack itemstack)
+	public String getUnlocalizedName(ItemStack itemStack)
 	{
-		return this.field_150939_a.getUnlocalizedName() + "." + ItemDye.field_150921_b[BlockColored.func_150032_b(itemstack.getItemDamage())];
+		return super.getUnlocalizedName() + "." + EnumDyeColor.byMetadata(itemStack.getMetadata()).getName();
 	}
 }

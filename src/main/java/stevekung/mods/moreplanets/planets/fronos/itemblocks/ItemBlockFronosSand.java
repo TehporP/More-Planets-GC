@@ -8,7 +8,7 @@
 package stevekung.mods.moreplanets.planets.fronos.itemblocks;
 
 import net.minecraft.block.Block;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
 public class ItemBlockFronosSand extends ItemBlockBaseMP
 {
@@ -20,6 +20,6 @@ public class ItemBlockFronosSand extends ItemBlockBaseMP
 	@Override
 	public String[] getBlockVariantsName()
 	{
-		return new String[] { "fronosSand", "whiteSand", "cheeseSand" };
+		return new String[] { "fronos_sand", "white_sand", "cheese_sand" };
 	}
 }

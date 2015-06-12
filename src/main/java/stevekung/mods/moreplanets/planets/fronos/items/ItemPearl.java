@@ -14,11 +14,13 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.items.ItemBaseMP;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.items.ItemBaseMP;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemPearl extends ItemBaseMP
 {
@@ -34,16 +36,16 @@ public class ItemPearl extends ItemBaseMP
 	{
 		for (int i = 0; i < this.getItemVariantsName().length; i++)
 		{
-			list.add(new ItemStack(item, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, int par4, int par5, int par6, int par7, float par8, float par9, float par10)
+	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float par8, float par9, float par10)
 	{
-		Block block = world.getBlock(par4, par5, par6);
+		Block block = world.getBlockState(pos).getBlock();
 
-		if (player.canPlayerEdit(par4, par5, par6, par7, itemStack) && block == FronosBlocks.fronos_grass)
+		if (player.canPlayerEdit(pos, side, itemStack) && block == FronosBlocks.fronos_grass)
 		{
 			if (itemStack.getItemDamage() == 0)
 			{
@@ -53,11 +55,11 @@ public class ItemPearl extends ItemBaseMP
 				}
 				else
 				{
-					world.setBlock(par4, par5, par6, FronosBlocks.golden_grass);
+					world.setBlockState(pos, FronosBlocks.golden_grass.getDefaultState());
 
 					if (world.rand.nextInt(2) == 0)
 					{
-						world.setBlock(par4, par5 + 1, par6, FronosBlocks.fronos_tall_grass, 12 + world.rand.nextInt(3), 3);
+						world.setBlockState(pos.up(), FronosBlocks.fronos_tall_grass.getStateFromMeta(world.rand.nextInt(3) + 12), 3);
 					}
 					--itemStack.stackSize;
 				}
@@ -84,11 +86,5 @@ public class ItemPearl extends ItemBaseMP
 	public String[] getItemVariantsName()
 	{
 		return new String[] { "cream_pearl", "cavern_pearl" };
-	}
-
-	@Override
-	public String getTexturesFolder()
-	{
-		return "fronos";
 	}
 }

@@ -7,16 +7,15 @@
 
 package stevekung.mods.moreplanets.planets.nibiru.items;
 
-import stevekung.mods.moreplanets.core.items.IPowerCrystal;
-import stevekung.mods.moreplanets.core.items.ItemMorePlanet;
+import stevekung.mods.moreplanets.common.items.IPowerCrystal;
+import stevekung.mods.moreplanets.common.items.ItemMorePlanets;
 
-public class ItemPowerCrystal extends ItemMorePlanet implements IPowerCrystal
+public class ItemPowerCrystal extends ItemMorePlanets implements IPowerCrystal
 {
 	public ItemPowerCrystal(String name)
 	{
 		super();
 		this.setUnlocalizedName(name);
-		this.setTextureName("nibiru:ichorius_crystal");
 	}
 
 	@Override

@@ -20,10 +20,14 @@ import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.entities.ai.EntityAITemptMP;
+import stevekung.mods.moreplanets.common.entities.ai.EntityAITemptMP;
 import stevekung.mods.moreplanets.core.init.MPItems;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 
@@ -36,10 +40,10 @@ public class EntityStrawberryChicken extends EntityAnimal
 	public float field_70889_i = 1.0F;
 	public int timeUntilNextEgg;
 
-	public EntityStrawberryChicken(World par1World)
+	public EntityStrawberryChicken(World world)
 	{
-		super(par1World);
-		this.setSize(0.3F, 0.7F);
+		super(world);
+		this.setSize(0.4F, 0.7F);
 		this.timeUntilNextEgg = this.rand.nextInt(6000) + 6000;
 		this.tasks.addTask(0, new EntityAISwimming(this));
 		this.tasks.addTask(1, new EntityAIPanic(this, 1.4D));
@@ -53,9 +57,9 @@ public class EntityStrawberryChicken extends EntityAnimal
 	}
 
 	@Override
-	public boolean isAIEnabled()
+	public float getEyeHeight()
 	{
-		return true;
+		return this.height;
 	}
 
 	@Override
@@ -116,16 +120,7 @@ public class EntityStrawberryChicken extends EntityAnimal
 		this.field_70888_h = this.field_70886_e;
 		this.field_70884_g = this.destPos;
 		this.destPos = (float)(this.destPos + (this.onGround ? -1 : 4) * 0.3D);
-
-		if (this.destPos < 0.0F)
-		{
-			this.destPos = 0.0F;
-		}
-
-		if (this.destPos > 1.0F)
-		{
-			this.destPos = 1.0F;
-		}
+		this.destPos = MathHelper.clamp_float(this.destPos, 0.0F, 1.0F);
 
 		if (!this.onGround && this.field_70889_i < 1.0F)
 		{
@@ -141,7 +136,7 @@ public class EntityStrawberryChicken extends EntityAnimal
 
 		this.field_70886_e += this.field_70889_i * 2.0F;
 
-		if (!this.isChild() && !this.worldObj.isRemote && --this.timeUntilNextEgg <= 0)
+		if (!this.worldObj.isRemote && !this.isChild() && --this.timeUntilNextEgg <= 0)
 		{
 			this.playSound("mob.chicken.plop", 1.0F, (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F);
 			this.dropItem(Items.egg, 1);
@@ -150,9 +145,7 @@ public class EntityStrawberryChicken extends EntityAnimal
 	}
 
 	@Override
-	protected void fall(float par1)
-	{
-	}
+	public void fall(float distance, float damageMultiplier) {}
 
 	@Override
 	protected String getLivingSound()
@@ -173,15 +166,21 @@ public class EntityStrawberryChicken extends EntityAnimal
 	}
 
 	@Override
-	protected void func_145780_a(int x, int y, int z, Block block)
+	protected void playStepSound(BlockPos pos, Block block)
 	{
 		this.playSound("mob.chicken.step", 0.15F, 1.0F);
 	}
 
 	@Override
-	protected void dropFewItems(boolean par1, int par2)
+	protected Item getDropItem()
 	{
-		final int j = this.rand.nextInt(3) + this.rand.nextInt(1 + par2);
+		return Items.feather;
+	}
+
+	@Override
+	protected void dropFewItems(boolean drop, int par2)
+	{
+		int j = this.rand.nextInt(3) + this.rand.nextInt(1 + par2);
 
 		for (int k = 0; k < j; ++k)
 		{
@@ -198,20 +197,33 @@ public class EntityStrawberryChicken extends EntityAnimal
 		}
 	}
 
-	public EntityStrawberryChicken spawnBabyAnimal(EntityAgeable par1EntityAgeable)
+	@Override
+	public EntityStrawberryChicken createChild(EntityAgeable ageable)
 	{
 		return new EntityStrawberryChicken(this.worldObj);
 	}
 
 	@Override
-	public boolean isBreedingItem(ItemStack par1ItemStack)
+	public boolean isBreedingItem(ItemStack itemStack)
 	{
-		return par1ItemStack.getItem() == Items.wheat_seeds || par1ItemStack.getItem() == FronosItems.golden_seeds;
+		return itemStack != null && (itemStack.getItem() == Items.wheat_seeds || itemStack.getItem() == FronosItems.golden_seeds);
 	}
 
 	@Override
-	public EntityAgeable createChild(EntityAgeable par1EntityAgeable)
+	public void readEntityFromNBT(NBTTagCompound nbt)
 	{
-		return this.spawnBabyAnimal(par1EntityAgeable);
+		super.readEntityFromNBT(nbt);
+
+		if (nbt.hasKey("EggLayTime"))
+		{
+			this.timeUntilNextEgg = nbt.getInteger("EggLayTime");
+		}
+	}
+
+	@Override
+	public void writeEntityToNBT(NBTTagCompound nbt)
+	{
+		super.writeEntityToNBT(nbt);
+		nbt.setInteger("EggLayTime", this.timeUntilNextEgg);
 	}
 }

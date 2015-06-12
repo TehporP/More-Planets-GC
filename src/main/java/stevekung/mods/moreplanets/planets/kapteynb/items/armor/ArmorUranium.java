@@ -10,14 +10,14 @@ package stevekung.mods.moreplanets.planets.kapteynb.items.armor;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 import stevekung.mods.moreplanets.planets.kapteynb.items.KapteynBItems;
 
 public class ArmorUranium extends ItemArmorMP
 {
-	public ArmorUranium(String name, ArmorMaterial par2EnumArmorMaterial, int par3, int par4)
+	public ArmorUranium(String name, ArmorMaterial material, int render, int type)
 	{
-		super(par2EnumArmorMaterial, par3, par4);
+		super(material, render, type);
 		this.setUnlocalizedName(name);
 	}
 
@@ -26,19 +26,13 @@ public class ArmorUranium extends ItemArmorMP
 	{
 		if (stack.getItem() == KapteynBArmorItems.uranium_helmet || stack.getItem() == KapteynBArmorItems.uranium_chestplate || stack.getItem() == KapteynBArmorItems.uranium_boots)
 		{
-			return "kapteynb:textures/model/armor/uranium_1.png";
+			return "moreplanets:textures/model/armor/uranium_1.png";
 		}
 		if (stack.getItem() == KapteynBArmorItems.uranium_leggings)
 		{
-			return "kapteynb:textures/model/armor/uranium_2.png";
+			return "moreplanets:textures/model/armor/uranium_2.png";
 		}
 		return null;
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "kapteynb";
 	}
 
 	@Override

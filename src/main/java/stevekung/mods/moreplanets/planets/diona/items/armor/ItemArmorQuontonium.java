@@ -10,7 +10,7 @@ package stevekung.mods.moreplanets.planets.diona.items.armor;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import stevekung.mods.moreplanets.core.items.armor.ItemArmorMP;
+import stevekung.mods.moreplanets.common.items.armor.ItemArmorMP;
 import stevekung.mods.moreplanets.planets.diona.items.DionaItems;
 
 public class ItemArmorQuontonium extends ItemArmorMP
@@ -26,19 +26,13 @@ public class ItemArmorQuontonium extends ItemArmorMP
 	{
 		if (stack.getItem() == DionaArmorItems.quontonium_helmet || stack.getItem() == DionaArmorItems.quontonium_chestplate || stack.getItem() == DionaArmorItems.quontonium_boots)
 		{
-			return "diona:textures/model/armor/quontonium_1.png";
+			return "moreplanets:textures/model/armor/quontonium_1.png";
 		}
 		else if (stack.getItem() == DionaArmorItems.quontonium_leggings)
 		{
-			return "diona:textures/model/armor/quontonium_2.png";
+			return "moreplanets:textures/model/armor/quontonium_2.png";
 		}
 		return null;
-	}
-
-	@Override
-	public String getTextureLocation()
-	{
-		return "diona";
 	}
 
 	@Override

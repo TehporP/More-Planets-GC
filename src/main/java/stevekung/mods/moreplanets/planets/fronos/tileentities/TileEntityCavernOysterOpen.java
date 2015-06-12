@@ -11,4 +11,9 @@ import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityCavernOysterOpen extends TileEntity
 {
+	@Override
+	public boolean canRenderBreaking()
+	{
+		return true;
+	}
 }

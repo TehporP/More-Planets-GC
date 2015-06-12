@@ -7,104 +7,31 @@
 
 package stevekung.mods.moreplanets.planets.siriusb.blocks;
 
-import micdoodle8.mods.galacticraft.planets.mars.items.MarsItems;
-import net.minecraft.block.BlockDragonEgg;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.common.blocks.BlockEggMP;
 import stevekung.mods.moreplanets.planets.siriusb.entities.EntitySiriusBlaze;
 
-public class BlockSiriusBlazeEgg extends BlockDragonEgg
+public class BlockSiriusBlazeEgg extends BlockEggMP
 {
 	public BlockSiriusBlazeEgg(String name)
 	{
 		super();
-		this.setBlockName(name);
-		this.setHardness(-1.0F);
 		this.setLightLevel(1.0F);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
-	{
-		this.blockIcon = iconRegister.registerIcon("siriusb:sirius_blaze_egg");
-	}
-
-	@Override
-	public boolean isOpaqueCube()
-	{
-		return false;
-	}
-
-	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
-	{
-		return false;
-	}
-
-	@Override
-	public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
-	{
-	}
-
-	@Override
-	public Item getItem(World par1World, int par2, int par3, int par4)
-	{
-		return Item.getItemFromBlock(this);
-	}
-
-	@Override
-	public void onBlockExploded(World world, int x, int y, int z, Explosion explosion)
+	public void onBlockExploded(World world, BlockPos pos, Explosion explosion)
 	{
 		if (!world.isRemote)
 		{
 			EntitySiriusBlaze blaze = new EntitySiriusBlaze(world);
-			blaze.setPosition(x + 0.5, y + 1, z + 0.5);
+			blaze.setPosition(pos.getX() + 0.5D, pos.getY() + 1.0D, pos.getZ() + 0.5D);
 			world.spawnEntityInWorld(blaze);
 		}
-		world.setBlockToAir(x, y, z);
-		this.onBlockDestroyedByExplosion(world, x, y, z, explosion);
-	}
-
-	@Override
-	public boolean canHarvestBlock(EntityPlayer player, int metadata)
-	{
-		ItemStack stack = player.inventory.getCurrentItem();
-
-		if (stack == null)
-		{
-			return player.canHarvestBlock(this);
-		}
-		return stack.getItem() == MarsItems.deshPickSlime;
-	}
-
-	@Override
-	public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z)
-	{
-		ItemStack stack = player.inventory.getCurrentItem();
-
-		if (stack != null && stack.getItem() == MarsItems.deshPickSlime)
-		{
-			return 0.6F;
-		}
-		return ForgeHooks.blockStrength(this, player, world, x, y, z);
+		world.setBlockToAir(pos);
+		this.onBlockDestroyedByExplosion(world, pos, explosion);
 	}
 }

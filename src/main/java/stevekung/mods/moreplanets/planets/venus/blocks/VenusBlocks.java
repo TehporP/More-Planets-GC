@@ -22,7 +22,7 @@ public class VenusBlocks
 	public static Block venusian_blaze_egg;
 	public static Block sulfur_torch;
 	public static Block venus_ancient_chest;
-	public static Block venus_treasure_chest;
+	//public static Block venus_treasure_chest;
 
 	public static void init()
 	{
@@ -33,16 +33,16 @@ public class VenusBlocks
 
 	private static void initBlocks()
 	{
-		VenusBlocks.venus_block = new BlockBasicVenus("venus_block");
-		VenusBlocks.venus_redstone_ore = new BlockVenusRedstoneOre("venus_redstone_ore", false).setBlockTextureName("venus:venus_redstone_ore");
-		VenusBlocks.venus_redstone_ore_active = new BlockVenusRedstoneOre("venus_redstone_ore_active", true).setBlockTextureName("venus:venus_redstone_ore");
+		VenusBlocks.venus_block = new BlockVenus("venus_block");
+		VenusBlocks.venus_redstone_ore = new BlockVenusRedstoneOre("venus_redstone_ore", false);
+		VenusBlocks.venus_redstone_ore_active = new BlockVenusRedstoneOre("venus_redstone_ore_active", true);
 		VenusBlocks.venus_smoke_geyser = new BlockVenusSmokeGeyser("venus_smoke_geyser");
 		VenusBlocks.venus_sand = new BlockVenusSand("venus_sand");
 		VenusBlocks.venus_magma_rock = new BlockVenusMagmaRock("venus_magma_rock");
 		VenusBlocks.venusian_blaze_egg = new BlockVenusianBlazeEgg("venusian_blaze_egg");
 		VenusBlocks.sulfur_torch = new BlockSulfurTorch("sulfur_torch");
 		VenusBlocks.venus_ancient_chest = new BlockVenusAncientChest("venus_ancient_chest");
-		VenusBlocks.venus_treasure_chest = new BlockVenusTreasureChest("venus_treasure_chest");
+		//VenusBlocks.venus_treasure_chest = new BlockVenusTreasureChest("venus_treasure_chest");
 	}
 
 	private static void setHarvestLevels()
@@ -67,6 +67,6 @@ public class VenusBlocks
 		RegisterHelper.registerBlock(VenusBlocks.sulfur_torch);
 		RegisterHelper.registerBlock(VenusBlocks.venusian_blaze_egg);
 		RegisterHelper.registerBlock(VenusBlocks.venus_ancient_chest);
-		RegisterHelper.registerBlock(VenusBlocks.venus_treasure_chest);
+		//RegisterHelper.registerBlock(VenusBlocks.venus_treasure_chest);
 	}
 }

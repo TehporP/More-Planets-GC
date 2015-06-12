@@ -10,15 +10,12 @@ package stevekung.mods.moreplanets.planets.polongnius.entities;
 import java.util.Iterator;
 import java.util.List;
 
-import micdoodle8.mods.galacticraft.api.vector.Vector3;
-import micdoodle8.mods.galacticraft.core.GalacticraftCore;
-import micdoodle8.mods.galacticraft.core.util.ConfigManagerCore;
-import net.minecraft.block.BlockAir;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.MovingObjectPosition;
@@ -65,35 +62,35 @@ public class EntityPolongniusMeteor extends Entity
 			this.spawnParticles();
 		}
 
-		Vec3 var15 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
-		Vec3 var2 = Vec3.createVectorHelper(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-		MovingObjectPosition var3 = this.worldObj.func_147447_a(var15, var2, true, true, false);
-		var15 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
-		var2 = Vec3.createVectorHelper(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+		Vec3 var15 = new Vec3(this.posX, this.posY, this.posZ);
+		Vec3 var2 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+		MovingObjectPosition var3 = this.worldObj.rayTraceBlocks(var15, var2, true, true, false);
+		var15 = new Vec3(this.posX, this.posY, this.posZ);
+		var2 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
 		if (var3 != null)
 		{
-			var2 = Vec3.createVectorHelper(var3.hitVec.xCoord, var3.hitVec.yCoord, var3.hitVec.zCoord);
+			var2 = new Vec3(var3.hitVec.xCoord, var3.hitVec.yCoord, var3.hitVec.zCoord);
 		}
 
 		Entity var4 = null;
-		final List<?> var5 = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(2.0D, 2.0D, 2.0D));
+		List<?> var5 = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(2.0D, 2.0D, 2.0D));
 		double var6 = 0.0D;
-		final Iterator<?> var8 = var5.iterator();
+		Iterator<?> var8 = var5.iterator();
 
 		while (var8.hasNext())
 		{
-			final Entity var9 = (Entity) var8.next();
+			Entity var9 = (Entity) var8.next();
 
 			if (var9.canBeCollidedWith() && !var9.isEntityEqual(this.shootingEntity))
 			{
-				final float var10 = 0.01F;
-				final AxisAlignedBB var11 = var9.boundingBox.expand(var10, var10, var10);
-				final MovingObjectPosition var12 = var11.calculateIntercept(var15, var2);
+				float var10 = 0.01F;
+				AxisAlignedBB var11 = var9.getEntityBoundingBox().expand(var10, var10, var10);
+				MovingObjectPosition var12 = var11.calculateIntercept(var15, var2);
 
 				if (var12 != null)
 				{
-					final double var13 = var15.distanceTo(var12.hitVec);
+					double var13 = var15.distanceTo(var12.hitVec);
 
 					if (var13 < var6 || var6 == 0.0D)
 					{
@@ -108,12 +105,10 @@ public class EntityPolongniusMeteor extends Entity
 		{
 			var3 = new MovingObjectPosition(var4);
 		}
-
 		if (var3 != null)
 		{
 			this.onImpact(var3);
 		}
-
 		if (this.posY <= -20 || this.posY >= 400)
 		{
 			this.setDead();
@@ -122,26 +117,28 @@ public class EntityPolongniusMeteor extends Entity
 
 	protected void spawnParticles()
 	{
-		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX, this.posY + 1D + Math.random(), this.posZ), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
-		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX + Math.random() / 2, this.posY + 1D + Math.random() / 2, this.posZ), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
-		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX, this.posY + 1D + Math.random(), this.posZ + Math.random()), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
-		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX - Math.random() / 2, this.posY + 1D + Math.random() / 2, this.posZ), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
-		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX, this.posY + 1D + Math.random(), this.posZ - Math.random()), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
+		//		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX, this.posY + 1D + Math.random(), this.posZ), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
+		//		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX + Math.random() / 2, this.posY + 1D + Math.random() / 2, this.posZ), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
+		//		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX, this.posY + 1D + Math.random(), this.posZ + Math.random()), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
+		//		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX - Math.random() / 2, this.posY + 1D + Math.random() / 2, this.posZ), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
+		//		GalacticraftCore.proxy.spawnParticle("distanceSmoke", new Vector3(this.posX, this.posY + 1D + Math.random(), this.posZ - Math.random()), new Vector3(0.0D, 0.0D, 0.0D), new Object[] { });
 	}
 
-	protected void onImpact(MovingObjectPosition par1MovingObjectPosition)
+	protected void onImpact(MovingObjectPosition moving)
 	{
 		if (!this.worldObj.isRemote)
 		{
-			if (par1MovingObjectPosition != null)
+			if (moving != null)
 			{
-				if (this.worldObj.getBlock(par1MovingObjectPosition.blockX, par1MovingObjectPosition.blockY + 1, par1MovingObjectPosition.blockZ) instanceof BlockAir)
+				BlockPos pos = moving.getBlockPos().offset(moving.sideHit);
+
+				if (this.worldObj.isAirBlock(pos))
 				{
-					this.worldObj.setBlock(par1MovingObjectPosition.blockX, par1MovingObjectPosition.blockY + 1, par1MovingObjectPosition.blockZ, PolongniusBlocks.fallen_polongnius_meteor, 0, 3);
+					this.worldObj.setBlockState(moving.getBlockPos(), PolongniusBlocks.fallen_polongnius_meteor.getDefaultState(), 3);
 				}
-				if (par1MovingObjectPosition.entityHit != null)
+				if (moving.entityHit != null)
 				{
-					par1MovingObjectPosition.entityHit.attackEntityFrom(EntityPolongniusMeteor.causeMeteorDamage(this, this.shootingEntity), ConfigManagerCore.hardMode ? 12F : 6F);
+					moving.entityHit.attackEntityFrom(EntityPolongniusMeteor.causeMeteorDamage(this, this.shootingEntity), 6);
 				}
 			}
 			this.worldObj.newExplosion((Entity) null, this.posX, this.posY, this.posZ, this.size / 3 + 2, false, true);
@@ -149,13 +146,13 @@ public class EntityPolongniusMeteor extends Entity
 		this.setDead();
 	}
 
-	public static DamageSource causeMeteorDamage(EntityPolongniusMeteor par0EntityMeteor, Entity par1Entity)
+	public static DamageSource causeMeteorDamage(EntityPolongniusMeteor meteor, Entity entity)
 	{
-		if (par1Entity != null && par1Entity instanceof EntityPlayer)
+		if (entity != null && entity instanceof EntityPlayer)
 		{
-			StatCollector.translateToLocalFormatted("death." + "meteor", ((EntityPlayer) par1Entity).getGameProfile().getName() + " was hit by a meteor! That's gotta hurt!");
+			StatCollector.translateToLocalFormatted("death." + "meteor", ((EntityPlayer)entity).getGameProfile().getName() + " was hit by a meteor! That's gotta hurt!");
 		}
-		return new EntityDamageSourceIndirect("explosion", par0EntityMeteor, par1Entity).setProjectile();
+		return new EntityDamageSourceIndirect("explosion", meteor, entity).setProjectile();
 	}
 
 	@Override
@@ -170,18 +167,18 @@ public class EntityPolongniusMeteor extends Entity
 		return this.dataWatcher.getWatchableObjectInt(16);
 	}
 
-	public void setSize(int par1)
+	public void setSize(int size)
 	{
-		this.dataWatcher.updateObject(16, Integer.valueOf(par1));
+		this.dataWatcher.updateObject(16, Integer.valueOf(size));
 	}
 
 	@Override
-	protected void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
+	protected void readEntityFromNBT(NBTTagCompound nbt)
 	{
 	}
 
 	@Override
-	protected void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
+	protected void writeEntityToNBT(NBTTagCompound nbt)
 	{
 	}
 }

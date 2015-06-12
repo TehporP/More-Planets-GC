@@ -8,93 +8,65 @@
 package stevekung.mods.moreplanets.planets.fronos.blocks;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockOysterMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.planets.fronos.items.FronosItems;
 import stevekung.mods.moreplanets.planets.fronos.tileentities.TileEntityCavernOysterOpen;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockCavernOysterOpen extends BlockBaseMP implements ITileEntityProvider
+public class BlockCavernOysterOpen extends BlockOysterMP
 {
 	public BlockCavernOysterOpen(String name)
 	{
-		super(Material.plants);
-		this.setHardness(0.6F);
-		this.setBlockBounds(0.225F, 0.0F, 0.225F, 0.775F, 0.275F, 0.775F);
-		this.setTickRandomly(true);
-		this.setBlockName(name);
-		this.setBlockTextureName("fronos:cavern_oyster");
+		super();
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public int getRenderType()
-	{
-		return MorePlanetsCore.proxy.getBlockRender(this);
-	}
-
-	@Override
-	public boolean isOpaqueCube()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return false;
-	}
-
-	@Override
-	public int getLightValue(IBlockAccess world, int x, int y, int z)
+	public int getLightValue(IBlockAccess world, BlockPos pos)
 	{
 		return 4;
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
-	{
-		this.canBlockStay(par1World, par2, par3, par4);
-	}
-
-	@Override
 	@SideOnly(Side.CLIENT)
-	public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			double d1 = x + rand.nextFloat();
-			double d2 = y + rand.nextFloat();
-			double d3 = z + rand.nextFloat();
+			double d1 = pos.getX() + rand.nextFloat();
+			double d2 = pos.getY() + rand.nextFloat();
+			double d3 = pos.getZ() + rand.nextFloat();
 			double d4 = 0.0D;
 			double d5 = 0.0D;
 			double d6 = 0.0D;
 			d4 = (rand.nextFloat() - 0.5D) * 0.5D;
 			d5 = (rand.nextFloat() - 0.5D) * 0.5D;
 			d6 = (rand.nextFloat() - 0.5D) * 0.5D;
-			MorePlanetsCore.proxy.spawnMotionParticle("cavernOyster", d1, d2, d3, d4, d5, d6);
+			MorePlanetsCore.proxy.spawnMotionParticle(ParticleTypesMP.CAVERN_OYSTER, d1, d2, d3, d4, d5, d6);
 		}
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float par7, float par8, float par9)
 	{
-		world.setBlock(x, y, z, FronosBlocks.cavern_oyster_close, world.getBlockMetadata(x, y, z), 3);
-		EntityItem entityitem = new EntityItem(world, x, y, z, new ItemStack(FronosItems.pearl, 1, 1));
+		world.setBlockState(pos, FronosBlocks.cavern_oyster_close.getDefaultState().withProperty(FACING, EnumFacing.getFront(this.getMetaFromState(state))), 3);
+		EntityItem entityitem = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(FronosItems.pearl, 1, 1));
 
 		if (!world.isRemote && world.rand.nextInt(20) == 0)
 		{
@@ -104,45 +76,15 @@ public class BlockCavernOysterOpen extends BlockBaseMP implements ITileEntityPro
 	}
 
 	@Override
-	public boolean canBlockStay(World par1World, int par2, int par3, int par4)
+	public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
 	{
-		if (!this.canPlaceBlockAt(par1World, par2, par3, par4))
-		{
-			this.dropBlockAsItem(par1World, par2, par3, par4, par1World.getBlockMetadata(par2, par3, par4), 0);
-			par1World.setBlockToAir(par2, par3, par4);
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-
-	@Override
-	public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
-	{
-		Block block = par1World.getBlock(par2, par3 - 1, par4);
-
-		if (block == null)
-		{
-			return false;
-		}
-		if (!block.isLeaves(par1World, par2, par3 - 1, par4) && !block.isOpaqueCube())
-		{
-			return false;
-		}
-		return par1World.getBlock(par2, par3 - 1, par4).getMaterial().blocksMovement();
-	}
-
-	@Override
-	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
-	{
-		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-		int count = this.quantityDropped(metadata, fortune, world.rand);
+		List<ItemStack> ret = new ArrayList<ItemStack>();
+		Random rand = world instanceof World ? ((World)world).rand : RANDOM;
+		int count = this.quantityDropped(state, fortune, rand);
 
 		for (int i = 0; i < count; i++)
 		{
-			if (world.rand.nextInt(20) == 0)
+			if (rand.nextInt(20) == 0)
 			{
 				ret.add(new ItemStack(FronosItems.pearl, 1, 1));
 			}
@@ -155,37 +97,13 @@ public class BlockCavernOysterOpen extends BlockBaseMP implements ITileEntityPro
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entityLiving, ItemStack itemStack)
-	{
-		int angle = MathHelper.floor_double(entityLiving.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
-		byte change = 0;
-
-		switch (angle)
-		{
-		case 0:
-			change = 0;
-			break;
-		case 1:
-			change = 3;
-			break;
-		case 2:
-			change = 1;
-			break;
-		case 3:
-			change = 2;
-			break;
-		}
-		world.setBlockMetadataWithNotify(x, y, z, change, 3);
-	}
-
-	@Override
 	public TileEntity createNewTileEntity(World world, int meta)
 	{
 		return new TileEntityCavernOysterOpen();
 	}
 
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos)
 	{
 		return new ItemStack(this, 1, 0);
 	}

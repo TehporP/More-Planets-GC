@@ -15,14 +15,14 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
+import stevekung.mods.moreplanets.core.proxy.ClientProxyMP.ParticleTypesMP;
 import stevekung.mods.moreplanets.planets.fronos.blocks.FronosBlocks;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemBlockDandelion extends ItemBlockBaseMP
 {
@@ -45,9 +45,9 @@ public class ItemBlockDandelion extends ItemBlockBaseMP
 
 		if (meta >= 3 && meta <= 5)
 		{
-			return EnumAction.block;
+			return EnumAction.BLOCK;
 		}
-		return EnumAction.none;
+		return EnumAction.NONE;
 	}
 
 	@Override
@@ -83,15 +83,15 @@ public class ItemBlockDandelion extends ItemBlockBaseMP
 		{
 			if (meta == 3)
 			{
-				MorePlanetsCore.proxy.spawnParticle("orangeDandelion", player.posX + vec.xCoord + pos, player.posY + vec.yCoord + player.getEyeHeight() + pos, player.posZ + vec.zCoord + pos);
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.ORANGE_DANDELION, player.posX + vec.xCoord + pos, player.posY + vec.yCoord + player.getEyeHeight() + pos, player.posZ + vec.zCoord + pos);
 			}
 			else if (meta == 4)
 			{
-				MorePlanetsCore.proxy.spawnParticle("pinkDandelion", player.posX + vec.xCoord + pos, player.posY + vec.yCoord + player.getEyeHeight() + pos, player.posZ + vec.zCoord + pos);
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.PINK_DANDELION, player.posX + vec.xCoord + pos, player.posY + vec.yCoord + player.getEyeHeight() + pos, player.posZ + vec.zCoord + pos);
 			}
 			else if (meta == 5)
 			{
-				MorePlanetsCore.proxy.spawnParticle("purpleDandelion", player.posX + vec.xCoord + pos, player.posY + vec.yCoord + player.getEyeHeight() + pos, player.posZ + vec.zCoord + pos);
+				MorePlanetsCore.proxy.spawnParticle(ParticleTypesMP.PURPLE_DANDELION, player.posX + vec.xCoord + pos, player.posY + vec.yCoord + player.getEyeHeight() + pos, player.posZ + vec.zCoord + pos);
 			}
 		}
 
@@ -105,15 +105,15 @@ public class ItemBlockDandelion extends ItemBlockBaseMP
 
 					if (meta == 3)
 					{
-						player.inventory.addItemStackToInventory(new ItemStack(FronosBlocks.dandelion, 1, 0));
+						player.inventory.addItemStackToInventory(new ItemStack(FronosBlocks.fronos_dandelion, 1, 0));
 					}
 					else if (meta == 4)
 					{
-						player.inventory.addItemStackToInventory(new ItemStack(FronosBlocks.dandelion, 1, 1));
+						player.inventory.addItemStackToInventory(new ItemStack(FronosBlocks.fronos_dandelion, 1, 1));
 					}
 					else if (meta == 5)
 					{
-						player.inventory.addItemStackToInventory(new ItemStack(FronosBlocks.dandelion, 1, 2));
+						player.inventory.addItemStackToInventory(new ItemStack(FronosBlocks.fronos_dandelion, 1, 2));
 					}
 					player.addPotionEffect(new PotionEffect(Potion.regeneration.id, 60, 1));
 					--itemStack.stackSize;
@@ -132,13 +132,6 @@ public class ItemBlockDandelion extends ItemBlockBaseMP
 				}
 			}
 		}
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public IIcon getIconFromDamage(int meta)
-	{
-		return this.field_150939_a.getIcon(0, meta);
 	}
 
 	@Override

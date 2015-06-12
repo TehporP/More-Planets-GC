@@ -14,9 +14,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
 public class ItemBlockPolongnius extends ItemBlockBaseMP
 {
@@ -31,7 +31,7 @@ public class ItemBlockPolongnius extends ItemBlockBaseMP
 	{
 		if (player.worldObj.isRemote)
 		{
-			if (itemStack.getItemDamage() == 13)
+			if (itemStack.getItemDamage() == 14)
 			{
 				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("desc.slime.name"));
 			}
@@ -41,6 +41,6 @@ public class ItemBlockPolongnius extends ItemBlockBaseMP
 	@Override
 	public String[] getBlockVariantsName()
 	{
-		return new String[] { "cheese_gas", "solid_cheese_gas", "stone", "cobblestone", "copper_ore", "tin_ore", "iron_ore", "palladium_ore", "flonium_ore", "purple_crystal_ore", "meteor_block", "purple_crystal_block", "palladium_block", "dungeon_brick", "dungeon_brick2" };
+		return new String[] { "cheese_gas", "solid_cheese_gas", "stone", "cobblestone", "copper_ore", "tin_ore", "iron_ore", "palladium_ore", "flonium_ore", "purple_crystal_ore", "cheese_of_milk_ore", "meteor_block", "purple_crystal_block", "palladium_block", "dungeon_brick", "dungeon_brick" };
 	}
 }

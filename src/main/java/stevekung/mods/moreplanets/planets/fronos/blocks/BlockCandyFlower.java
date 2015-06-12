@@ -10,94 +10,100 @@ package stevekung.mods.moreplanets.planets.fronos.blocks;
 import java.util.List;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.blocks.BlockFlowerMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockFlowerMP;
 
 public class BlockCandyFlower extends BlockFlowerMP
 {
-	private static String[] plants = new String[] {
-		"pink",
-		"orange",
-		"green",
-		"yellow",
-		"light_blue",
-		"blue",
-		"red",
-		"purple"
-	};
-
-	private IIcon[] textures;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockCandyFlower(String name)
 	{
-		super(Material.plants);
-		this.setTickRandomly(true);
-		this.setStepSound(Block.soundTypeGrass);
+		super();
 		this.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.8F, 0.7F);
-		this.setBlockName(name);
-	}
-
-	@Override
-	public void registerBlockIcons(IIconRegister iconRegister)
-	{
-		this.textures = new IIcon[BlockCandyFlower.plants.length];
-
-		for (int i = 0; i < BlockCandyFlower.plants.length; ++i)
-		{
-			this.textures[i] = iconRegister.registerIcon("fronos:" + BlockCandyFlower.plants[i] + "_candy_flower");
-		}
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		if (meta < 0 || meta >= this.textures.length)
-		{
-			meta = 0;
-		}
-		return this.textures[meta];
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.pink_candy_flower));
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(Item block, CreativeTabs creativeTabs, List list)
+	public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
 	{
-		for (int i = 0; i < BlockCandyFlower.plants.length; ++i)
+		for (int i = 0; i < 7; ++i)
 		{
-			list.add(new ItemStack(block, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public boolean canPlaceBlockOnSide(World world, int x, int y, int z, int par5)
+	public int damageDropped(IBlockState state)
 	{
-		return world.getBlock(x, y - 1, z) == FronosBlocks.frosted_cake;
+		return this.getMetaFromState(state);
 	}
 
 	@Override
-	public boolean isValidPosition(World world, int x, int y, int z, int metadata)
+	public boolean canBlockStay(World world, BlockPos pos, IBlockState state)
 	{
-		Block block = world.getBlock(x, y - 1, z);
+		Block block = world.getBlockState(pos.down()).getBlock();
 		return block == FronosBlocks.frosted_cake;
 	}
 
 	@Override
-	public int getDamageValue(World world, int x, int y, int z)
+	public boolean isReplaceable(World world, BlockPos pos)
 	{
-		return world.getBlockMetadata(x, y, z);
+		return false;
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	protected BlockState createBlockState()
 	{
-		return meta;
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		pink_candy_flower,
+		orange_candy_flower,
+		green_candy_flower,
+		yellow_candy_flower,
+		light_blue_candy_flower,
+		blue_candy_flower,
+		red_candy_flower,
+		purple_candy_flower;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

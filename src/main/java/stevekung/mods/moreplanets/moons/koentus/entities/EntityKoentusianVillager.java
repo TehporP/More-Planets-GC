@@ -7,7 +7,6 @@
 
 package stevekung.mods.moreplanets.moons.koentus.entities;
 
-import micdoodle8.mods.galacticraft.api.entity.IEntityBreathable;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -25,14 +24,12 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import stevekung.mods.moreplanets.core.init.MPItems;
 
-public class EntityKoentusianVillager extends EntityAgeable implements IEntityBreathable
+public class EntityKoentusianVillager extends EntityAgeable /*implements IEntityBreathable*/
 {
-	public EntityKoentusianVillager(World par1World)
+	public EntityKoentusianVillager(World world)
 	{
-		super(par1World);
+		super(world);
 		this.setSize(0.6F, 2.35F);
-		this.getNavigator().setBreakDoors(true);
-		this.getNavigator().setAvoidsWater(true);
 		this.tasks.addTask(0, new EntityAISwimming(this));
 		this.tasks.addTask(2, new EntityAIMoveIndoors(this));
 		this.tasks.addTask(3, new EntityAIRestrictOpenDoor(this));
@@ -52,9 +49,27 @@ public class EntityKoentusianVillager extends EntityAgeable implements IEntityBr
 	}
 
 	@Override
-	public boolean isAIEnabled()
+	protected String getLivingSound()
 	{
-		return true;
+		return "mob.villager.idle";
+	}
+
+	@Override
+	protected String getHurtSound()
+	{
+		return "mob.villager.hit";
+	}
+
+	@Override
+	protected String getDeathSound()
+	{
+		return "mob.villager.death";
+	}
+
+	@Override
+	public EntityKoentusianVillager createChild(EntityAgeable entity)
+	{
+		return new EntityKoentusianVillager(this.worldObj);
 	}
 
 	@Override
@@ -100,33 +115,9 @@ public class EntityKoentusianVillager extends EntityAgeable implements IEntityBr
 		return new ItemStack(MPItems.spawn_egg_mp, 1, 1012);
 	}
 
-	@Override
-	protected String getLivingSound()
-	{
-		return "mob.villager.idle";
-	}
-
-	@Override
-	protected String getHurtSound()
-	{
-		return "mob.villager.hit";
-	}
-
-	@Override
-	protected String getDeathSound()
-	{
-		return "mob.villager.death";
-	}
-
-	@Override
-	public EntityKoentusianVillager createChild(EntityAgeable par1EntityAgeable)
-	{
-		return new EntityKoentusianVillager(this.worldObj);
-	}
-
-	@Override
+	/*@Override
 	public boolean canBreath()
 	{
 		return true;
-	}
+	}*/
 }

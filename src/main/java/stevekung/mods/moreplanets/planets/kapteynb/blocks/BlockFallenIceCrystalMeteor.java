@@ -11,47 +11,43 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.core.blocks.base.BlockBaseMP;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.planets.kapteynb.items.KapteynBItems;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockFallenIceCrystalMeteor extends BlockBaseMP
 {
 	public BlockFallenIceCrystalMeteor(String name)
 	{
 		super(Material.glass);
-		this.setBlockBounds(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F);
+		this.setBlockBounds(0.186F, 0.186F, 0.186F, 0.814F, 0.814F, 0.814F);
 		this.setHardness(1.0F);
 		this.setStepSound(soundTypeGlass);
-		this.setBlockTextureName("kapteynb:fallen_ice_crystal_meteor");
-		this.setBlockName(name);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public int getRenderType()
+	public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float chance, int fortune)
 	{
-		return MorePlanetsCore.proxy.getBlockRender(this);
-	}
+		super.dropBlockAsItemWithChance(world, pos, state, chance, fortune);
 
-	@Override
-	public void dropBlockAsItemWithChance(World world, int par2, int par3, int par4, int par5, float par6, int fortune)
-	{
-		super.dropBlockAsItemWithChance(world, par2, par3, par4, par5, par6, fortune);
-
-		if (this.getItemDropped(par5, world.rand, fortune) != Item.getItemFromBlock(this))
+		if (this.getItemDropped(state, world.rand, fortune) != Item.getItemFromBlock(this))
 		{
 			int var8 = MathHelper.getRandomIntegerInRange(world.rand, 3, 5);
-			this.dropXpOnBlockBreak(world, par2, par3, par4, var8);
+			this.dropXpOnBlockBreak(world, pos, var8);
 		}
 	}
 
@@ -62,108 +58,108 @@ public class BlockFallenIceCrystalMeteor extends BlockBaseMP
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
+	public boolean isFullCube()
 	{
 		return false;
 	}
 
 	@Override
-	public boolean canSilkHarvest(World world, EntityPlayer player, int x, int y, int z, int metadata)
+	public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
 	{
 		return true;
 	}
 
 	@Override
-	public int quantityDropped(int meta, int fortune, Random rand)
+	public int quantityDropped(IBlockState state, int fortune, Random rand)
 	{
 		return 1 + rand.nextInt(1);
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random random, int par3)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return KapteynBItems.kapteyn_b_item;
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
 		return 5;
 	}
 
 	@Override
-	public void onBlockAdded(World par1World, int par2, int par3, int par4)
+	public void onBlockAdded(World world, BlockPos pos, IBlockState state)
 	{
-		par1World.scheduleBlockUpdate(par2, par3, par4, this, this.tickRate(par1World));
+		world.scheduleUpdate(pos, this, this.tickRate(world));
 	}
 
 	@Override
-	public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block block)
 	{
-		par1World.scheduleBlockUpdate(par2, par3, par4, this, this.tickRate(par1World));
+		world.scheduleUpdate(pos, this, this.tickRate(world));
 	}
 
 	@Override
-	public void updateTick(World par1World, int par2, int par3, int par4, Random par5Random)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		if (!par1World.isRemote)
+		if (!world.isRemote)
 		{
-			this.tryToFall(par1World, par2, par3, par4);
+			this.tryToFall(world, pos);
 		}
 	}
 
-	private void tryToFall(World par1World, int par2, int par3, int par4)
+	private void tryToFall(World world, BlockPos pos)
 	{
-		if (this.canFallBelow(par1World, par2, par3 - 1, par4) && par3 >= 0)
+		if (this.canFallBelow(world, pos.down()) && pos.getY() >= 0)
 		{
-			par1World.setBlock(par2, par3, par4, Blocks.air, 0, 3);
+			world.setBlockState(pos, Blocks.air.getDefaultState(), 3);
+			BlockPos blockpos1;
 
-			while (this.canFallBelow(par1World, par2, par3 - 1, par4) && par3 > 0)
+			for (blockpos1 = pos.down(); this.canFallBelow(world, blockpos1) && blockpos1.getY() > 0; blockpos1 = blockpos1.down())
 			{
-				--par3;
 			}
-			if (par3 > 0)
+
+			if (blockpos1.getY() > 0)
 			{
-				par1World.setBlock(par2, par3, par4, this, 0, 3);
+				world.setBlockState(blockpos1.up(), this.getDefaultState(), 3);
 			}
 		}
 	}
 
-	boolean canFallBelow(World par0World, int par1, int par2, int par3)
+	private boolean canFallBelow(World world, BlockPos pos)
 	{
-		Block var4 = par0World.getBlock(par1, par2, par3);
+		Block block = world.getBlockState(pos).getBlock();
 
-		if (var4.getMaterial() == Material.air)
+		if (block.getMaterial() == Material.air)
 		{
 			return true;
 		}
-		else if (var4 == Blocks.fire)
+		else if (block == Blocks.fire)
 		{
 			return true;
 		}
 		else
 		{
-			Material var5 = var4.getMaterial();
+			Material var5 = block.getMaterial();
 			return var5 == Material.water ? true : var5 == Material.lava;
 		}
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public int getRenderBlockPass()
+	public EnumWorldBlockLayer getBlockLayer()
 	{
-		return 1;
+		return EnumWorldBlockLayer.TRANSLUCENT;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int side)
+	public boolean shouldSideBeRendered(IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
 		return true;
 	}
 
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos)
 	{
 		return new ItemStack(this, 1, 0);
 	}

@@ -12,12 +12,12 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
-import stevekung.mods.moreplanets.core.MorePlanetsCore;
+import stevekung.mods.moreplanets.common.blocks.BlockBaseMP;
 import stevekung.mods.moreplanets.planets.siriusb.items.SiriusBItems;
 
-public class BlockSiriusGlowstone extends Block
+public class BlockSiriusGlowstone extends BlockBaseMP
 {
 	public BlockSiriusGlowstone(String name)
 	{
@@ -25,8 +25,7 @@ public class BlockSiriusGlowstone extends Block
 		this.setHardness(0.3F);
 		this.setLightLevel(1.0F);
 		this.setStepSound(Block.soundTypeGlass);
-		this.setBlockName(name);
-		this.setBlockTextureName("siriusb:sirius_glowstone");
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
@@ -36,19 +35,13 @@ public class BlockSiriusGlowstone extends Block
 	}
 
 	@Override
-	public Item getItemDropped(int meta, Random rand, int fortune)
+	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return SiriusBItems.sirius_glowstone_dust;
 	}
 
 	@Override
-	public CreativeTabs getCreativeTabToDisplayOn()
-	{
-		return MorePlanetsCore.mpBlocksTab;
-	}
-
-	@Override
-	public MapColor getMapColor(int meta)
+	public MapColor getMapColor(IBlockState state)
 	{
 		return MapColor.diamondColor;
 	}

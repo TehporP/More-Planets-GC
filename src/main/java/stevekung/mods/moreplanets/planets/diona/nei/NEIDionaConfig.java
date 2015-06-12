@@ -12,11 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import micdoodle8.mods.galacticraft.planets.asteroids.items.AsteroidsItems;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import stevekung.mods.moreplanets.core.MorePlanetsCore;
-import stevekung.mods.moreplanets.planets.diona.items.DionaItems;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.api.API;
 import codechicken.nei.api.IConfigureNEI;
@@ -29,8 +25,8 @@ public class NEIDionaConfig implements IConfigureNEI
 	@Override
 	public void loadConfig()
 	{
-		this.addRocketRecipes();
-		this.addRocketNoFlagRecipes();
+		//		this.addRocketRecipes();
+		//		this.addRocketNoFlagRecipes();
 		API.registerRecipeHandler(new Tier4RocketRecipeHandlerMP());
 		API.registerUsageHandler(new Tier4RocketRecipeHandlerMP());
 		API.registerRecipeHandler(new Tier4RocketNoFlagRecipeHandlerMP());
@@ -40,7 +36,7 @@ public class NEIDionaConfig implements IConfigureNEI
 	@Override
 	public String getName()
 	{
-		return "More Planet's : Diona NEI Plugin";
+		return "More Planets : Diona NEI Plugin";
 	}
 
 	@Override
@@ -69,7 +65,7 @@ public class NEIDionaConfig implements IConfigureNEI
 		return NEIDionaConfig.rocketBenchNoFlagRecipes.entrySet();
 	}
 
-	public void addRocketRecipes()
+	/*public void addRocketRecipes()
 	{
 		int changeY = 15;
 
@@ -187,5 +183,5 @@ public class NEIDionaConfig implements IConfigureNEI
 		input2.add(new PositionedStack(new ItemStack(Blocks.chest), 90 + 26, -15 + changeY));
 		input2.add(new PositionedStack(new ItemStack(Blocks.chest), 90 + 52, -15 + changeY));
 		this.registerRocketBenchNoFlagRecipe(input2, new PositionedStack(new ItemStack(DionaItems.tier4_rocket, 1, 13), 139, 87 + changeY));
-	}
+	}*/
 }

@@ -12,37 +12,36 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
-import stevekung.mods.moreplanets.core.blocks.BlockIceMP;
-import stevekung.mods.moreplanets.core.util.WorldUtilMP;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import stevekung.mods.moreplanets.common.blocks.BlockIceMP;
+import stevekung.mods.moreplanets.common.util.WorldUtilMP;
 
 public class BlockKapteynBIce extends BlockIceMP
 {
-	private IIcon[] kapteynIceIcons;
+	public static PropertyEnum VARIANT = PropertyEnum.create("variant", BlockType.class);
 
 	public BlockKapteynBIce(String name)
 	{
 		super(Material.ice);
-		this.setBlockName(name);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public IIcon getIcon(int side, int meta)
-	{
-		return this.kapteynIceIcons[meta];
+		this.setUnlocalizedName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(VARIANT, BlockType.kapteyn_b_ice));
 	}
 
 	@Override
@@ -51,96 +50,123 @@ public class BlockKapteynBIce extends BlockIceMP
 	{
 		for (int i = 0; i < 2; ++i)
 		{
-			list.add(new ItemStack(item, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
 	}
 
 	@Override
-	public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta)
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity tile)
 	{
 		player.addExhaustion(0.025F);
 
-		if (this.canSilkHarvest(world, player, x, y, z, meta) && EnchantmentHelper.getSilkTouchModifier(player))
+		if (this.canSilkHarvest(world, pos, world.getBlockState(pos), player) && EnchantmentHelper.getSilkTouchModifier(player))
 		{
-			ArrayList<ItemStack> items = new ArrayList();
-			ItemStack itemstack = this.createStackedBlock(meta);
+			List<ItemStack> items = new ArrayList<ItemStack>();
+			ItemStack itemstack = this.createStackedBlock(state);
 
 			if (itemstack != null)
 			{
 				items.add(itemstack);
 			}
 
-			ForgeEventFactory.fireBlockHarvesting(items, world, this, x, y, z, meta, 0, 1.0F, true, player);
+			ForgeEventFactory.fireBlockHarvesting(items, world, pos, world.getBlockState(pos), 0, 1.0f, true, player);
 
 			for (ItemStack is : items)
 			{
-				this.dropBlockAsItem(world, x, y, z, is);
+				spawnAsEntity(world, pos, is);
 			}
 		}
 		else
 		{
-			if (world.provider.isHellWorld)
+			if (world.provider.doesWaterVaporize())
 			{
-				world.setBlockToAir(x, y, z);
+				world.setBlockToAir(pos);
 				return;
 			}
-			else if (WorldUtilMP.isMercuryWorld(world, x, y, z))
+			else if (WorldUtilMP.isMercuryWorld(world, pos))
 			{
-				world.setBlockToAir(x, y, z);
+				world.setBlockToAir(pos);
 				return;
 			}
 
-			int i1 = EnchantmentHelper.getFortuneModifier(player);
+			int i = EnchantmentHelper.getFortuneModifier(player);
 			this.harvesters.set(player);
-			this.dropBlockAsItem(world, x, y, z, meta, i1);
+			this.dropBlockAsItem(world, pos, state, i);
 			this.harvesters.set(null);
-			Material material = world.getBlock(x, y - 1, z).getMaterial();
+			Material material = world.getBlockState(pos.down()).getBlock().getMaterial();
 
 			if (material.blocksMovement() || material.isLiquid())
 			{
-				world.setBlock(x, y, z, KapteynBBlocks.frozen_water);
+				world.setBlockState(pos, KapteynBBlocks.frozen_water.getDefaultState());
 			}
 		}
 	}
 
 	@Override
-	public void updateTick(World world, int x, int y, int z, Random rand)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
-		if (world.getSavedLightValue(EnumSkyBlock.Block, x, y, z) > 11 - this.getLightOpacity())
+		if (world.getLightFor(EnumSkyBlock.BLOCK, pos) > 11 - this.getLightOpacity())
 		{
-			if (world.provider.isHellWorld)
+			if (world.provider.doesWaterVaporize())
 			{
-				world.setBlockToAir(x, y, z);
+				world.setBlockToAir(pos);
 				return;
 			}
-			this.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
-			world.setBlock(x, y, z, KapteynBBlocks.frozen_water);
+			this.dropBlockAsItem(world, pos, state, 0);
+			world.setBlockState(pos, KapteynBBlocks.frozen_water.getDefaultState());
 		}
-		if (WorldUtilMP.isMercuryWorld(world, x, y, z))
+		if (WorldUtilMP.isMercuryWorld(world, pos))
 		{
-			world.setBlockToAir(x, y, z);
+			world.setBlockToAir(pos);
 			return;
 		}
 	}
 
 	@Override
-	public int damageDropped(int meta)
+	public int damageDropped(IBlockState state)
 	{
-		return meta;
+		return this.getMetaFromState(state);
 	}
 
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
+	public ItemStack getPickBlock(MovingObjectPosition moving, World world, BlockPos pos)
 	{
-		return new ItemStack(this, 1, world.getBlockMetadata(x, y, z));
+		return new ItemStack(this, 1, this.getMetaFromState(world.getBlockState(pos)));
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerBlockIcons(IIconRegister par1IconRegister)
+	protected BlockState createBlockState()
 	{
-		this.kapteynIceIcons = new IIcon[2];
-		this.kapteynIceIcons[0] = par1IconRegister.registerIcon("kapteynb:kapteyn_b_ice");
-		this.kapteynIceIcons[1] = par1IconRegister.registerIcon("kapteynb:kapteyn_b_dirty_ice");
+		return new BlockState(this, new IProperty[] { VARIANT });
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(VARIANT, BlockType.values()[meta]);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((BlockType)state.getValue(VARIANT)).ordinal();
+	}
+
+	public static enum BlockType implements IStringSerializable
+	{
+		kapteyn_b_ice,
+		dirty_kapteyn_b_ice;
+
+		@Override
+		public String toString()
+		{
+			return this.getName();
+		}
+
+		@Override
+		public String getName()
+		{
+			return this.name();
+		}
 	}
 }

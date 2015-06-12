@@ -8,7 +8,7 @@
 package stevekung.mods.moreplanets.planets.diona.itemblocks;
 
 import net.minecraft.block.Block;
-import stevekung.mods.moreplanets.core.itemblocks.ItemBlockBaseMP;
+import stevekung.mods.moreplanets.common.itemblocks.ItemBlockBaseMP;
 
 public class ItemBlockDiona extends ItemBlockBaseMP
 {
@@ -20,6 +20,6 @@ public class ItemBlockDiona extends ItemBlockBaseMP
 	@Override
 	public String[] getBlockVariantsName()
 	{
-		return new String[] { "surface_rock", "sub_surface", "rock", "cobblestone", "quontonium_ore", "fronisium_ore", "tin_ore", "copper_ore", "silicon_ore", "aluminum_ore", "quontonium_block", "smooth_quontonium", "quontonium_brick", "chiseled_quontonium", "dungeon_brick" };
+		return new String[] { "surface_rock", "sub_surface", "rock", "cobblestone", "quontonium_ore", "fronisium_ore", "tin_ore", "copper_ore", "silicon_ore", "aluminum_ore", "quontonium_block", "fronisium_block", "smooth_quontonium", "quontonium_brick", "chiseled_quontonium", "dungeon_brick" };
 	}
 }

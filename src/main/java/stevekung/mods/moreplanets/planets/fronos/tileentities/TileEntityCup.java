@@ -11,4 +11,9 @@ import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityCup extends TileEntity
 {
+	@Override
+	public boolean canRenderBreaking()
+	{
+		return true;
+	}
 }

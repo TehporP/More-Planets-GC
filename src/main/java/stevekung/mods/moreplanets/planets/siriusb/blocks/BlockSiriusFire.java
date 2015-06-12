@@ -11,148 +11,142 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFire;
+import net.minecraft.block.BlockTNT;
 import net.minecraft.block.material.MapColor;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.properties.PropertyInteger;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import stevekung.mods.moreplanets.planets.diona.blocks.DionaBlocks;
 
 public class BlockSiriusFire extends BlockFire
 {
-	private IIcon[] fireIcon;
+	public static PropertyInteger AGE = PropertyInteger.create("age", 0, 15);
+	public static PropertyBool FLIP = PropertyBool.create("flip");
+	public static PropertyBool ALT = PropertyBool.create("alt");
+	public static PropertyBool NORTH = PropertyBool.create("north");
+	public static PropertyBool EAST = PropertyBool.create("east");
+	public static PropertyBool SOUTH = PropertyBool.create("south");
+	public static PropertyBool WEST = PropertyBool.create("west");
+	public static PropertyInteger UPPER = PropertyInteger.create("upper", 0, 2);
 
 	public BlockSiriusFire(String name)
 	{
 		super();
-		this.setBlockName(name);
+		this.setDefaultState(this.getDefaultState().withProperty(AGE, Integer.valueOf(0)).withProperty(FLIP, Boolean.valueOf(false)).withProperty(ALT, Boolean.valueOf(false)).withProperty(NORTH, Boolean.valueOf(false)).withProperty(EAST, Boolean.valueOf(false)).withProperty(SOUTH, Boolean.valueOf(false)).withProperty(WEST, Boolean.valueOf(false)).withProperty(UPPER, Integer.valueOf(0)));
 		this.setTickRandomly(true);
-		this.setLightLevel(1.0F);
+		this.setUnlocalizedName(name);
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
-	{
-		return null;
-	}
-
-	@Override
-	public boolean isOpaqueCube()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return false;
-	}
-
-	@Override
-	public int quantityDropped(Random rand)
-	{
-		return 0;
-	}
-
-	@Override
-	public int tickRate(World world)
-	{
-		return 30;
-	}
-
-	@Override
-	public void updateTick(World world, int x, int y, int z, Random rand)
+	public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
 		if (world.getGameRules().getGameRuleBooleanValue("doFireTick"))
 		{
-			boolean flag = world.getBlock(x, y - 1, z).isFireSource(world, x, y - 1, z, ForgeDirection.UP);
-
-			if (!this.canPlaceBlockAt(world, x, y, z))
+			if (!this.canPlaceBlockAt(world, pos))
 			{
-				world.setBlockToAir(x, y, z);
+				world.setBlockToAir(pos);
 			}
-			if (!flag && world.isRaining() && (world.canLightningStrikeAt(x, y, z) || world.canLightningStrikeAt(x - 1, y, z) || world.canLightningStrikeAt(x + 1, y, z) || world.canLightningStrikeAt(x, y, z - 1) || world.canLightningStrikeAt(x, y, z + 1)))
+
+			Block block = world.getBlockState(pos.down()).getBlock();
+			boolean flag = block.isFireSource(world, pos.down(), EnumFacing.UP);
+
+			if (!flag && world.isRaining() && this.canDie(world, pos))
 			{
-				world.setBlockToAir(x, y, z);
+				world.setBlockToAir(pos);
 			}
 			else
 			{
-				int l = world.getBlockMetadata(x, y, z);
+				int i = ((Integer)state.getValue(AGE)).intValue();
 
-				if (l < 15)
+				if (i < 15)
 				{
-					world.setBlockMetadataWithNotify(x, y, z, l + rand.nextInt(3) / 2, 4);
+					state = state.withProperty(AGE, Integer.valueOf(i + rand.nextInt(3) / 2));
+					world.setBlockState(pos, state, 4);
 				}
 
-				world.scheduleBlockUpdate(x, y, z, this, this.tickRate(world) + rand.nextInt(10));
+				world.scheduleUpdate(pos, this, this.tickRate(world) + rand.nextInt(10));
 
-				if (!flag && !this.canNeighborBurn(world, x, y, z))
+				if (!flag)
 				{
-					if (!World.doesBlockHaveSolidTopSurface(world, x, y - 1, z) || l > 3)
+					if (!this.canNeighborCatchFire(world, pos))
 					{
-						world.setBlockToAir(x, y, z);
-					}
-				}
-				else if (!flag && !this.canCatchFire(world, x, y - 1, z, ForgeDirection.UP) && l == 15 && rand.nextInt(4) == 0)
-				{
-					world.setBlockToAir(x, y, z);
-				}
-				else
-				{
-					boolean flag1 = world.isBlockHighHumidity(x, y, z);
-					byte b0 = 0;
-
-					if (flag1)
-					{
-						b0 = -50;
-					}
-
-					this.tryCatchFire(world, x + 1, y, z, 300 + b0, rand, l, ForgeDirection.WEST);
-					this.tryCatchFire(world, x - 1, y, z, 300 + b0, rand, l, ForgeDirection.EAST);
-					this.tryCatchFire(world, x, y - 1, z, 250 + b0, rand, l, ForgeDirection.UP);
-					this.tryCatchFire(world, x, y + 1, z, 250 + b0, rand, l, ForgeDirection.DOWN);
-					this.tryCatchFire(world, x, y, z - 1, 300 + b0, rand, l, ForgeDirection.SOUTH);
-					this.tryCatchFire(world, x, y, z + 1, 300 + b0, rand, l, ForgeDirection.NORTH);
-
-					for (int i1 = x - 1; i1 <= x + 1; i1++)
-					{
-						for (int j1 = z - 1; j1 <= z + 1; j1++)
+						if (!World.doesBlockHaveSolidTopSurface(world, pos.down()) || i > 3)
 						{
-							for (int k1 = y - 1; k1 <= y + 4; k1++)
-							{
-								if (i1 != x || k1 != y || j1 != z)
-								{
-									int l1 = 100;
+							world.setBlockToAir(pos);
+						}
+						return;
+					}
 
-									if (k1 > y + 1)
+					if (!this.canCatchFire(world, pos.down(), EnumFacing.UP) && i == 15 && rand.nextInt(4) == 0)
+					{
+						world.setBlockToAir(pos);
+						return;
+					}
+				}
+
+				boolean flag1 = world.isBlockinHighHumidity(pos);
+				byte b0 = 0;
+
+				if (flag1)
+				{
+					b0 = -50;
+				}
+
+				this.tryCatchFire(world, pos.east(), 300 + b0, rand, i, EnumFacing.WEST);
+				this.tryCatchFire(world, pos.west(), 300 + b0, rand, i, EnumFacing.EAST);
+				this.tryCatchFire(world, pos.down(), 250 + b0, rand, i, EnumFacing.UP);
+				this.tryCatchFire(world, pos.up(), 250 + b0, rand, i, EnumFacing.DOWN);
+				this.tryCatchFire(world, pos.north(), 300 + b0, rand, i, EnumFacing.SOUTH);
+				this.tryCatchFire(world, pos.south(), 300 + b0, rand, i, EnumFacing.NORTH);
+
+				for (int j = -1; j <= 1; ++j)
+				{
+					for (int k = -1; k <= 1; ++k)
+					{
+						for (int l = -1; l <= 4; ++l)
+						{
+							if (j != 0 || l != 0 || k != 0)
+							{
+								int i1 = 100;
+
+								if (l > 1)
+								{
+									i1 += (l - 1) * 100;
+								}
+
+								BlockPos blockpos1 = pos.add(j, l, k);
+								int j1 = this.getNeighborEncouragement(world, blockpos1);
+
+								if (j1 > 0)
+								{
+									int k1 = (j1 + 40 + world.getDifficulty().getDifficultyId() * 7) / (i + 30);
+
+									if (flag1)
 									{
-										l1 += (k1 - (y + 1)) * 100;
+										k1 /= 2;
 									}
 
-									int i2 = this.getChanceOfNeighborsEncouragingFire(world, i1, k1, j1);
-
-									if (i2 > 0)
+									if (k1 > 0 && rand.nextInt(i1) <= k1 && (!world.isRaining() || !this.canDie(world, blockpos1)))
 									{
-										int j2 = (i2 + 40 + world.difficultySetting.getDifficultyId() * 7) / (l + 30);
+										int l1 = i + rand.nextInt(5) / 4;
 
-										if (flag1)
+										if (l1 > 15)
 										{
-											j2 /= 2;
+											l1 = 15;
 										}
-										if (j2 > 0 && rand.nextInt(l1) <= j2 && (!world.isRaining() || !world.canLightningStrikeAt(i1, k1, j1)) && !world.canLightningStrikeAt(i1 - 1, k1, z) && !world.canLightningStrikeAt(i1 + 1, k1, j1) && !world.canLightningStrikeAt(i1, k1, j1 - 1) && !world.canLightningStrikeAt(i1, k1, j1 + 1))
-										{
-											int k2 = l + rand.nextInt(5) / 4;
-
-											if (k2 > 15)
-											{
-												k2 = 15;
-											}
-											world.setBlock(i1, k1, j1, this, k2, 3);
-										}
+										world.setBlockState(blockpos1, state.withProperty(AGE, Integer.valueOf(l1)), 3);
 									}
 								}
 							}
@@ -163,172 +157,195 @@ public class BlockSiriusFire extends BlockFire
 		}
 	}
 
-	@Override
-	public boolean func_149698_L()
+	private void tryCatchFire(World world, BlockPos pos, int chance, Random rand, int age, EnumFacing side)
 	{
-		return true;
-	}
+		int k = world.getBlockState(pos).getBlock().getFlammability(world, pos, side);
 
-	private void tryCatchFire(World world, int x, int y, int z, int p_149841_5_, Random rand, int p_149841_7_, ForgeDirection face)
-	{
-		int j1 = world.getBlock(x, y, z).getFlammability(world, x, y, z, face);
-
-		if (rand.nextInt(p_149841_5_) < j1)
+		if (rand.nextInt(chance) < k)
 		{
-			boolean flag = world.getBlock(x, y, z) == Blocks.tnt;
-			boolean flag2 = world.getBlock(x, y, z) == DionaBlocks.fronisium_tnt;
+			IBlockState state = world.getBlockState(pos);
 
-			if (rand.nextInt(p_149841_7_ + 10) < 5 && !world.canLightningStrikeAt(x, y, z))
+			if (rand.nextInt(age + 10) < 5 && !world.canLightningStrike(pos))
 			{
-				int k1 = p_149841_7_ + rand.nextInt(5) / 4;
+				int l = age + rand.nextInt(5) / 4;
 
-				if (k1 > 15)
+				if (l > 15)
 				{
-					k1 = 15;
+					l = 15;
 				}
-				world.setBlock(x, y, z, this, k1, 3);
+
+				world.setBlockState(pos, this.getDefaultState().withProperty(AGE, Integer.valueOf(l)), 3);
 			}
 			else
 			{
-				world.setBlockToAir(x, y, z);
+				world.setBlockToAir(pos);
 			}
-			if (flag)
+
+			if (state.getBlock() == Blocks.tnt)
 			{
-				Blocks.tnt.onBlockDestroyedByPlayer(world, x, y, z, 1);
+				Blocks.tnt.onBlockDestroyedByPlayer(world, pos, state.withProperty(BlockTNT.EXPLODE, Boolean.valueOf(true)));
 			}
-			else if (flag2)
+			else if (state.getBlock() == DionaBlocks.fronisium_tnt)
 			{
-				DionaBlocks.fronisium_tnt.onBlockDestroyedByPlayer(world, x, y, z, 1);
+				DionaBlocks.fronisium_tnt.onBlockDestroyedByPlayer(world, pos, state.withProperty(BlockTNT.EXPLODE, Boolean.valueOf(true)));
 			}
 		}
 	}
 
-	private boolean canNeighborBurn(World world, int x, int y, int z)
+	private boolean canNeighborCatchFire(World world, BlockPos pos)
 	{
-		return this.canCatchFire(world, x + 1, y, z, ForgeDirection.WEST) || this.canCatchFire(world, x - 1, y, z, ForgeDirection.EAST) || this.canCatchFire(world, x, y - 1, z, ForgeDirection.UP) || this.canCatchFire(world, x, y + 1, z, ForgeDirection.DOWN) || this.canCatchFire(world, x, y, z - 1, ForgeDirection.SOUTH) || this.canCatchFire(world, x, y, z + 1, ForgeDirection.NORTH);
-	}
+		EnumFacing[] aenumfacing = EnumFacing.values();
+		int i = aenumfacing.length;
 
-	private int getChanceOfNeighborsEncouragingFire(World world, int x, int y, int z)
-	{
-		byte b0 = 0;
-
-		if (!world.isAirBlock(x, y, z))
+		for (int j = 0; j < i; ++j)
 		{
-			return 0;
+			EnumFacing enumfacing = aenumfacing[j];
+
+			if (this.canCatchFire(world, pos.offset(enumfacing), enumfacing.getOpposite()))
+			{
+				return true;
+			}
 		}
-
-		int l = b0;
-
-		l = this.getChanceToEncourageFire(world, x + 1, y, z, l, ForgeDirection.WEST);
-		l = this.getChanceToEncourageFire(world, x - 1, y, z, l, ForgeDirection.EAST);
-		l = this.getChanceToEncourageFire(world, x, y - 1, z, l, ForgeDirection.UP);
-		l = this.getChanceToEncourageFire(world, x, y + 1, z, l, ForgeDirection.DOWN);
-		l = this.getChanceToEncourageFire(world, x, y, z - 1, l, ForgeDirection.SOUTH);
-		l = this.getChanceToEncourageFire(world, x, y, z + 1, l, ForgeDirection.NORTH);
-		return l;
-	}
-
-	@Override
-	public boolean isCollidable()
-	{
 		return false;
 	}
 
-	@Override
-	public boolean canPlaceBlockAt(World world, int x, int y, int z)
+	private int getNeighborEncouragement(World world, BlockPos pos)
 	{
-		return World.doesBlockHaveSolidTopSurface(world, x, y - 1, z) || this.canNeighborBurn(world, x, y, z);
-	}
-
-	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
-	{
-		if (!World.doesBlockHaveSolidTopSurface(world, x, y - 1, z) && !this.canNeighborBurn(world, x, y, z))
+		if (!world.isAirBlock(pos))
 		{
-			world.setBlockToAir(x, y, z);
+			return 0;
+		}
+		else
+		{
+			int i = 0;
+			EnumFacing[] aenumfacing = EnumFacing.values();
+			int j = aenumfacing.length;
+
+			for (int k = 0; k < j; ++k)
+			{
+				EnumFacing enumfacing = aenumfacing[k];
+				i = Math.max(world.getBlockState(pos.offset(enumfacing)).getBlock().getFlammability(world, pos.offset(enumfacing), enumfacing.getOpposite()), i);
+			}
+			return i;
 		}
 	}
 
 	@Override
-	public void onBlockAdded(World world, int x, int y, int z)
+	public boolean canPlaceBlockAt(World world, BlockPos pos)
 	{
-		world.scheduleBlockUpdate(x, y, z, this, this.tickRate(world) + world.rand.nextInt(10));
+		return World.doesBlockHaveSolidTopSurface(world, pos.down()) || this.canNeighborCatchFire(world, pos);
 	}
 
 	@Override
-	public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock)
+	{
+		if (!World.doesBlockHaveSolidTopSurface(world, pos.down()) && !this.canNeighborCatchFire(world, pos))
+		{
+			world.setBlockToAir(pos);
+		}
+	}
+
+	@Override
+	public void onBlockAdded(World world, BlockPos pos, IBlockState state)
+	{
+		if (world.provider.getDimensionId() > 0 || !Blocks.portal.func_176548_d(world, pos))
+		{
+			if (!World.doesBlockHaveSolidTopSurface(world, pos.down()) && !this.canNeighborCatchFire(world, pos))
+			{
+				world.setBlockToAir(pos);
+			}
+			else
+			{
+				world.scheduleUpdate(pos, this, this.tickRate(world) + world.rand.nextInt(10));
+			}
+		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand)
 	{
 		if (rand.nextInt(24) == 0)
 		{
-			world.playSound(x + 0.5F, y + 0.5F, z + 0.5F, "fire.fire", 1.0F + rand.nextFloat(), rand.nextFloat() * 0.7F + 0.3F, false);
+			world.playSound(pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, "fire.fire", 1.0F + rand.nextFloat(), rand.nextFloat() * 0.7F + 0.3F, false);
 		}
-		if (!World.doesBlockHaveSolidTopSurface(world, x, y - 1, z) && !SiriusBBlocks.sirius_fire.canCatchFire(world, x, y - 1, z, ForgeDirection.UP))
+
+		int i;
+		double d0;
+		double d1;
+		double d2;
+
+		if (!World.doesBlockHaveSolidTopSurface(world, pos.down()) && !SiriusBBlocks.sirius_fire.canCatchFire(world, pos.down(), EnumFacing.UP))
 		{
-			if (SiriusBBlocks.sirius_fire.canCatchFire(world, x - 1, y, z, ForgeDirection.EAST))
+			if (SiriusBBlocks.sirius_fire.canCatchFire(world, pos.west(), EnumFacing.EAST))
 			{
-				for (int l = 0; l < 2; l++)
+				for (i = 0; i < 2; ++i)
 				{
-					float f = x + rand.nextFloat() * 0.1F;
-					float f1 = y + rand.nextFloat();
-					float f2 = z + rand.nextFloat();
-					world.spawnParticle("largesmoke", f, f1, f2, 0.0D, 0.0D, 0.0D);
+					d0 = pos.getX() + rand.nextDouble() * 0.10000000149011612D;
+					d1 = pos.getY() + rand.nextDouble();
+					d2 = pos.getZ() + rand.nextDouble();
+					world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, d0, d1, d2, 0.0D, 0.0D, 0.0D, new int[0]);
 				}
 			}
-			if (SiriusBBlocks.sirius_fire.canCatchFire(world, x + 1, y, z, ForgeDirection.WEST))
+
+			if (SiriusBBlocks.sirius_fire.canCatchFire(world, pos.east(), EnumFacing.WEST))
 			{
-				for (int l = 0; l < 2; l++)
+				for (i = 0; i < 2; ++i)
 				{
-					float f = x + 1 - rand.nextFloat() * 0.1F;
-					float f1 = y + rand.nextFloat();
-					float f2 = z + rand.nextFloat();
-					world.spawnParticle("largesmoke", f, f1, f2, 0.0D, 0.0D, 0.0D);
+					d0 = pos.getX() + 1 - rand.nextDouble() * 0.10000000149011612D;
+					d1 = pos.getY() + rand.nextDouble();
+					d2 = pos.getZ() + rand.nextDouble();
+					world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, d0, d1, d2, 0.0D, 0.0D, 0.0D, new int[0]);
 				}
 			}
-			if (SiriusBBlocks.sirius_fire.canCatchFire(world, x, y, z - 1, ForgeDirection.SOUTH))
+
+			if (SiriusBBlocks.sirius_fire.canCatchFire(world, pos.north(), EnumFacing.SOUTH))
 			{
-				for (int l = 0; l < 2; l++)
+				for (i = 0; i < 2; ++i)
 				{
-					float f = x + rand.nextFloat();
-					float f1 = y + rand.nextFloat();
-					float f2 = z + rand.nextFloat() * 0.1F;
-					world.spawnParticle("largesmoke", f, f1, f2, 0.0D, 0.0D, 0.0D);
+					d0 = pos.getX() + rand.nextDouble();
+					d1 = pos.getY() + rand.nextDouble();
+					d2 = pos.getZ() + rand.nextDouble() * 0.10000000149011612D;
+					world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, d0, d1, d2, 0.0D, 0.0D, 0.0D, new int[0]);
 				}
 			}
-			if (SiriusBBlocks.sirius_fire.canCatchFire(world, x, y, z + 1, ForgeDirection.NORTH))
+
+			if (SiriusBBlocks.sirius_fire.canCatchFire(world, pos.south(), EnumFacing.NORTH))
 			{
-				for (int l = 0; l < 2; l++)
+				for (i = 0; i < 2; ++i)
 				{
-					float f = x + rand.nextFloat();
-					float f1 = y + rand.nextFloat();
-					float f2 = z + 1 - rand.nextFloat() * 0.1F;
-					world.spawnParticle("largesmoke", f, f1, f2, 0.0D, 0.0D, 0.0D);
+					d0 = pos.getX() + rand.nextDouble();
+					d1 = pos.getY() + rand.nextDouble();
+					d2 = pos.getZ() + 1 - rand.nextDouble() * 0.10000000149011612D;
+					world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, d0, d1, d2, 0.0D, 0.0D, 0.0D, new int[0]);
 				}
 			}
-			if (SiriusBBlocks.sirius_fire.canCatchFire(world, x, y + 1, z, ForgeDirection.DOWN))
+
+			if (SiriusBBlocks.sirius_fire.canCatchFire(world, pos.up(), EnumFacing.DOWN))
 			{
-				for (int l = 0; l < 2; l++)
+				for (i = 0; i < 2; ++i)
 				{
-					float f = x + rand.nextFloat();
-					float f1 = y + 1 - rand.nextFloat() * 0.1F;
-					float f2 = z + rand.nextFloat();
-					world.spawnParticle("largesmoke", f, f1, f2, 0.0D, 0.0D, 0.0D);
+					d0 = pos.getX() + rand.nextDouble();
+					d1 = pos.getY() + 1 - rand.nextDouble() * 0.10000000149011612D;
+					d2 = pos.getZ() + rand.nextDouble();
+					world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, d0, d1, d2, 0.0D, 0.0D, 0.0D, new int[0]);
 				}
 			}
 		}
 		else
 		{
-			for (int l = 0; l < 3; l++)
+			for (i = 0; i < 3; ++i)
 			{
-				float f = x + rand.nextFloat();
-				float f3 = y + rand.nextFloat() * 0.5F + 0.5F;
-				float f2 = z + rand.nextFloat();
-				world.spawnParticle("largesmoke", f, f3, f2, 0.0D, 0.0D, 0.0D);
+				d0 = pos.getX() + rand.nextDouble();
+				d1 = pos.getY() + rand.nextDouble() * 0.5D + 0.5D;
+				d2 = pos.getZ() + rand.nextDouble();
+				world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, d0, d1, d2, 0.0D, 0.0D, 0.0D, new int[0]);
 			}
 		}
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
 	{
 		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isCreativeMode)
 		{
@@ -338,26 +355,32 @@ public class BlockSiriusFire extends BlockFire
 	}
 
 	@Override
-	public void registerBlockIcons(IIconRegister icon)
-	{
-		this.fireIcon = new IIcon[] {icon.registerIcon("siriusb:sirius_fire_0"), icon.registerIcon("siriusb:sirius_fire_1") };
-	}
-
-	@Override
-	public IIcon getFireIcon(int meta)
-	{
-		return this.fireIcon[0];
-	}
-
-	@Override
-	public IIcon getIcon(int side, int meta)
-	{
-		return this.fireIcon[0];
-	}
-
-	@Override
-	public MapColor getMapColor(int color)
+	public MapColor getMapColor(IBlockState state)
 	{
 		return MapColor.diamondColor;
+	}
+
+	@Override
+	public EnumWorldBlockLayer getBlockLayer()
+	{
+		return EnumWorldBlockLayer.CUTOUT;
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return this.getDefaultState().withProperty(AGE, Integer.valueOf(meta));
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return ((Integer)state.getValue(AGE)).intValue();
+	}
+
+	@Override
+	protected BlockState createBlockState()
+	{
+		return new BlockState(this, new IProperty[] {AGE, NORTH, EAST, SOUTH, WEST, UPPER, FLIP, ALT});
 	}
 }
